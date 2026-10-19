@@ -31,6 +31,17 @@ get_header();
 			</h1>
 		</header>
 
+		<?php
+		$exf_sep = isset( $_GET['separation'] ) ? sanitize_key( wp_unslash( $_GET['separation'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$exf_sep_messages = array(
+			'clear'   => __( 'Your new Ex File is open.', 'exfiles' ),
+			'review'  => __( "Thanks. We're running a routine check on your new Ex File and will email you as soon as it's done, usually within one working day.", 'exfiles' ),
+			'blocked' => __( "We're unable to act for you on this new matter. Your other Ex Files aren't affected. Please contact us if you have any questions.", 'exfiles' ),
+		);
+		?>
+		<?php if ( isset( $exf_sep_messages[ $exf_sep ] ) ) : ?>
+			<div class="notice-box" role="status"><p><?php echo esc_html( $exf_sep_messages[ $exf_sep ] ); ?></p></div>
+		<?php endif; ?>
 		<?php if ( $exf_replied ) : ?>
 			<div class="notice-box" role="status"><p><?php esc_html_e( "Thank you. We've received your reply and will be in touch shortly.", 'exfiles' ); ?></p></div>
 		<?php endif; ?>
@@ -53,8 +64,8 @@ get_header();
 			<div class="guide-card account-card">
 				<?php if ( EXF_STATUS_ACTIVE === $exf_status ) : ?>
 					<h3><?php esc_html_e( 'Your Ex File is open', 'exfiles' ); ?></h3>
-					<p><?php esc_html_e( 'You can now choose a service. Online booking and payment are coming soon; in the meantime, please get in touch and we’ll set it up for you.', 'exfiles' ); ?></p>
-					<p style="margin-top:20px"><a class="btn" href="<?php echo esc_url( home_url( '/#services' ) ); ?>"><?php esc_html_e( 'Our services', 'exfiles' ); ?></a></p>
+					<p><?php esc_html_e( 'Choose a service whenever you’re ready. Everything you book, and anything we send you, will appear here.', 'exfiles' ); ?></p>
+					<p style="margin-top:20px"><a class="btn" href="<?php echo esc_url( exf_page_url( 'buy' ) ); ?>"><?php esc_html_e( 'Choose a service', 'exfiles' ); ?></a></p>
 				<?php elseif ( EXF_STATUS_REVIEW === $exf_status ) : ?>
 					<h3><?php esc_html_e( "We're checking a few details", 'exfiles' ); ?></h3>
 					<p><?php esc_html_e( "Before we can act for you, we complete a routine check, which we do by hand for some new clients. This is usually done within one working day, and we'll email you as soon as it's finished.", 'exfiles' ); ?></p>
@@ -70,6 +81,34 @@ get_header();
 					<p class="eyebrow"><?php esc_html_e( 'Ex File', 'exfiles' ); ?></p>
 					<h2 class="account-file-title"><?php echo esc_html( trim( $exf_ex['first_name'] . ' ' . $exf_ex['last_name'] ) ); ?></h2>
 					<p class="account-file-status status-<?php echo esc_attr( $exf_fs ); ?>"><?php echo esc_html( exf_ex_file_client_label( $exf_fs ) ); ?></p>
+
+					<?php
+					$exf_orders = array_filter(
+						exf_client_orders( $exf_uid, $exf_id ),
+						function ( $o ) {
+							return in_array( exf_order_status( $o ), array( 'paid', 'confirmed', 'refunded' ), true );
+						}
+					);
+					?>
+					<?php if ( $exf_orders ) : ?>
+						<ul class="account-orders">
+							<?php foreach ( $exf_orders as $exf_o ) : ?>
+								<?php $exf_os = (int) get_post_meta( $exf_o, 'booking_start', true ); ?>
+								<li>
+									<strong><?php echo esc_html( (string) get_post_meta( $exf_o, 'service_name', true ) ); ?></strong>
+									<?php if ( $exf_os ) : ?>
+										— <?php echo esc_html( exf_booking_label( $exf_os, (int) get_post_meta( $exf_o, 'booking_end', true ) ) ); ?><?php echo $exf_os < time() ? ' ' . esc_html__( '(past)', 'exfiles' ) : ''; ?>
+									<?php endif; ?>
+									<?php if ( 'refunded' === exf_order_status( $exf_o ) ) : ?>
+										<em>(<?php esc_html_e( 'refunded', 'exfiles' ); ?>)</em>
+									<?php endif; ?>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+					<?php if ( 'clear' === $exf_fs && EXF_STATUS_ACTIVE === $exf_status ) : ?>
+						<p style="margin-top:18px"><a class="btn outline" href="<?php echo esc_url( add_query_arg( 'ex_file', $exf_id, exf_page_url( 'buy' ) ) ); ?>"><?php esc_html_e( 'Choose a service for this Ex File', 'exfiles' ); ?></a></p>
+					<?php endif; ?>
 
 					<?php if ( 'info_requested' === $exf_fs ) : ?>
 						<div class="reg-why">
@@ -106,6 +145,10 @@ get_header();
 					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
+
+			<?php if ( EXF_STATUS_ACTIVE === $exf_status ) : ?>
+				<p class="account-new-sep"><a href="<?php echo esc_url( add_query_arg( 'new_separation', 1, exf_page_url( 'buy' ) ) ); ?>"><?php esc_html_e( '+ Open an Ex File for a different separation', 'exfiles' ); ?></a></p>
+			<?php endif; ?>
 
 			<p class="account-links">
 				<?php echo esc_html( $exf_user->user_email ); ?>

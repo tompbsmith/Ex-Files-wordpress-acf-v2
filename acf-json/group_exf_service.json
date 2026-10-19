@@ -1,0 +1,264 @@
+{
+    "key": "group_exf_service",
+    "title": "Service settings",
+    "fields": [
+        {
+            "key": "field_exf_svc_service_type",
+            "label": "Which service is this?",
+            "name": "service_type",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Links the Free Divorce Guide's service interests to this page.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "34",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "know_your_position": "Know Your Position",
+                "check_your_deal": "Check Your Deal",
+                "make_it_legal": "Make It Legal",
+                "free_consultation": "Free consultation",
+                "other": "Other"
+            },
+            "default_value": "other",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_svc_is_free",
+            "label": "Free",
+            "name": "is_free",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "No payment taken.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "16",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": ""
+        },
+        {
+            "key": "field_exf_svc_price",
+            "label": "Price (£)",
+            "name": "price",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Leave empty to hide the Buy button.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "min": 0,
+            "step": "0.01",
+            "prepend": "£"
+        },
+        {
+            "key": "field_exf_svc_price_note",
+            "label": "Price note",
+            "name": "price_note",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Including VAT"
+        },
+        {
+            "key": "field_exf_svc_requires_booking",
+            "label": "Book an appointment",
+            "name": "requires_booking",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "The client chooses a time before paying.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": ""
+        },
+        {
+            "key": "field_exf_svc_appointment_minutes",
+            "label": "Appointment length",
+            "name": "appointment_minutes",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_requires_booking",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 60,
+            "min": 5,
+            "max": 480,
+            "step": 5,
+            "append": "minutes"
+        },
+        {
+            "key": "field_exf_svc_requires_questionnaire",
+            "label": "Needs the financial questionnaire",
+            "name": "requires_questionnaire",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 1,
+            "message": ""
+        },
+        {
+            "key": "field_exf_svc_deliverable",
+            "label": "What the client receives",
+            "name": "deliverable",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "appointment": "An appointment",
+                "report": "A written report",
+                "document": "A drafted legal document"
+            },
+            "default_value": "report",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_svc_intro",
+            "label": "Short description",
+            "name": "intro",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown at the top of the page and on the service list.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 2,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_svc_turnaround",
+            "label": "Turnaround",
+            "name": "turnaround",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Report within 5 working days of your questionnaire"
+        },
+        {
+            "key": "field_exf_svc_buy_label",
+            "label": "Button label",
+            "name": "buy_label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Book now / Get started"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-service.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1792450494
+}

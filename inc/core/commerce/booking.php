@@ -1,0 +1,403 @@
+<?php
+/**
+ * Appointment booking.
+ *
+ * Free slots come from the weekly availability in Ex Files → Settings → Bookings,
+ * minus: blocked dates, slots inside the minimum notice period, existing bookings,
+ * slots being held while someone pays, and busy times in the solicitor's calendar
+ * (read from its private iCal address, so no Google login is needed).
+ *
+ * Times are worked out in the site's time zone (Settings → General) and stored as
+ * Unix timestamps.
+ *
+ * @package exfiles
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+const EXF_HOLD_MINUTES = 30; // Matches Stripe's shortest checkout expiry.
+
+/**
+ * Booking settings with defaults.
+ */
+function exf_booking_settings() {
+	$availability = exf_setting( 'availability', array() );
+	if ( ! $availability ) {
+		// Default: weekdays 9:30–5pm.
+		$availability = array();
+		foreach ( array( 'mon', 'tue', 'wed', 'thu', 'fri' ) as $d ) {
+			$availability[] = array(
+				'day'   => $d,
+				'start' => '09:30',
+				'end'   => '17:00',
+			);
+		}
+	}
+	return array(
+		'availability' => $availability,
+		'notice_hours' => max( 0, (int) exf_setting( 'min_booking_notice_hours', 24 ) ),
+		'days_ahead'   => max( 1, (int) exf_setting( 'booking_days_ahead', 30 ) ),
+		'buffer'       => max( 0, (int) exf_setting( 'booking_buffer_minutes', 0 ) ),
+		'blocked'      => (string) exf_setting( 'blocked_dates', '' ),
+		'ical_url'     => trim( (string) exf_setting( 'calendar_ical_url', '' ) ),
+	);
+}
+
+/**
+ * Blocked dates as a set of Y-m-d strings. One per line; "date - date" for a range.
+ *
+ * @param string $text Setting text.
+ * @return array<string,bool>
+ */
+function exf_blocked_dates( $text ) {
+	$out = array();
+	foreach ( preg_split( '/\R/', $text ) as $line ) {
+		$parts = array_map( 'trim', preg_split( '/\s+(?:-|–|to)\s+/u', trim( $line ) ) );
+		$from  = exf_norm_dob( $parts[0] ?? '' );
+		$to    = exf_norm_dob( $parts[1] ?? '' );
+		if ( ! $from ) {
+			continue;
+		}
+		$to = $to && $to >= $from ? $to : $from;
+		for ( $d = $from; $d <= $to; $d = gmdate( 'Y-m-d', strtotime( $d . ' +1 day' ) ) ) {
+			$out[ $d ] = true;
+			if ( count( $out ) > 800 ) {
+				break 2;
+			}
+		}
+	}
+	return $out;
+}
+
+/**
+ * Free slots for an appointment length.
+ *
+ * @param int      $minutes      Appointment length.
+ * @param int|null $now          Current time (for tests).
+ * @param int      $ignore_order Order whose own hold shouldn't count.
+ * @return array<string,int[]> 'Y-m-d' => [ start timestamps ].
+ */
+function exf_available_slots( $minutes, $now = null, $ignore_order = 0 ) {
+	$minutes = max( 5, (int) $minutes );
+	$now     = $now ?? time();
+	$s       = exf_booking_settings();
+	$tz      = wp_timezone();
+	$blocked = exf_blocked_dates( $s['blocked'] );
+	$earliest = $now + $s['notice_hours'] * HOUR_IN_SECONDS;
+	$latest   = $now + $s['days_ahead'] * DAY_IN_SECONDS;
+	$busy     = exf_busy_periods( $now, $latest + DAY_IN_SECONDS, $ignore_order );
+	$buffer   = $s['buffer'] * MINUTE_IN_SECONDS;
+
+	$by_day = array();
+	foreach ( (array) $s['availability'] as $row ) {
+		$day = strtolower( substr( (string) ( $row['day'] ?? '' ), 0, 3 ) );
+		if ( preg_match( '/^\d{1,2}:\d{2}/', (string) ( $row['start'] ?? '' ) ) && preg_match( '/^\d{1,2}:\d{2}/', (string) ( $row['end'] ?? '' ) ) ) {
+			$by_day[ $day ][] = array( substr( $row['start'], 0, 5 ), substr( $row['end'], 0, 5 ) );
+		}
+	}
+
+	$slots = array();
+	$date  = new DateTimeImmutable( '@' . $now );
+	$date  = $date->setTimezone( $tz )->setTime( 0, 0 );
+	$end   = ( new DateTimeImmutable( '@' . $latest ) )->setTimezone( $tz );
+
+	while ( $date <= $end ) {
+		$ymd = $date->format( 'Y-m-d' );
+		$dow = strtolower( $date->format( 'D' ) );
+		if ( empty( $blocked[ $ymd ] ) && ! empty( $by_day[ $dow ] ) ) {
+			foreach ( $by_day[ $dow ] as $window ) {
+				list( $wh, $wm ) = array_map( 'intval', explode( ':', $window[0] ) );
+				list( $eh, $em ) = array_map( 'intval', explode( ':', $window[1] ) );
+				$start = $date->setTime( $wh, $wm )->getTimestamp();
+				$stop  = $date->setTime( $eh, $em )->getTimestamp();
+				for ( $t = $start; $t + $minutes * MINUTE_IN_SECONDS <= $stop; $t += $minutes * MINUTE_IN_SECONDS + $buffer ) {
+					if ( $t < $earliest || $t > $latest ) {
+						continue;
+					}
+					if ( ! exf_overlaps( $t - $buffer, $t + $minutes * MINUTE_IN_SECONDS + $buffer, $busy ) ) {
+						$slots[ $ymd ][] = $t;
+					}
+				}
+			}
+		}
+		$date = $date->modify( '+1 day' );
+	}
+	return $slots;
+}
+
+/**
+ * Whether a period overlaps any busy period.
+ *
+ * @param int     $start Start.
+ * @param int     $end   End.
+ * @param int[][] $busy  [ [start, end], … ].
+ */
+function exf_overlaps( $start, $end, array $busy ) {
+	foreach ( $busy as $b ) {
+		if ( $start < $b[1] && $end > $b[0] ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Whether a slot is still free (re-checked just before booking).
+ *
+ * @param int $start        Start timestamp.
+ * @param int $minutes      Length.
+ * @param int $ignore_order Order whose own hold shouldn't count.
+ */
+function exf_slot_is_free( $start, $minutes, $ignore_order = 0 ) {
+	$slots = exf_available_slots( $minutes, null, $ignore_order );
+	return in_array( (int) $start, $slots[ wp_date( 'Y-m-d', $start ) ] ?? array(), true );
+}
+
+/**
+ * Busy periods: confirmed bookings, live holds, and the solicitor's calendar.
+ *
+ * @param int $from   From timestamp.
+ * @param int $to     To timestamp.
+ * @param int $ignore Order to leave out.
+ * @return int[][]
+ */
+function exf_busy_periods( $from, $to, $ignore = 0 ) {
+	$busy = exf_calendar_busy( $from, $to );
+
+	$orders = get_posts(
+		array(
+			'post_type'      => 'exf_order',
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'     => 'booking_start',
+					'value'   => array( $from - DAY_IN_SECONDS, $to ),
+					'compare' => 'BETWEEN',
+					'type'    => 'NUMERIC',
+				),
+			),
+		)
+	);
+	foreach ( $orders as $oid ) {
+		if ( (int) $oid === (int) $ignore ) {
+			continue;
+		}
+		$status = (string) get_post_meta( $oid, 'order_status', true );
+		$hold   = (int) get_post_meta( $oid, 'hold_expires', true );
+		if ( in_array( $status, array( 'paid', 'confirmed' ), true ) || ( 'pending' === $status && $hold > time() ) ) {
+			$busy[] = array( (int) get_post_meta( $oid, 'booking_start', true ), (int) get_post_meta( $oid, 'booking_end', true ) );
+		}
+	}
+	return $busy;
+}
+
+/**
+ * Busy periods from the solicitor's calendar (private iCal address), cached for 10 minutes.
+ *
+ * Transparent ("free") events and cancelled events are ignored; recurring events
+ * are expanded. If the calendar can't be read, the last good copy is used, and
+ * nothing is blocked if there has never been one (an admin notice says so).
+ *
+ * @param int $from From.
+ * @param int $to   To.
+ * @return int[][]
+ */
+function exf_calendar_busy( $from, $to ) {
+	$url = exf_booking_settings()['ical_url'];
+	if ( ! $url ) {
+		return array();
+	}
+	$cache_key = 'exf_ical_' . md5( $url );
+	$ics       = get_transient( $cache_key );
+
+	if ( false === $ics ) {
+		$res = wp_remote_get(
+			$url,
+			array(
+				'timeout'     => 10,
+				'redirection' => 3,
+			)
+		);
+		if ( ! is_wp_error( $res ) && 200 === wp_remote_retrieve_response_code( $res ) && false !== strpos( wp_remote_retrieve_body( $res ), 'BEGIN:VCALENDAR' ) ) {
+			$ics = wp_remote_retrieve_body( $res );
+			update_option( 'exf_ical_last_good', $ics, false );
+			delete_option( 'exf_ical_error' );
+		} else {
+			$ics = (string) get_option( 'exf_ical_last_good', '' );
+			update_option( 'exf_ical_error', time(), false );
+		}
+		set_transient( $cache_key, $ics, 10 * MINUTE_IN_SECONDS );
+	}
+	return exf_parse_ical_busy( (string) $ics, $from, $to );
+}
+
+/**
+ * Busy periods from iCal text.
+ *
+ * @param string $ics  Calendar.
+ * @param int    $from From.
+ * @param int    $to   To.
+ * @return int[][]
+ */
+function exf_parse_ical_busy( $ics, $from, $to ) {
+	if ( '' === $ics || ! class_exists( '\Sabre\VObject\Reader' ) ) {
+		return array();
+	}
+	try {
+		$cal = \Sabre\VObject\Reader::read( $ics, \Sabre\VObject\Reader::OPTION_FORGIVING );
+		$cal = $cal->expand( new DateTime( '@' . $from ), new DateTime( '@' . $to ), wp_timezone() );
+	} catch ( \Throwable $e ) {
+		return array();
+	}
+
+	$busy = array();
+	foreach ( $cal->select( 'VEVENT' ) as $event ) {
+		if ( isset( $event->TRANSP ) && 'TRANSPARENT' === strtoupper( (string) $event->TRANSP ) ) {
+			continue;
+		}
+		if ( isset( $event->STATUS ) && 'CANCELLED' === strtoupper( (string) $event->STATUS ) ) {
+			continue;
+		}
+		if ( ! isset( $event->DTSTART ) ) {
+			continue;
+		}
+		$start = $event->DTSTART->getDateTime( wp_timezone() )->getTimestamp();
+		if ( isset( $event->DTEND ) ) {
+			$end = $event->DTEND->getDateTime( wp_timezone() )->getTimestamp();
+		} elseif ( ! $event->DTSTART->hasTime() ) {
+			$end = $start + DAY_IN_SECONDS;
+		} else {
+			$end = $start;
+		}
+		if ( $end > $start ) {
+			$busy[] = array( $start, $end );
+		}
+	}
+	return $busy;
+}
+
+/* -------------------------------------------------------------------------
+ * A simple lock, so two people can't book the same slot at the same moment
+ * ---------------------------------------------------------------------- */
+
+/**
+ * Take a lock. add_option() is atomic (the option name is unique), so only one
+ * request can create it.
+ *
+ * @param string $name Lock name.
+ * @param int    $ttl  Seconds before a stuck lock is ignored.
+ */
+function exf_lock( $name, $ttl = 30 ) {
+	$key = 'exf_lock_' . $name;
+	for ( $i = 0; $i < 25; $i++ ) {
+		if ( add_option( $key, time() + $ttl, '', 'no' ) ) {
+			return true;
+		}
+		$expires = (int) get_option( $key );
+		if ( $expires && $expires < time() ) {
+			delete_option( $key );
+			continue;
+		}
+		usleep( 200000 );
+		wp_cache_delete( $key, 'options' );
+		wp_cache_delete( 'notoptions', 'options' );
+	}
+	return false;
+}
+
+/**
+ * Release a lock.
+ *
+ * @param string $name Lock name.
+ */
+function exf_unlock( $name ) {
+	delete_option( 'exf_lock_' . $name );
+}
+
+/* -------------------------------------------------------------------------
+ * Calendar invites
+ * ---------------------------------------------------------------------- */
+
+/**
+ * An .ics invite for a booking.
+ *
+ * @param int $order_id Order.
+ * @return string
+ */
+function exf_booking_ics( $order_id ) {
+	$start   = (int) get_post_meta( $order_id, 'booking_start', true );
+	$end     = (int) get_post_meta( $order_id, 'booking_end', true );
+	$client  = get_userdata( (int) get_post_meta( $order_id, 'client_id', true ) );
+	$service = (string) get_post_meta( $order_id, 'service_name', true );
+	$org     = exf_notify_emails()[0];
+	$details = (string) exf_setting( 'meeting_details', '' );
+	$host    = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+	$fmt     = function ( $ts ) {
+		return gmdate( 'Ymd\THis\Z', $ts );
+	};
+	$esc     = function ( $text ) {
+		return str_replace( array( '\\', ';', ',', "\r\n", "\n" ), array( '\\\\', '\;', '\,', '\n', '\n' ), (string) $text );
+	};
+	$who     = $client ? $client->display_name : '';
+	$lines   = array(
+		'BEGIN:VCALENDAR',
+		'VERSION:2.0',
+		'PRODID:-//The Ex Files//Bookings//EN',
+		'METHOD:REQUEST',
+		'BEGIN:VEVENT',
+		'UID:exf-order-' . $order_id . '@' . $host,
+		'DTSTAMP:' . $fmt( time() ),
+		'DTSTART:' . $fmt( $start ),
+		'DTEND:' . $fmt( $end ),
+		'SUMMARY:' . $esc( $service . ( $who ? ' – ' . $who : '' ) ),
+		'DESCRIPTION:' . $esc( trim( $service . "\n\n" . $details ) ),
+		'ORGANIZER;CN=' . $esc( exf_site_name() ) . ':mailto:' . $org,
+	);
+	if ( $client ) {
+		$lines[] = 'ATTENDEE;CN=' . $esc( $who ) . ';ROLE=REQ-PARTICIPANT;RSVP=TRUE:mailto:' . $client->user_email;
+	}
+	$lines[] = 'STATUS:CONFIRMED';
+	$lines[] = 'END:VEVENT';
+	$lines[] = 'END:VCALENDAR';
+
+	// Fold long lines at 74 octets, as the standard asks.
+	$out = array();
+	foreach ( $lines as $line ) {
+		while ( strlen( $line ) > 74 ) {
+			$cut   = mb_strcut( $line, 0, 74, 'UTF-8' );
+			$out[] = $cut;
+			$line  = ' ' . substr( $line, strlen( $cut ) );
+		}
+		$out[] = $line;
+	}
+	return implode( "\r\n", $out ) . "\r\n";
+}
+
+/**
+ * Human date and time for a booking, in the site's time zone.
+ *
+ * @param int $start Start.
+ * @param int $end   End.
+ */
+function exf_booking_label( $start, $end = 0 ) {
+	$label = wp_date( 'l j F Y, g:ia', $start );
+	return $end ? $label . '–' . wp_date( 'g:ia', $end ) : $label;
+}
+
+// Admin warning when the calendar couldn't be read recently.
+add_action(
+	'admin_notices',
+	function () {
+		$err = (int) get_option( 'exf_ical_error' );
+		if ( ! $err || $err < time() - DAY_IN_SECONDS || ! exf_user_can_manage() ) {
+			return;
+		}
+		$screen = get_current_screen();
+		if ( ! $screen || false === strpos( (string) $screen->id, 'exf-' ) && 'dashboard' !== $screen->id ) {
+			return;
+		}
+		echo '<div class="notice notice-warning"><p>' . esc_html__( "The booking calendar couldn't read your Google Calendar recently, so busy times may be out of date. Check the calendar address in Ex Files → Settings → Bookings.", 'exfiles' ) . '</p></div>';
+	}
+);

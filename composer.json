@@ -4,18 +4,58 @@
   "type": "wordpress-theme",
   "license": "proprietary",
   "require": {
-    "dompdf/dompdf": "3.1.*"
+    "dompdf/dompdf": "3.1.*",
+    "sabre/vobject": "^4.5"
   },
   "config": {
-    "platform": { "php": "7.4.33" },
+    "platform": {
+      "php": "7.4.33"
+    },
     "optimize-autoloader": true
   },
   "repositories": [
-    { "packagist.org": false },
-    { "type": "vcs", "url": "https://github.com/dompdf/dompdf", "no-api": true },
-    { "type": "vcs", "url": "https://github.com/dompdf/php-font-lib", "no-api": true },
-    { "type": "vcs", "url": "https://github.com/dompdf/php-svg-lib", "no-api": true },
-    { "type": "vcs", "url": "https://github.com/Masterminds/html5-php", "no-api": true },
-    { "type": "vcs", "url": "https://github.com/MyIntervals/PHP-CSS-Parser", "no-api": true }
+    {
+      "packagist.org": false
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/dompdf/dompdf",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/dompdf/php-font-lib",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/dompdf/php-svg-lib",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/Masterminds/html5-php",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/MyIntervals/PHP-CSS-Parser",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/sabre-io/vobject",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/sabre-io/xml",
+      "no-api": true
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/sabre-io/uri",
+      "no-api": true
+    }
   ]
 }

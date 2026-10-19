@@ -8,4 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     '0174385c3be07e86008907d06ee66531' => $vendorDir . '/sabberworm/php-css-parser/src/Rule/Rule.php',
     '98aea6e41b9cb79b379b10f37ba1f0b7' => $vendorDir . '/sabberworm/php-css-parser/src/RuleSet/RuleContainer.php',
+    '383eaff206634a77a1be54e64e6459c7' => $vendorDir . '/sabre/uri/lib/functions.php',
+    '3569eecfeed3bcf0bad3c998a494ecb8' => $vendorDir . '/sabre/xml/lib/Deserializer/functions.php',
+    '93aa591bc4ca510c520999e34229ee79' => $vendorDir . '/sabre/xml/lib/Serializer/functions.php',
 );

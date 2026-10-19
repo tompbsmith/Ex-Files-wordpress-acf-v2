@@ -117,7 +117,7 @@
             "name": "min_booking_notice_hours",
             "aria-label": "",
             "type": "number",
-            "instructions": "Know Your Position appointments can't be booked closer than this. Used once booking is built.",
+            "instructions": "Appointments can't be booked closer than this.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -129,6 +129,186 @@
             "min": 0,
             "step": 1,
             "append": "hours"
+        },
+        {
+            "key": "field_exf_set_availability",
+            "label": "When you're available",
+            "name": "availability",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "Add a row per block of time. Several rows for one day are fine (e.g. a lunch break). Leave empty to use weekdays 9:30am–5pm.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add time",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_exf_set_av_day",
+                    "label": "Day",
+                    "name": "day",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "mon": "Monday",
+                        "tue": "Tuesday",
+                        "wed": "Wednesday",
+                        "thu": "Thursday",
+                        "fri": "Friday",
+                        "sat": "Saturday",
+                        "sun": "Sunday"
+                    },
+                    "default_value": "mon",
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "parent_repeater": "field_exf_set_availability"
+                },
+                {
+                    "key": "field_exf_set_av_start",
+                    "label": "From",
+                    "name": "start",
+                    "aria-label": "",
+                    "type": "time_picker",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "display_format": "g:i a",
+                    "return_format": "H:i",
+                    "parent_repeater": "field_exf_set_availability"
+                },
+                {
+                    "key": "field_exf_set_av_end",
+                    "label": "Until",
+                    "name": "end",
+                    "aria-label": "",
+                    "type": "time_picker",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "display_format": "g:i a",
+                    "return_format": "H:i",
+                    "parent_repeater": "field_exf_set_availability"
+                }
+            ]
+        },
+        {
+            "key": "field_exf_set_days_ahead",
+            "label": "How far ahead clients can book",
+            "name": "booking_days_ahead",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 30,
+            "min": 1,
+            "max": 365,
+            "append": "days"
+        },
+        {
+            "key": "field_exf_set_buffer",
+            "label": "Gap between appointments",
+            "name": "booking_buffer_minutes",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 0,
+            "min": 0,
+            "max": 120,
+            "step": 5,
+            "append": "minutes"
+        },
+        {
+            "key": "field_exf_set_blocked",
+            "label": "Dates you're not available",
+            "name": "blocked_dates",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "One per line, as DD/MM/YYYY. For a range: 22/12/2026 - 02/01/2027. Anything already in your Google Calendar (below) is blocked automatically.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 4,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_set_ical",
+            "label": "Your Google Calendar's secret address (iCal)",
+            "name": "calendar_ical_url",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "So clients can't book times you're busy. In Google Calendar: Settings → your calendar → Integrate calendar → Secret address in iCal format. Keep it private. Events marked “Free” are ignored.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_set_meeting",
+            "label": "Appointment details for clients",
+            "name": "meeting_details",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Included in booking confirmations and reminders, e.g. how the video call works or your office address.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
         },
         {
             "key": "field_exf_set_tab_pages",
@@ -174,6 +354,164 @@
             "ui": 0,
             "ajax": 0,
             "placeholder": ""
+        },
+        {
+            "key": "field_exf_set_tab_payments",
+            "label": "Payments",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_set_stripe_help",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "Payments go through Stripe Checkout. In your Stripe dashboard (Developers → Webhooks) add an endpoint at {webhook_url} for these events: <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>checkout.session.expired</code>, <code>charge.refunded</code>. Then paste its signing secret below. On the live site it's safer to put the keys in wp-config.php instead (EXF_STRIPE_SECRET_KEY and EXF_STRIPE_WEBHOOK_SECRET), which overrides these fields.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_exf_set_stripe_mode",
+            "label": "Mode",
+            "name": "stripe_mode",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "test": "Test (no real payments)",
+                "live": "Live"
+            },
+            "default_value": "test",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_set_stripe_test_sk",
+            "label": "Test secret key",
+            "name": "stripe_test_secret_key",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_set_stripe_mode",
+                        "operator": "==",
+                        "value": "test"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "sk_test_…"
+        },
+        {
+            "key": "field_exf_set_stripe_test_wh",
+            "label": "Test webhook signing secret",
+            "name": "stripe_test_webhook_secret",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_set_stripe_mode",
+                        "operator": "==",
+                        "value": "test"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "whsec_…"
+        },
+        {
+            "key": "field_exf_set_stripe_live_sk",
+            "label": "Live secret key",
+            "name": "stripe_live_secret_key",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_set_stripe_mode",
+                        "operator": "==",
+                        "value": "live"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "sk_live_…"
+        },
+        {
+            "key": "field_exf_set_stripe_live_wh",
+            "label": "Live webhook signing secret",
+            "name": "stripe_live_webhook_secret",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_set_stripe_mode",
+                        "operator": "==",
+                        "value": "live"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "whsec_…"
         }
     ],
     "location": [
@@ -194,5 +532,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792449750
+    "modified": 1792450494
 }

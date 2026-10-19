@@ -65,6 +65,8 @@ Everything beyond the marketing pages lives in `inc/core/`. It's kept separate f
 - **Your guide is on its way** (`/free-divorce-guide/sent/`, template *Divorce Guide Sent*)
 - **Open your Ex File** (`/open-your-ex-file/`, template *Open Your Ex File*): registration
 - **My Ex File** (`/my-ex-file/`, template *My Ex File (account)*): the client's account page
+- **Choose your service** (`/my-ex-file/buy/`, template *Buy a Service*): checkout
+- **Our services** (`/services/`, a Sections page) and one page per service under it (template *Service*): Know Your Position, Check Your Deal, Make It Legal, Free 15-minute consultation
 
 Pages are found by their template, so they can be renamed or moved.
 
@@ -114,13 +116,25 @@ The weights are constants at the top of `conflict.php`, to be tuned with the cli
 
 **Login:** clients log in at the normal WordPress login (branded), and go to My Ex File afterwards. They're kept out of wp-admin. In the portal phase this moves to WooCommerce's account area at the same URL.
 
+### Services, payments and booking
+
+**Services** are pages using the *Service* template. Each has **Service settings**: price (or free), whether it needs an appointment and how long, whether it needs the financial questionnaire, what the client receives, a short description, and the button label. Below that, the page uses the same Page Builder sections as the homepage. New service pages are created **without a price**, and their Buy button stays hidden until one is set. A notice in the admin lists any services without a price.
+
+**Buying** (`inc/core/commerce/buy.php`, `page-buy.php`): a logged-out visitor clicking Book/Get started goes to registration first, and the service is remembered. A logged-in client chooses **which Ex File** it's for (or adds **a new separation**, which runs the conflict check on its own; only that Ex File is affected), chooses a time if the service has an appointment, and pays on **Stripe Checkout**. Free services are confirmed without payment. Clients under review can't buy.
+
+**Payments** (`inc/core/commerce/stripe.php`): Stripe Checkout Sessions created with the API directly (no plugin). Keys and the webhook secret go in **Ex Files → Settings → Payments**, or better, as `EXF_STRIPE_SECRET_KEY` and `EXF_STRIPE_WEBHOOK_SECRET` in `wp-config.php` on the live site. The webhook URL is shown on that settings tab. A payment is confirmed by the signed webhook or by the return page checking the session, whichever comes first, and it's only processed once. Refunds are done in the Stripe dashboard, and the order is marked refunded through the webhook.
+
+**Orders** (Ex Files → Orders) record the client, Ex File, service, amount, appointment and a history. Paying creates the client's questionnaire as a to-do (the form itself comes in phase 6), and sends confirmation emails to the client and to you, with a calendar invite when there's an appointment.
+
+**Booking** (`inc/core/commerce/booking.php`): set your weekly availability, how far ahead clients can book, the gap between appointments, dates you're away, and the minimum notice (default 24 hours) in **Ex Files → Settings → Bookings**. Paste your Google Calendar's **secret iCal address** there too, and busy times in your calendar (including recurring events) are never offered. Events marked "Free" are ignored. A chosen time is held for 30 minutes while the client pays. Bookings are checked again under a lock just before the order is created, so two people can't book the same time. Clients get a reminder email about 24 hours before.
+
 ### Private files
 
 Client files go in `wp-content/uploads/exfiles-private/`, which has an `.htaccess` that blocks direct access on Apache. **On Nginx hosts, also add a rule denying web access to that folder.** Files are only served through PHP after a permission or token check (`inc/core/storage.php`).
 
 ### PDF library
 
-`vendor/` holds Dompdf and its dependencies. It's committed because the deploy doesn't run Composer. To update it, run `composer update` (`composer.json` points at the packages' GitHub repositories), then commit `vendor/`.
+`vendor/` holds Dompdf and its dependencies. It's committed because the deploy doesn't run Composer. It also holds sabre/vobject, for reading calendars. To update them, run `composer update` (`composer.json` points at the packages' GitHub repositories), then commit `vendor/`.
 
 ## Developing
 

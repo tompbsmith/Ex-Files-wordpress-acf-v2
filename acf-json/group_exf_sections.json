@@ -1373,7 +1373,7 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "message": "Enquiries are emailed to the address set under <strong>Site Settings → Contact form<\/strong>.",
+                            "message": "Enquiries are emailed to the address set under <strong>Site Settings → Contact form</strong>.",
                             "new_lines": "",
                             "esc_html": 0
                         },
@@ -1561,7 +1561,7 @@
                                 "class": "",
                                 "id": ""
                             },
-                            "message": "Enquiries are emailed to the address set under <strong>Site Settings → Contact form<\/strong>.",
+                            "message": "Enquiries are emailed to the address set under <strong>Site Settings → Contact form</strong>.",
                             "new_lines": "",
                             "esc_html": 0
                         },
@@ -1649,6 +1649,13 @@
                 "operator": "==",
                 "value": "page-sections.php"
             }
+        ],
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-service.php"
+            }
         ]
     ],
     "menu_order": 0,
@@ -1669,5 +1676,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1792255226
+    "modified": 1792450494
 }

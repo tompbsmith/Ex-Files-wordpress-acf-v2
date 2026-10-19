@@ -419,6 +419,156 @@
             },
             "rows": 10,
             "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_order_confirmed",
+            "label": "Order / booking confirmed",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_order_confirmed_subject",
+            "label": "Subject",
+            "name": "order_confirmed_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {service}, {amount}, {appointment}, {meeting_details}, {next_steps}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_order_confirmed_body",
+            "label": "Message",
+            "name": "order_confirmed_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_booking_reminder",
+            "label": "Appointment reminder",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_booking_reminder_subject",
+            "label": "Subject",
+            "name": "booking_reminder_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {service}, {appointment}, {meeting_details}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_booking_reminder_body",
+            "label": "Message",
+            "name": "booking_reminder_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_order",
+            "label": "To you: new order",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_order_subject",
+            "label": "Subject",
+            "name": "admin_order_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {service}, {amount}, {appointment}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_order_body",
+            "label": "Message",
+            "name": "admin_order_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
         }
     ],
     "location": [
@@ -439,5 +589,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792448503
+    "modified": 1792450494
 }

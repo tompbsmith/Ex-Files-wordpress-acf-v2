@@ -10,16 +10,26 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The functional pages the site needs: key => [template, default title, default slug, parent key].
+ * The pages the site needs: key => [ template, default title, default slug, parent key, how it's found ].
+ *
+ * Most are found by their template, so they can be renamed or moved freely. Pages
+ * that share a template (Sections pages, service pages) are remembered by ID instead
+ * ("option": stored as exf_page_{key}).
  */
 function exf_required_pages() {
-	return array(
-		'guide_landing' => array( 'page-sections.php', __( 'Free Divorce Guide', 'exfiles' ), 'free-divorce-guide', '' ),
-		'guide_form'    => array( 'page-guide-form.php', __( 'Get your free guide', 'exfiles' ), 'start', 'guide_landing' ),
-		'guide_sent'    => array( 'page-guide-sent.php', __( 'Your guide is on its way', 'exfiles' ), 'sent', 'guide_landing' ),
-		'register'      => array( 'page-register.php', __( 'Open your Ex File', 'exfiles' ), 'open-your-ex-file', '' ),
-		'account'       => array( 'page-account.php', __( 'My Ex File', 'exfiles' ), 'my-ex-file', '' ),
+	$pages = array(
+		'guide_landing' => array( 'page-sections.php', __( 'Free Divorce Guide', 'exfiles' ), 'free-divorce-guide', '', 'option' ),
+		'guide_form'    => array( 'page-guide-form.php', __( 'Get your free guide', 'exfiles' ), 'start', 'guide_landing', 'template' ),
+		'guide_sent'    => array( 'page-guide-sent.php', __( 'Your guide is on its way', 'exfiles' ), 'sent', 'guide_landing', 'template' ),
+		'register'      => array( 'page-register.php', __( 'Open your Ex File', 'exfiles' ), 'open-your-ex-file', '', 'template' ),
+		'account'       => array( 'page-account.php', __( 'My Ex File', 'exfiles' ), 'my-ex-file', '', 'template' ),
+		'buy'           => array( 'page-buy.php', __( 'Choose your service', 'exfiles' ), 'buy', 'account', 'template' ),
+		'services'      => array( 'page-sections.php', __( 'Our services', 'exfiles' ), 'services', '', 'option' ),
 	);
+	foreach ( exf_default_services() as $key => $svc ) {
+		$pages[ $key ] = array( 'page-service.php', $svc[0], $svc[1], 'services', 'option' );
+	}
+	return $pages;
 }
 
 /**
@@ -51,50 +61,59 @@ function exf_page_id_by_template( $template ) {
 }
 
 /**
- * URL of a functional page.
+ * ID of one of the required pages, or 0 if it doesn't exist (or is in the Bin).
+ *
+ * @param string $key Key from exf_required_pages().
+ */
+function exf_page_id( $key ) {
+	$pages = exf_required_pages();
+	if ( ! isset( $pages[ $key ] ) ) {
+		return 0;
+	}
+	if ( 'option' === $pages[ $key ][4] ) {
+		$id = (int) get_option( 'exf_page_' . $key );
+		return $id && in_array( get_post_status( $id ), array( 'publish', 'draft', 'private', 'pending' ), true ) ? $id : 0;
+	}
+	return exf_page_id_by_template( $pages[ $key ][0] );
+}
+
+/**
+ * URL of one of the required pages.
  *
  * @param string $key Key from exf_required_pages().
  */
 function exf_page_url( $key ) {
-	$pages = exf_required_pages();
-	if ( 'guide_landing' === $key ) {
-		$id = (int) get_option( 'exf_page_guide_landing' );
-		return $id && 'publish' === get_post_status( $id ) ? get_permalink( $id ) : home_url( '/free-divorce-guide/' );
+	$id = exf_page_id( $key );
+	if ( $id && 'publish' === get_post_status( $id ) ) {
+		return get_permalink( $id );
 	}
-	$id = isset( $pages[ $key ] ) ? exf_page_id_by_template( $pages[ $key ][0] ) : 0;
-	return $id ? get_permalink( $id ) : home_url( '/' );
+	$pages = exf_required_pages();
+	return isset( $pages[ $key ] ) && 'option' === $pages[ $key ][4] ? home_url( '/' . $pages[ $key ][2] . '/' ) : home_url( '/' );
 }
 
 /**
- * Create any functional pages that are missing. Existing pages are left alone.
+ * Create any required pages that are missing. Existing pages are left alone.
  *
  * @return string[] Titles of the pages created.
  */
 function exf_create_missing_pages() {
-	$created     = array();
-	$ids         = array();
-	$new_landing = 0;
+	$created = array();
+	$new     = array();
 
 	foreach ( exf_required_pages() as $key => $page ) {
-		list( $template, $title, $slug, $parent_key ) = $page;
+		list( $template, $title, $slug, $parent_key, $by ) = $page;
 
-		if ( 'guide_landing' === $key ) {
-			// The landing page is an ordinary Sections page, so remember it by ID.
-			$existing = (int) get_option( 'exf_page_guide_landing' );
-			if ( $existing && get_post( $existing ) ) {
-				$ids[ $key ] = $existing;
-				continue;
-			}
-			$by_path = get_page_by_path( $slug );
-			if ( $by_path ) {
-				$ids[ $key ] = $by_path->ID;
-				update_option( 'exf_page_guide_landing', $by_path->ID, false );
-				continue;
-			}
-		} else {
-			$existing = exf_page_id_by_template( $template );
-			if ( $existing ) {
-				$ids[ $key ] = $existing;
+		if ( exf_page_id( $key ) ) {
+			continue;
+		}
+		$parent = $parent_key ? exf_page_id( $parent_key ) : 0;
+
+		// A page remembered by ID may already exist at the expected address (e.g. made by hand).
+		if ( 'option' === $by ) {
+			$path    = $parent ? get_page_uri( $parent ) . '/' . $slug : $slug;
+			$by_path = get_page_by_path( $path );
+			if ( $by_path && ( 'page-service.php' !== $template || 'page-service.php' === get_page_template_slug( $by_path->ID ) ) ) {
+				update_option( 'exf_page_' . $key, $by_path->ID, false );
 				continue;
 			}
 		}
@@ -105,7 +124,7 @@ function exf_create_missing_pages() {
 				'post_status' => 'publish',
 				'post_title'  => $title,
 				'post_name'   => $slug,
-				'post_parent' => ( $parent_key && ! empty( $ids[ $parent_key ] ) ) ? $ids[ $parent_key ] : 0,
+				'post_parent' => $parent,
 			),
 			true
 		);
@@ -113,21 +132,42 @@ function exf_create_missing_pages() {
 			continue;
 		}
 		update_post_meta( $id, '_wp_page_template', $template );
-		if ( 'guide_landing' === $key ) {
-			update_option( 'exf_page_guide_landing', $id, false );
-			$new_landing = $id;
+		if ( 'option' === $by ) {
+			update_option( 'exf_page_' . $key, $id, false );
 		}
-		$ids[ $key ] = $id;
-		$created[]   = $title;
 		wp_cache_delete( 'tpl_' . $template, 'exf_pages' );
+		$new[ $key ] = $id;
+		$created[]   = $title;
 	}
 
-	// After the loop, so the card button can link to the form page.
-	if ( $new_landing ) {
-		exf_seed_guide_landing_sections( $new_landing );
+	// Content for new pages, once all of them exist (so links between them work).
+	if ( isset( $new['guide_landing'] ) ) {
+		exf_seed_guide_landing_sections( $new['guide_landing'] );
+	}
+	foreach ( exf_default_services() as $key => $svc ) {
+		if ( isset( $new[ $key ] ) ) {
+			exf_seed_service_page( $new[ $key ], $svc[2] );
+		}
 	}
 
 	return $created;
+}
+
+/**
+ * Fill a new service page's Service settings. Prices are left empty on purpose:
+ * the client sets them, and the Buy button stays hidden until they do.
+ *
+ * @param int   $page_id  Page.
+ * @param array $settings Field name => value.
+ */
+function exf_seed_service_page( $page_id, array $settings ) {
+	foreach ( $settings as $name => $value ) {
+		if ( function_exists( 'update_field' ) ) {
+			update_field( 'field_exf_svc_' . $name, $value, $page_id );
+		} else {
+			update_post_meta( $page_id, $name, $value );
+		}
+	}
 }
 
 /**
@@ -224,8 +264,7 @@ function exf_is_test_site() {
 function exf_missing_pages() {
 	$missing = array();
 	foreach ( exf_required_pages() as $key => $page ) {
-		$id = 'guide_landing' === $key ? (int) get_option( 'exf_page_guide_landing' ) : exf_page_id_by_template( $page[0] );
-		if ( ! $id || ! get_post( $id ) ) {
+		if ( ! exf_page_id( $key ) ) {
 			$missing[] = $page[1];
 		}
 	}

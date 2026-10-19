@@ -66,6 +66,18 @@ function exf_email_defaults() {
 			'Account blocked by conflict check: {client_name}',
 			"The conflict check blocked a new Ex File automatically.\n\nClient: {client_name}\nEx: {ex_name}\nScore: {score}\n\nThe client was told only that you're unable to act. If this is a false match, you can clear it here:\n{admin_link}",
 		),
+		'order_confirmed'  => array(
+			'Confirmed: {service}',
+			"Hello {first_name},\n\nThank you. Here are the details:\n\nService: {service}\nAmount: {amount}\nAppointment: {appointment}\n\n{meeting_details}\n\n{next_steps}\n\nYou can see everything in your Ex File:\n{link}\n\nStripe will email you a separate receipt for any payment.\n\nBest wishes,\nThe Ex Files",
+		),
+		'booking_reminder' => array(
+			'Reminder: your appointment tomorrow',
+			"Hello {first_name},\n\nA reminder that your {service} appointment is on {appointment}.\n\n{meeting_details}\n\nIf you need to change it, please reply to this email.\n\nBest wishes,\nThe Ex Files",
+		),
+		'admin_order'      => array(
+			'New order: {service} for {client_name}',
+			"{client_name} has ordered {service} ({amount}).\n\nEx File: {client_name} / {ex_name}\nAppointment: {appointment}\n\nOrder details:\n{admin_link}",
+		),
 		'admin_info'     => array(
 			'More information received: {client_name}',
 			"{client_name} has replied to your request for more information, and the conflict check has been run again (score {score}).\n\nReview it here:\n{admin_link}",

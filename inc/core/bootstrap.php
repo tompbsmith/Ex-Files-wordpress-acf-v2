@@ -44,3 +44,9 @@ require EXF_CORE_DIR . '/accounts/register.php';
 require EXF_CORE_DIR . '/accounts/account.php';
 require EXF_CORE_DIR . '/accounts/review.php';
 require EXF_CORE_DIR . '/accounts/front.php';
+
+require EXF_CORE_DIR . '/commerce/services.php';
+require EXF_CORE_DIR . '/commerce/booking.php';
+require EXF_CORE_DIR . '/commerce/stripe.php';
+require EXF_CORE_DIR . '/commerce/orders.php';
+require EXF_CORE_DIR . '/commerce/buy.php';
