@@ -63,6 +63,8 @@ Everything beyond the marketing pages lives in `inc/core/`. It's kept separate f
 - **Free Divorce Guide** (`/free-divorce-guide/`): an ordinary Sections page, so edit it like the homepage
 - **Get your free guide** (`/free-divorce-guide/start/`, template *Divorce Guide Form*)
 - **Your guide is on its way** (`/free-divorce-guide/sent/`, template *Divorce Guide Sent*)
+- **Open your Ex File** (`/open-your-ex-file/`, template *Open Your Ex File*): registration
+- **My Ex File** (`/my-ex-file/`, template *My Ex File (account)*): the client's account page
 
 Pages are found by their template, so they can be renamed or moved.
 
@@ -75,6 +77,42 @@ Pages are found by their template, so they can be renamed or moved.
 5. Guide Requests (and their PDFs) are deleted automatically after the retention period in **Ex Files → Settings** (default 24 months). There's an **Export CSV** button on the list.
 
 The branching is in `exf_guide_next_step()` (PHP) and `next()` in `guide.js`; keep the two the same. Everything else (paragraph wording, which paragraphs each answer adds, tooltips, jurisdiction routes, screens, PDF boxes, email) is editable in **Ex Files → Divorce Guide Content**. Empty fields fall back to the wording from the client's precedent document in `inc/core/guide/defaults.php`. Use **Load the default wording** to copy it into the fields for editing.
+
+### Accounts and the conflict check
+
+**Registration** (`/open-your-ex-file/`, `inc/core/accounts/register.php`) has four steps: your details, your ex, your relationship, your account. It creates a `customer` user (the WooCommerce role) and their first **Ex File** (one separation). Contact details are saved under WooCommerce's `billing_*` keys, so checkout will be pre-filled. Nothing is checked until the client clicks the link in the confirmation email (valid 48 hours). Unconfirmed registrations are deleted after 7 days (**Ex Files → Settings**).
+
+**The conflict check** (`inc/core/accounts/conflict.php`) runs when the email is confirmed. It compares:
+
+- the **ex** with every existing client, and with Conflict Register entries for clients and "other";
+- the **client** with the exes named in other clients' Ex Files, and with register entries for opposing parties (the reverse check).
+
+Names are normalised (case, accents, titles, punctuation, previous names, double-barrelled surnames). Each comparison scores its strongest signal:
+
+| Signal | Points |
+| --- | --- |
+| Email matches | 100 |
+| Full name and date of birth | 100 |
+| Phone number | 80 |
+| Full name and postcode | 70 |
+| Surname and date of birth | 40 |
+| Full name only | 30 |
+
+Reverse matches and "other" register entries are capped at 60, so they raise a review but never block on their own. The highest score decides the outcome:
+
+- **100+: blocked.** The client sees and is emailed a generic "unable to act" message (never the reason), can't log in, and the solicitor is alerted.
+- **30–99: review.** The client can log in but can't buy anything. The Ex File appears in **Ex Files → Conflict Review**.
+- **Under 30: clear.** The account is active.
+
+The weights are constants at the top of `conflict.php`, to be tuned with the client once real data is in.
+
+**Conflict Review:** each Ex File shows the matches side by side, with the matching details in bold, and buttons to **Clear**, **Request more information** (emails the client, who replies from My Ex File; the check runs again and it comes back to the queue), **Block**, or **Run the check again**. Every step is logged in the Ex File's **Activity** box.
+
+**Conflict Register:** add people by hand, or import a CSV under **Ex Files → Import Register** (there's a template to download). Until the solicitor's existing clients are imported, the check only knows about people who registered on the website.
+
+**Emails:** all account emails can be edited in **Ex Files → Email Copy**. Empty fields use the defaults in `inc/core/accounts/emails.php`.
+
+**Login:** clients log in at the normal WordPress login (branded), and go to My Ex File afterwards. They're kept out of wp-admin. In the portal phase this moves to WooCommerce's account area at the same URL.
 
 ### Private files
 

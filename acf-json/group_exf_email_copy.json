@@ -1,0 +1,443 @@
+{
+    "key": "group_exf_email_copy",
+    "title": "Email Copy",
+    "fields": [
+        {
+            "key": "field_exf_em_msg",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "Leave a field empty to use the default wording. Merge tags are replaced when the email is sent; each email lists the ones it supports. Emails are sent as plain text.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_exf_em_tab_verify",
+            "label": "Confirm email",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_verify_subject",
+            "label": "Subject",
+            "name": "verify_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_verify_body",
+            "label": "Message",
+            "name": "verify_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_active",
+            "label": "Account active (check clear)",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_active_subject",
+            "label": "Subject",
+            "name": "active_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_active_body",
+            "label": "Message",
+            "name": "active_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_review",
+            "label": "Account under review",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_review_subject",
+            "label": "Subject",
+            "name": "review_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_review_body",
+            "label": "Message",
+            "name": "review_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_info_requested",
+            "label": "More information needed",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_info_requested_subject",
+            "label": "Subject",
+            "name": "info_requested_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {question}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_info_requested_body",
+            "label": "Message",
+            "name": "info_requested_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_unable",
+            "label": "Unable to act (blocked)",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_unable_subject",
+            "label": "Subject",
+            "name": "unable_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}. Never say why.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_unable_body",
+            "label": "Message",
+            "name": "unable_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_review",
+            "label": "To you: needs review",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_review_subject",
+            "label": "Subject",
+            "name": "admin_review_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {score}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_review_body",
+            "label": "Message",
+            "name": "admin_review_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_blocked",
+            "label": "To you: blocked automatically",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_blocked_subject",
+            "label": "Subject",
+            "name": "admin_blocked_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {score}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_blocked_body",
+            "label": "Message",
+            "name": "admin_blocked_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_info",
+            "label": "To you: client replied",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_info_subject",
+            "label": "Subject",
+            "name": "admin_info_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {score}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_info_body",
+            "label": "Message",
+            "name": "admin_info_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "exf-email-copy"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1792448503
+}

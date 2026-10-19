@@ -1,0 +1,156 @@
+{
+    "key": "group_exf_register_copy",
+    "title": "Registration Page",
+    "fields": [
+        {
+            "key": "field_exf_rc_intro_heading",
+            "label": "Heading",
+            "name": "intro_heading",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Open your Ex File"
+        },
+        {
+            "key": "field_exf_rc_intro_text",
+            "label": "Intro",
+            "name": "intro_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_rc_why",
+            "label": "Why we ask for your ex's details",
+            "name": "why_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown at the top of step 2. Keep it reassuring, and don't mention conflicts by name if you'd rather not.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 4,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_rc_terms",
+            "label": "Terms checkbox label",
+            "name": "terms_label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "May include a link, e.g. I agree to the <a href=\"/terms/\">terms of business</a>.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_rc_check_heading",
+            "label": "“Check your email” heading",
+            "name": "check_heading",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_rc_check_text",
+            "label": "“Check your email” text",
+            "name": "check_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_rc_unable_heading",
+            "label": "“Unable to open” heading",
+            "name": "unable_heading",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Shown when the conflict check blocks a registration. Must stay generic: never say why.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_rc_unable_text",
+            "label": "“Unable to open” text",
+            "name": "unable_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-register.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1792448503
+}

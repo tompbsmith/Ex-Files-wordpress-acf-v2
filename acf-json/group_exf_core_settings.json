@@ -74,6 +74,26 @@
             "append": "months"
         },
         {
+            "key": "field_exf_set_unverified_retention",
+            "label": "Delete unconfirmed registrations after (days)",
+            "name": "unverified_retention_days",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Registrations whose email address was never confirmed are deleted after this many days. Set 0 to keep them.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 7,
+            "min": 0,
+            "max": 365,
+            "step": 1,
+            "append": "days"
+        },
+        {
             "key": "field_exf_set_tab_bookings",
             "label": "Bookings",
             "name": "",
@@ -129,5 +149,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792444388
+    "modified": 1792448503
 }

@@ -355,3 +355,46 @@ section[id]{scroll-margin-top:70px;}
   .guide-form{padding:26px 20px;}
   .guide-nav .btn{flex:1; text-align:center;}
 }
+
+/* ===== Registration and account ===== */
+.field-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0 18px;}
+.field-row .field--narrow{max-width:120px;}
+.field-row:has(.field--narrow){grid-template-columns:110px 1fr 1fr;}
+.field--half{max-width:50%;}
+.reg-step .field, .info-reply-form .field{margin-bottom:18px;}
+.field select{
+  width:100%; border:1px solid rgba(49,25,15,.25); background:var(--white);
+  padding:12px 12px; font-family:'Jost',sans-serif; font-size:15px; color:var(--brown-dark); border-radius:6px;
+}
+.field select:focus{outline:2px solid var(--brown-mid); outline-offset:1px;}
+.field input[type="date"]{min-height:47px;}
+.field .optional{text-transform:none; letter-spacing:0; font-size:12px;}
+.field.has-error input, .field.has-error select, .field.has-error textarea{border-color:#a3402c; background:#fbf1ee;}
+.field-error{font-size:14px; color:#a3402c; margin-top:6px;}
+.field-error a{text-decoration:underline;}
+.reg-step{border:0; padding:0; margin:0 0 30px; min-width:0;}
+.register-form.is-stepped .reg-step{margin-bottom:0;}
+.reg-step-count{display:none; margin:-18px 0 16px;}
+.register-form.is-stepped .reg-step-count{display:block;}
+.register-form.is-stepped .guide-progress{display:block;}
+.reg-why{background:var(--cream-dark); border-radius:8px; padding:16px 20px; margin-bottom:22px;}
+.reg-why p{font-size:15px;}
+.reg-why p + p{margin-top:10px;}
+.reg-unknown{margin:-6px 0 18px; padding:10px 14px; font-size:15px;}
+.resend-form{margin-top:30px;}
+.account-card{margin-top:30px;}
+.account-card h3{margin-bottom:12px;}
+.account-file{margin-top:26px;}
+.account-file .eyebrow{margin-bottom:6px;}
+.account-file-title{font-size:clamp(26px,3vw,34px);}
+.account-file-status{margin-top:8px; font-size:15px; color:var(--muted);}
+.account-file-status.status-clear{color:#3d6b3f;}
+.account-file-status.status-info_requested, .account-file-status.status-blocked{color:#a3402c;}
+.account-file .reg-why{margin-top:22px;}
+.account-links{margin-top:30px; font-size:14px; color:var(--muted);}
+.account-links a{text-decoration:underline;}
+@media (max-width:600px){
+  .field-row:has(.field--narrow){grid-template-columns:1fr;}
+  .field-row .field--narrow{max-width:none;}
+  .field--half{max-width:none;}
+}

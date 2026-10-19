@@ -35,3 +35,12 @@ require EXF_CORE_DIR . '/guide/logic.php';
 require EXF_CORE_DIR . '/guide/submit.php';
 require EXF_CORE_DIR . '/guide/front.php';
 require EXF_CORE_DIR . '/guide/admin.php';
+
+require EXF_CORE_DIR . '/accounts/users.php';
+require EXF_CORE_DIR . '/accounts/emails.php';
+require EXF_CORE_DIR . '/accounts/conflict.php';
+require EXF_CORE_DIR . '/accounts/conflict-register.php';
+require EXF_CORE_DIR . '/accounts/register.php';
+require EXF_CORE_DIR . '/accounts/account.php';
+require EXF_CORE_DIR . '/accounts/review.php';
+require EXF_CORE_DIR . '/accounts/front.php';
