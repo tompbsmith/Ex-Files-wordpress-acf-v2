@@ -304,3 +304,54 @@ section[id]{scroll-margin-top:70px;}
 .entry article + article{margin-top:48px;}
 .entry-content > * + *{margin-top:1em;}
 .entry-content a{text-decoration:underline;}
+
+/* ===== Free Divorce Guide ===== */
+.screen-reader-text{position:absolute !important; width:1px; height:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap;}
+.guide-form-section{padding:80px 0 100px;}
+.guide-form-wrap{max-width:760px;}
+.guide-form-head h1{font-size:clamp(36px,4.5vw,52px);}
+.guide-form-head .lead{margin-top:16px; max-width:560px;}
+.guide-form{
+  margin-top:40px; background:var(--cream); border:1px solid rgba(49,25,15,.12);
+  border-radius:18px; padding:40px; box-shadow:0 20px 45px rgba(49,25,15,.08);
+}
+.guide-progress{height:4px; background:var(--cream-dark); border-radius:2px; overflow:hidden; margin-bottom:30px; display:none;}
+.guide-progress span{display:block; height:100%; width:0; background:var(--brown-mid); transition:width .3s ease;}
+.guide-form.is-stepped .guide-progress{display:block;}
+.gq{border:0; margin:0 0 34px; padding:0; min-width:0;}
+.guide-form.is-stepped .gq{margin-bottom:10px;}
+.gq-label{font-family:'Gazpacho','Petrona',serif; font-size:clamp(22px,2.6vw,28px); line-height:1.2; margin-bottom:22px; padding:0; outline:none;}
+.gq-options{display:flex; flex-direction:column; gap:10px;}
+.gq-option{
+  display:flex; align-items:flex-start; gap:12px; cursor:pointer;
+  border:1px solid rgba(49,25,15,.25); border-radius:8px; padding:14px 16px; background:var(--white);
+  transition:border-color .15s ease, background .15s ease;
+}
+.gq-option:hover{border-color:var(--brown-mid);}
+.gq-option input{margin:4px 0 0; accent-color:var(--brown-mid); flex:none;}
+.gq-option:has(input:checked){border-color:var(--brown-dark); background:#e9dfd1;}
+.gq-option:has(input:focus-visible){outline:2px solid var(--brown-mid); outline-offset:2px;}
+.gq-help{margin:-8px 0 20px; font-size:15px;}
+.gq-help summary{cursor:pointer; text-decoration:underline; color:var(--brown-mid);}
+.gq-help-body{margin-top:12px; padding:18px 20px; background:var(--cream-dark); border-radius:8px;}
+.gq-help-body p, .gq-help-body li{font-size:15px;}
+.gq-help-body ul{margin:10px 0 14px; padding-left:20px;}
+.gq-help-body li{margin-bottom:8px;}
+.gq-help-body p + p{margin-top:10px;}
+.gq-text p + p, .gq-exit p + p{margin-top:14px;}
+.gq-services{border:0; padding:0; margin:26px 0 0; display:flex; flex-direction:column; gap:10px;}
+.gq-services legend{font-size:15px; margin-bottom:12px; padding:0;}
+.gq-option--check{padding:12px 16px;}
+.gq-consent{margin-top:22px; font-size:15px;}
+.field-note{font-size:14px; color:var(--muted); margin-top:8px;}
+.guide-nav{display:flex; justify-content:space-between; gap:14px; margin-top:28px; flex-wrap:wrap;}
+.guide-nav [data-guide-next], .guide-nav [data-guide-submit]{margin-left:auto;}
+.guide-nav [hidden]{display:none;}
+.notice-box{margin-top:30px; padding:16px 20px; border-radius:8px; background:var(--cream-dark);}
+.notice-box--error{background:#f3dcd6; color:#7a2e1f;}
+.guide-sent-card{margin-top:40px;}
+.guide-sent-card p + p{margin-top:14px;}
+@media (max-width:600px){
+  .guide-form{padding:26px 20px;}
+  .guide-nav .btn{flex:1; text-align:center;}
+}

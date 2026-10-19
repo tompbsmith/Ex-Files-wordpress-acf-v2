@@ -1,0 +1,95 @@
+{
+    "key": "group_exf_guide_sent_copy",
+    "title": "Guide Sent Page",
+    "fields": [
+        {
+            "key": "field_exf_gs_heading",
+            "label": "Heading",
+            "name": "sent_heading",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Your guide is on its way"
+        },
+        {
+            "key": "field_exf_gs_text",
+            "label": "Text",
+            "name": "sent_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": "",
+            "placeholder": "We've emailed your personalised guide to you. It should arrive in the next few minutes, so check your junk folder if you can't see it."
+        },
+        {
+            "key": "field_exf_gs_download_label",
+            "label": "Download button",
+            "name": "download_label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Download your guide"
+        },
+        {
+            "key": "field_exf_gs_expired_text",
+            "label": "Text when the download link has expired",
+            "name": "expired_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 2,
+            "new_lines": "",
+            "placeholder": "The download link has expired, but your guide was emailed to you."
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-guide-sent.php"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": [
+        "the_content"
+    ],
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1792444388
+}

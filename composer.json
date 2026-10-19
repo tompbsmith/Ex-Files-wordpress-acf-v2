@@ -1,0 +1,21 @@
+{
+  "name": "tompbsmith/ex-files-theme",
+  "description": "The Ex Files WordPress theme. vendor/ is committed because the InstaWP Git deploy doesn't run Composer.",
+  "type": "wordpress-theme",
+  "license": "proprietary",
+  "require": {
+    "dompdf/dompdf": "3.1.*"
+  },
+  "config": {
+    "platform": { "php": "7.4.33" },
+    "optimize-autoloader": true
+  },
+  "repositories": [
+    { "packagist.org": false },
+    { "type": "vcs", "url": "https://github.com/dompdf/dompdf", "no-api": true },
+    { "type": "vcs", "url": "https://github.com/dompdf/php-font-lib", "no-api": true },
+    { "type": "vcs", "url": "https://github.com/dompdf/php-svg-lib", "no-api": true },
+    { "type": "vcs", "url": "https://github.com/Masterminds/html5-php", "no-api": true },
+    { "type": "vcs", "url": "https://github.com/MyIntervals/PHP-CSS-Parser", "no-api": true }
+  ]
+}

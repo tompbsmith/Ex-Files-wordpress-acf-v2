@@ -1,0 +1,625 @@
+{
+    "key": "group_exf_guide_content",
+    "title": "Divorce Guide Content",
+    "fields": [
+        {
+            "key": "field_exf_g_tab_paragraphs",
+            "label": "Paragraphs",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_g_paragraphs_msg",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "These are the paragraphs the guide is built from. Each guide includes only the paragraphs its answers call for (see the Answer mapping tab), in P-number order. Keep the IDs (P01, P02…) as they are, because the mapping refers to them.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_exf_guide_paragraphs",
+            "label": "Paragraphs",
+            "name": "guide_paragraphs",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "field_exf_gp_heading",
+            "button_label": "Add paragraph",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_exf_gp_id",
+                    "label": "ID",
+                    "name": "para_id",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "placeholder": "P01",
+                    "parent_repeater": "field_exf_guide_paragraphs"
+                },
+                {
+                    "key": "field_exf_gp_heading",
+                    "label": "Heading",
+                    "name": "heading",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "parent_repeater": "field_exf_guide_paragraphs"
+                },
+                {
+                    "key": "field_exf_gp_body",
+                    "label": "Text",
+                    "name": "body",
+                    "aria-label": "",
+                    "type": "wysiwyg",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "tabs": "visual",
+                    "toolbar": "basic",
+                    "media_upload": 0,
+                    "delay": 1,
+                    "parent_repeater": "field_exf_guide_paragraphs"
+                }
+            ]
+        },
+        {
+            "key": "field_exf_g_tab_mapping",
+            "label": "Answer mapping",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_g_mapping_msg",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "Which paragraphs each type of answer adds to the guide. The answers that trigger each tag are fixed by the questionnaire; you can change which paragraphs they add. Separate IDs with commas.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_exf_guide_mapping",
+            "label": "Mapping",
+            "name": "guide_mapping",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add mapping",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_exf_gm_tag",
+                    "label": "When the answers are…",
+                    "name": "tag",
+                    "aria-label": "",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "DIVORCE_ELIGIBILITY": "Married + eligible (DIVORCE_ELIGIBILITY)",
+                        "NOT_EW": "Married + not eligible / unsure (NOT_EW)",
+                        "DIVORCE_OPTIONS": "Not started divorce (DIVORCE_OPTIONS)",
+                        "STAGE_ISSUED_NO_RESPONSE": "Sole issued + no response (STAGE_ISSUED_NO_RESPONSE)",
+                        "STAGE_SOLE_20W": "Sole + response + 20-week period (STAGE_SOLE_20W)",
+                        "STAGE_JOINT_20W": "Joint + 20-week period (STAGE_JOINT_20W)",
+                        "STAGE_SOLE_CONDITIONAL": "Sole + Conditional Order (STAGE_SOLE_CONDITIONAL)",
+                        "STAGE_JOINT_CONDITIONAL": "Joint + Conditional Order (STAGE_JOINT_CONDITIONAL)",
+                        "STAGE_FINAL": "Final Order granted (STAGE_FINAL)",
+                        "FINANCE_NO_ASSETS": "No finances to divide (FINANCE_NO_ASSETS)",
+                        "FINANCE_GUIDANCE": "No discussions / needs guidance (FINANCE_GUIDANCE)",
+                        "FINANCE_FAIRNESS": "Agreement but unsure (FINANCE_FAIRNESS)",
+                        "FINANCE_BINDING": "Agreement wants legally binding (FINANCE_BINDING)",
+                        "UNMARRIED_FINANCES": "Unmarried + financial guidance (UNMARRIED_FINANCES)",
+                        "CTA": "Every completed guide (CTA)"
+                    },
+                    "default_value": false,
+                    "return_format": "value",
+                    "multiple": 0,
+                    "allow_null": 0,
+                    "ui": 0,
+                    "ajax": 0,
+                    "placeholder": "",
+                    "parent_repeater": "field_exf_guide_mapping"
+                },
+                {
+                    "key": "field_exf_gm_paragraphs",
+                    "label": "…include these paragraphs",
+                    "name": "paragraphs",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "placeholder": "P01, P02",
+                    "parent_repeater": "field_exf_guide_mapping"
+                }
+            ]
+        },
+        {
+            "key": "field_exf_g_tab_screens",
+            "label": "Questions & screens",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_g_exit_message",
+            "label": "Message when the guide isn't for them",
+            "name": "exit_message",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown if they're not separating, or aren't married and don't want financial guidance.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_g_q3a_text",
+            "label": "Eligibility not confirmed screen (Q3A)",
+            "name": "q3a_text",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Shown when they answer No or I am not sure to “Are you eligible to apply for a divorce in England & Wales?”",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "tabs": "visual",
+            "toolbar": "basic",
+            "media_upload": 0,
+            "delay": 1
+        },
+        {
+            "key": "field_exf_guide_tooltips",
+            "label": "Tooltips for the eligibility question",
+            "name": "guide_tooltips",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add tooltip",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_exf_gt_heading",
+                    "label": "Heading",
+                    "name": "heading",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "parent_repeater": "field_exf_guide_tooltips"
+                },
+                {
+                    "key": "field_exf_gt_text",
+                    "label": "Text",
+                    "name": "text",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "rows": 3,
+                    "new_lines": "",
+                    "parent_repeater": "field_exf_guide_tooltips"
+                }
+            ]
+        },
+        {
+            "key": "field_exf_guide_routes",
+            "label": "Jurisdiction routes (shown under the eligibility question)",
+            "name": "guide_routes",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "Confirm these against the current official divorce application guidance before launch.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "block",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add route",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_exf_gr_question",
+                    "label": "Route",
+                    "name": "question",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 1,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "parent_repeater": "field_exf_guide_routes"
+                },
+                {
+                    "key": "field_exf_gr_explanation",
+                    "label": "Plain-English explanation",
+                    "name": "explanation",
+                    "aria-label": "",
+                    "type": "textarea",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "rows": 2,
+                    "new_lines": "",
+                    "parent_repeater": "field_exf_guide_routes"
+                }
+            ]
+        },
+        {
+            "key": "field_exf_g_privacy_note",
+            "label": "Privacy note above the email field",
+            "name": "privacy_note",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 2,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_g_marketing_label",
+            "label": "Marketing consent checkbox label",
+            "name": "marketing_label",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_g_tab_pdf",
+            "label": "PDF",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_g_pdf_title",
+            "label": "Title",
+            "name": "pdf_title",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_g_pdf_point",
+            "label": "“The point of this guide” box",
+            "name": "pdf_point",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_g_pdf_important",
+            "label": "“Important” box",
+            "name": "pdf_important",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_g_pdf_footer",
+            "label": "Footer line",
+            "name": "pdf_footer",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_g_pdf_logo",
+            "label": "Logo",
+            "name": "pdf_logo",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "PNG or JPG. Leave empty to use the site logo.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "id",
+            "library": "all",
+            "preview_size": "medium",
+            "mime_types": "png,jpg,jpeg"
+        },
+        {
+            "key": "field_exf_g_tab_email",
+            "label": "Email",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_g_email_subject",
+            "label": "Subject",
+            "name": "email_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_g_email_body",
+            "label": "Message",
+            "name": "email_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Plain text. The guide is attached. {services} is replaced by the text below when they ticked any services, and removed otherwise.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_g_email_services",
+            "label": "Services text",
+            "name": "email_services",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "{list} is replaced by the services they ticked, one per line.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "exf-guide-content"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1792444637
+}

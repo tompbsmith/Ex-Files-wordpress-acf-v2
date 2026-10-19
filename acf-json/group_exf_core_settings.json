@@ -1,0 +1,133 @@
+{
+    "key": "group_exf_core_settings",
+    "title": "Ex Files Settings",
+    "fields": [
+        {
+            "key": "field_exf_set_tab_notify",
+            "label": "Notifications",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_set_notify_emails",
+            "label": "Notification email addresses",
+            "name": "notify_emails",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Where Ex Files alerts go (new accounts to review, orders, submitted questionnaires). Separate several addresses with commas. Leave empty to use the site admin email.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_set_tab_retention",
+            "label": "Data retention",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_set_guide_retention",
+            "label": "Keep free guide records for (months)",
+            "name": "guide_retention_months",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Guide requests and their PDFs are deleted automatically after this many months. Set 0 to keep them forever.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 24,
+            "min": 0,
+            "max": 120,
+            "step": 1,
+            "append": "months"
+        },
+        {
+            "key": "field_exf_set_tab_bookings",
+            "label": "Bookings",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_set_min_notice",
+            "label": "Minimum booking notice (hours)",
+            "name": "min_booking_notice_hours",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Know Your Position appointments can't be booked closer than this. Used once booking is built.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 24,
+            "min": 0,
+            "step": 1,
+            "append": "hours"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "exf-settings"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1792444388
+}

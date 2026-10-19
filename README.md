@@ -52,6 +52,38 @@ The poster images aren't set yet. In the Hero section's **Background** tab, uplo
 
 The form posts to `admin-ajax.php` (action `exf_contact`) and sends a plain-text email with `wp_mail()`, with Reply-To set to the sender. This replaces the old Vercel `/api/contact` function. Spam protection is a hidden honeypot field plus a limit of 5 messages per 10 minutes per IP. There's no nonce, so the form keeps working when pages are cached.
 
+## Ex Files core (client data and the Free Divorce Guide)
+
+Everything beyond the marketing pages lives in `inc/core/`. It's kept separate from the theme templates so it can become its own plugin later, but it ships in the theme for now because the InstaWP Git deploy only deploys this folder. The build plan is in Google Drive: *The Ex Files – Website Build Plan*.
+
+**Admin:** an **Ex Files** menu holds Ex Files, Questionnaires, Client Documents, Guide Requests, the Conflict Register, **Settings** and **Divorce Guide Content**. Access needs the `manage_ex_files` capability. Administrators have it, and there's an **Ex Files Manager** role for the solicitor that doesn't need full admin rights.
+
+**After deploying:** go to **Ex Files → Settings** and click **Create missing pages**. This creates:
+
+- **Free Divorce Guide** (`/free-divorce-guide/`): an ordinary Sections page, so edit it like the homepage
+- **Get your free guide** (`/free-divorce-guide/start/`, template *Divorce Guide Form*)
+- **Your guide is on its way** (`/free-divorce-guide/sent/`, template *Divorce Guide Sent*)
+
+Pages are found by their template, so they can be renamed or moved.
+
+### Free Divorce Guide
+
+1. One question per screen (`assets/js/guide.js`). Without JavaScript all questions show and the server works out which apply.
+2. On submit, the server re-walks the answers from Q1 (`inc/core/guide/logic.php`), drops answers that aren't on the visitor's path, and works out the tags and paragraphs from the client's mapping sheet.
+3. Dompdf renders `templates/pdf/guide.php` (guide paragraphs in P-number order, then Annex A with the answers).
+4. The PDF is saved to `wp-content/uploads/exfiles-private/guides/`, emailed to the visitor, and logged as a **Guide Request**. The "sent" page offers a download link that works for 48 hours.
+5. Guide Requests (and their PDFs) are deleted automatically after the retention period in **Ex Files → Settings** (default 24 months). There's an **Export CSV** button on the list.
+
+The branching is in `exf_guide_next_step()` (PHP) and `next()` in `guide.js`; keep the two the same. Everything else (paragraph wording, which paragraphs each answer adds, tooltips, jurisdiction routes, screens, PDF boxes, email) is editable in **Ex Files → Divorce Guide Content**. Empty fields fall back to the wording from the client's precedent document in `inc/core/guide/defaults.php`. Use **Load the default wording** to copy it into the fields for editing.
+
+### Private files
+
+Client files go in `wp-content/uploads/exfiles-private/`, which has an `.htaccess` that blocks direct access on Apache. **On Nginx hosts, also add a rule denying web access to that folder.** Files are only served through PHP after a permission or token check (`inc/core/storage.php`).
+
+### PDF library
+
+`vendor/` holds Dompdf and its dependencies. It's committed because the deploy doesn't run Composer. To update it, run `composer update` (`composer.json` points at the packages' GitHub repositories), then commit `vendor/`.
+
 ## Developing
 
 - Field groups are stored as JSON in `acf-json/` and loaded automatically. Edit them on a local copy of the site (e.g. Local, with the theme folder cloned from this repo). Saving a field group re-writes its JSON in the theme, so commit and push it.
@@ -66,7 +98,12 @@ assets/js/main.js         Menu, hero video, contact form
 assets/img/logo.png       Fallback logo
 assets/defaults/          Hero videos used by the importer
 inc/                      Setup, helpers, ACF config, contact handler, importer
+inc/core/                 Ex Files core: post types, private files, settings, Free Divorce Guide
+templates/pdf/            PDF templates (Dompdf)
+vendor/                   Dompdf (committed)
 template-parts/sections/  One template per section layout
 front-page.php            Homepage (renders sections)
 page-sections.php         "Sections" page template
+page-guide-form.php       Free Divorce Guide questionnaire
+page-guide-sent.php       Guide sent / download page
 ```
