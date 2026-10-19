@@ -129,6 +129,51 @@
             "min": 0,
             "step": 1,
             "append": "hours"
+        },
+        {
+            "key": "field_exf_set_tab_pages",
+            "label": "Pages",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_set_page_setup",
+            "label": "Create new Ex Files pages after an update",
+            "name": "page_setup",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "New features sometimes need new pages (for example the registration page). Choose whether they're created automatically after a deploy, or only when you click “Create missing pages”. Existing pages are never changed.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "": "Automatically on test sites, with a button on the live site",
+                "auto": "Always automatically",
+                "manual": "Only when I click the button"
+            },
+            "default_value": "",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
         }
     ],
     "location": [
@@ -149,5 +194,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792448503
+    "modified": 1792449750
 }

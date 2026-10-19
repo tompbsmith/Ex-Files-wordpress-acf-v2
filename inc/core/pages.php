@@ -183,14 +183,98 @@ function exf_handle_create_pages() {
 	exit;
 }
 
+/**
+ * Whether missing pages are created automatically after a deploy.
+ *
+ * Setting "page_setup" in Ex Files → Settings:
+ *   auto   always create them automatically
+ *   manual never: show a "Create missing pages" button instead
+ *   ''     (default) automatic on test sites, manual on the live site
+ *
+ * A test site is one whose WordPress environment type isn't "production", or
+ * whose address is on InstaWP, Local or localhost.
+ */
+function exf_pages_auto_create() {
+	$mode = (string) exf_setting( 'page_setup', '' );
+	if ( 'auto' === $mode ) {
+		return true;
+	}
+	if ( 'manual' === $mode ) {
+		return false;
+	}
+	return exf_is_test_site();
+}
+
+/**
+ * Whether this looks like a test or development copy of the site.
+ */
+function exf_is_test_site() {
+	if ( 'production' !== wp_get_environment_type() ) {
+		return true;
+	}
+	$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+	return (bool) preg_match( '/(\.instawp\.(site|xyz|co|io)|\.local|\.test|^localhost)$/i', $host );
+}
+
+/**
+ * Titles of required pages that don't exist.
+ *
+ * @return string[]
+ */
+function exf_missing_pages() {
+	$missing = array();
+	foreach ( exf_required_pages() as $key => $page ) {
+		$id = 'guide_landing' === $key ? (int) get_option( 'exf_page_guide_landing' ) : exf_page_id_by_template( $page[0] );
+		if ( ! $id || ! get_post( $id ) ) {
+			$missing[] = $page[1];
+		}
+	}
+	return $missing;
+}
+
+/*
+ * After a deploy (a new theme version or a new required page), create missing pages
+ * automatically the first time an admin who can manage Ex Files loads WP admin.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( wp_doing_ajax() || ! exf_user_can_manage() || ! current_user_can( 'edit_pages' ) || ! exf_pages_auto_create() ) {
+			return;
+		}
+		$signature = md5( EXF_VERSION . '|' . implode( ',', array_keys( exf_required_pages() ) ) );
+		if ( get_option( 'exf_pages_signature' ) === $signature ) {
+			return;
+		}
+		update_option( 'exf_pages_signature', $signature, false );
+
+		$created = exf_create_missing_pages();
+		if ( $created ) {
+			set_transient( 'exf_pages_auto_created', $created, DAY_IN_SECONDS );
+		}
+	}
+);
+
 add_action(
 	'admin_notices',
 	function () {
 		if ( ! exf_user_can_manage() || ! current_user_can( 'edit_pages' ) ) {
 			return;
 		}
+
+		// Pages created automatically: say so once, on whichever screen loads next.
+		$auto = get_transient( 'exf_pages_auto_created' );
+		if ( $auto ) {
+			delete_transient( 'exf_pages_auto_created' );
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html(
+				/* translators: %s: page titles */
+				sprintf( __( 'The Ex Files update added these pages: %s.', 'exfiles' ), implode( ', ', (array) $auto ) )
+			) . '</p></div>';
+		}
+
 		$screen = get_current_screen();
-		if ( ! $screen || false === strpos( (string) $screen->id, 'exf-' ) && 'edit-ex_file' !== $screen->id ) {
+		$here   = $screen && ( false !== strpos( (string) $screen->id, 'exf-' ) || 'edit-ex_file' === $screen->id || 'dashboard' === $screen->id );
+		if ( ! $here ) {
 			return;
 		}
 
@@ -204,13 +288,7 @@ add_action(
 			) . '</p></div>';
 		}
 
-		$missing = array();
-		foreach ( exf_required_pages() as $key => $page ) {
-			$id = 'guide_landing' === $key ? (int) get_option( 'exf_page_guide_landing' ) : exf_page_id_by_template( $page[0] );
-			if ( ! $id || ! get_post( $id ) ) {
-				$missing[] = $page[1];
-			}
-		}
+		$missing = exf_missing_pages();
 		if ( ! $missing ) {
 			return;
 		}

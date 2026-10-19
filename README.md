@@ -58,7 +58,7 @@ Everything beyond the marketing pages lives in `inc/core/`. It's kept separate f
 
 **Admin:** an **Ex Files** menu holds Ex Files, Questionnaires, Client Documents, Guide Requests, the Conflict Register, **Settings** and **Divorce Guide Content**. Access needs the `manage_ex_files` capability. Administrators have it, and there's an **Ex Files Manager** role for the solicitor that doesn't need full admin rights.
 
-**After deploying:** go to **Ex Files → Settings** and click **Create missing pages**. This creates:
+**Pages:** the Ex Files pages below are created automatically the first time an admin opens WP admin after a deploy, and a notice lists what was added. That's the default on test sites (InstaWP, Local, or any site whose WordPress environment type isn't `production`). On the live site, a notice with a **Create missing pages** button appears instead, so nothing is added without someone choosing to. Change this under **Ex Files → Settings → Pages**. Existing pages are never changed. The pages are:
 
 - **Free Divorce Guide** (`/free-divorce-guide/`): an ordinary Sections page, so edit it like the homepage
 - **Get your free guide** (`/free-divorce-guide/start/`, template *Divorce Guide Form*)
