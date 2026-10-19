@@ -1,0 +1,108 @@
+<?php
+/**
+ * Theme supports, menus and assets.
+ *
+ * @package exfiles
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+add_action(
+	'after_setup_theme',
+	function () {
+		add_theme_support( 'title-tag' );
+		add_theme_support( 'post-thumbnails' );
+		add_theme_support( 'html5', array( 'search-form', 'gallery', 'caption', 'style', 'script' ) );
+		add_theme_support(
+			'custom-logo',
+			array(
+				'height'      => 132,
+				'width'       => 400,
+				'flex-height' => true,
+				'flex-width'  => true,
+			)
+		);
+
+		register_nav_menus(
+			array(
+				'primary' => __( 'Primary menu', 'exfiles' ),
+			)
+		);
+	}
+);
+
+add_filter(
+	'document_title_separator',
+	function () {
+		return '|';
+	}
+);
+
+add_action(
+	'wp_enqueue_scripts',
+	function () {
+		wp_enqueue_style(
+			'exf-fonts',
+			'https://fonts.googleapis.com/css2?family=Petrona:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap',
+			array(),
+			null
+		);
+
+		$css = EXF_DIR . '/assets/css/main.css';
+		wp_enqueue_style( 'exf-main', EXF_URI . '/assets/css/main.css', array( 'exf-fonts' ), file_exists( $css ) ? (string) filemtime( $css ) : EXF_VERSION );
+
+		$js = EXF_DIR . '/assets/js/main.js';
+		wp_enqueue_script(
+			'exf-main',
+			EXF_URI . '/assets/js/main.js',
+			array(),
+			file_exists( $js ) ? (string) filemtime( $js ) : EXF_VERSION,
+			array(
+				'in_footer' => true,
+				'strategy'  => 'defer',
+			)
+		);
+
+		wp_localize_script(
+			'exf-main',
+			'exfContact',
+			array(
+				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+				'genericError' => __( 'Something went wrong. Please try again or email us directly.', 'exfiles' ),
+				'sending'      => __( 'Sending…', 'exfiles' ),
+			)
+		);
+	}
+);
+
+// Preconnect to Google Fonts, as the original page did.
+add_filter(
+	'wp_resource_hints',
+	function ( $urls, $relation ) {
+		if ( 'preconnect' === $relation ) {
+			$urls[] = 'https://fonts.googleapis.com';
+			$urls[] = array(
+				'href'        => 'https://fonts.gstatic.com',
+				'crossorigin' => 'anonymous',
+			);
+		}
+		return $urls;
+	},
+	10,
+	2
+);
+
+// Homepage meta description (skipped when an SEO plugin is handling it).
+add_action(
+	'wp_head',
+	function () {
+		if ( ! is_front_page() || defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
+			return;
+		}
+		$description = exf_option( 'meta_description' );
+		if ( $description ) {
+			printf( '<meta name="description" content="%s">' . "\n", esc_attr( wp_strip_all_tags( $description ) ) );
+		}
+	},
+	1
+);

@@ -1,0 +1,100 @@
+/* The Ex Files theme scripts. */
+(function () {
+  'use strict';
+
+  /* ----- Mobile menu ----- */
+  var burger = document.getElementById('burger');
+  var navLinks = document.getElementById('navLinks');
+  if (burger && navLinks) {
+    var setOpen = function (open) {
+      navLinks.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    burger.addEventListener('click', function () {
+      setOpen(!navLinks.classList.contains('open'));
+    });
+    navLinks.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { setOpen(false); });
+    });
+  }
+
+  /* ----- Hero video -----
+     Load only the clip that matches this viewport: desktop and mobile are
+     cropped differently, so neither visitor downloads the other's file. */
+  var isDesktop = window.matchMedia('(min-width: 768px)').matches;
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll('[data-hero-media]').forEach(function (media) {
+    var d = media.dataset;
+    var video = media.querySelector('video');
+    var poster = media.querySelector('.poster-fallback');
+
+    var videoSrc = isDesktop ? (d.videoDesktop || d.videoMobile) : (d.videoMobile || d.videoDesktop);
+    var posterSrc = isDesktop ? (d.posterDesktop || d.posterMobile) : (d.posterMobile || d.posterDesktop);
+    // The mobile clip needs a different vertical crop; only apply it when that clip is used.
+    var mobileCrop = !isDesktop && !!d.videoMobile;
+
+    if (poster && posterSrc) {
+      poster.src = posterSrc;
+      if (mobileCrop) { poster.classList.add('is-mobile-src'); }
+    }
+
+    if (!video) { return; }
+    if (mobileCrop) { video.classList.add('is-mobile-src'); }
+    if (posterSrc) { video.poster = posterSrc; }
+
+    // CSS hides the video for reduced-motion visitors; don't download it either.
+    if (!videoSrc || reducedMotion) { return; }
+
+    var source = document.createElement('source');
+    source.src = videoSrc;
+    source.type = 'video/mp4';
+    video.appendChild(source);
+    video.load();
+  });
+
+  /* ----- Contact form ----- */
+  var cfg = window.exfContact || {};
+
+  document.querySelectorAll('[data-contact-form]').forEach(function (form) {
+    var status = form.querySelector('.form-status');
+    var button = form.querySelector('[type="submit"]');
+    var label = form.dataset.label || (button ? button.textContent : '');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      status.textContent = '';
+      status.className = 'form-status';
+      button.disabled = true;
+      button.textContent = cfg.sending || 'Sending…';
+
+      var data = new FormData(form);
+      data.append('action', 'exf_contact');
+
+      fetch(cfg.ajaxUrl, { method: 'POST', body: data, credentials: 'same-origin' })
+        .then(function (res) {
+          return res.json().catch(function () { return {}; }).then(function (json) {
+            return { ok: res.ok, json: json };
+          });
+        })
+        .then(function (r) {
+          if (r.ok && r.json.success) {
+            status.textContent = form.dataset.success;
+            status.className = 'form-status ok';
+            form.reset();
+          } else {
+            status.textContent = (r.json.data && r.json.data.error) || cfg.genericError;
+            status.className = 'form-status err';
+          }
+        })
+        .catch(function () {
+          status.textContent = cfg.genericError;
+          status.className = 'form-status err';
+        })
+        .then(function () {
+          button.disabled = false;
+          button.textContent = label;
+        });
+    });
+  });
+})();
