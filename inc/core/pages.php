@@ -221,3 +221,34 @@ add_action(
 		) . ' <a class="button button-primary" href="' . esc_url( $url ) . '">' . esc_html__( 'Create missing pages', 'exfiles' ) . '</a></p></div>';
 	}
 );
+
+/*
+ * One-off update: point the header menu's "Open Your Ex File" link at the
+ * registration page instead of the homepage contact form (#contact). Runs once,
+ * after the registration page exists. Other menu items are left alone.
+ */
+add_action(
+	'init',
+	function () {
+		if ( get_option( 'exf_menu_register_link_done' ) || ! exf_page_id_by_template( 'page-register.php' ) ) {
+			return;
+		}
+		$items = get_posts(
+			array(
+				'post_type'      => 'nav_menu_item',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'meta_key'       => '_menu_item_url', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+				'meta_value'     => '#contact', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			)
+		);
+		foreach ( $items as $item ) {
+			$title = strtolower( trim( $item->post_title ) );
+			if ( 'open your ex file' === $title ) {
+				update_post_meta( $item->ID, '_menu_item_url', '/open-your-ex-file/' );
+			}
+		}
+		update_option( 'exf_menu_register_link_done', 1, false );
+	},
+	30
+);

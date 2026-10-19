@@ -280,7 +280,7 @@ function exf_run_import( $overwrite = false ) {
 			$menu_id = $menu ? $menu->term_id : 0;
 		}
 		if ( $menu_id && ! wp_get_nav_menu_items( $menu_id ) ) {
-			foreach ( array( 'Home' => '#top', 'Our Services' => '#services', 'Open Your Ex File' => '#contact' ) as $title => $url ) {
+			foreach ( array( 'Home' => '#top', 'Our Services' => '#services', 'Open Your Ex File' => '/open-your-ex-file/' ) as $title => $url ) {
 				wp_update_nav_menu_item(
 					$menu_id,
 					0,
