@@ -50,3 +50,10 @@ require EXF_CORE_DIR . '/commerce/booking.php';
 require EXF_CORE_DIR . '/commerce/stripe.php';
 require EXF_CORE_DIR . '/commerce/orders.php';
 require EXF_CORE_DIR . '/commerce/buy.php';
+
+require EXF_CORE_DIR . '/portal/portal.php';
+require EXF_CORE_DIR . '/portal/documents.php';
+require EXF_CORE_DIR . '/portal/appointments.php';
+require EXF_CORE_DIR . '/portal/account-details.php';
+require EXF_CORE_DIR . '/portal/login.php';
+require EXF_CORE_DIR . '/portal/admin.php';

@@ -1,0 +1,163 @@
+{
+    "key": "group_exf_portal_copy",
+    "title": "Portal Copy",
+    "fields": [
+        {
+            "key": "field_exf_pc_msg",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "Wording in the client portal (My Ex File). Leave a field empty to use the default wording.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_exf_pc_active_text",
+            "label": "Overview: Ex File open",
+            "name": "active_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown when the client has nothing else to do yet.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_review_text",
+            "label": "Overview: checks in progress",
+            "name": "review_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown while the conflict check is waiting for your review. Never mention conflicts here.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_documents_intro",
+            "label": "Documents: introduction",
+            "name": "documents_intro",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_upload_help",
+            "label": "Documents: upload help",
+            "name": "upload_help",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown under the file box. The limit is 15 MB (or lower if the server allows less).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_change_policy",
+            "label": "Appointments: change and cancellation policy",
+            "name": "change_policy",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown above the request form. Clients can't move or cancel appointments themselves.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_locked_details",
+            "label": "Account details: name and date of birth",
+            "name": "locked_details",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Explains why these can't be changed online.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "exf-portal-copy"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1792451617
+}

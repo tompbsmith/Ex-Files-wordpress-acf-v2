@@ -432,3 +432,96 @@ section[id]{scroll-margin-top:70px;}
 .account-new-sep a{text-decoration:underline;}
 .btn[disabled]{opacity:.5; cursor:not-allowed;}
 @media (max-width:900px){ .service-hero-grid{grid-template-columns:1fr; gap:30px;} }
+
+/* ===== Client portal (My Ex File) ===== */
+.nav-account{font-weight:500;}
+.portal-wrap{max-width:var(--max);}
+.portal{display:grid; grid-template-columns:220px minmax(0,1fr); gap:56px; align-items:start;}
+.portal-nav{position:sticky; top:110px;}
+.portal-nav-name{font-size:14px; color:var(--muted); margin-bottom:14px;}
+.portal-nav ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
+.portal-nav a{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; font-size:16px;}
+.portal-nav a:hover{background:var(--cream-dark);}
+.portal-nav a.active{background:var(--brown-btn); color:var(--white);}
+.portal-nav-logout{margin-top:14px; padding-top:14px; border-top:1px solid rgba(49,25,15,.15);}
+.portal-nav-logout a{color:var(--muted);}
+.portal-badge{min-width:22px; height:22px; padding:0 7px; border-radius:11px; background:#a3402c; color:#fff; font-size:12px; line-height:22px; text-align:center;}
+.portal-main{min-width:0; max-width:820px;}
+.portal-head h1{font-size:clamp(34px,4vw,48px);}
+.portal-head .eyebrow a{text-decoration:underline;}
+.portal-head .lead{margin-top:14px; max-width:600px;}
+.portal-h2{font-size:clamp(22px,2.4vw,28px); margin:44px 0 16px;}
+.portal-empty{color:var(--muted);}
+.portal-steps, .portal-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;}
+.portal-steps li, .portal-list li{
+  display:flex; justify-content:space-between; align-items:center; gap:18px; flex-wrap:wrap;
+  background:var(--white); border:1px solid rgba(49,25,15,.15); border-radius:12px; padding:16px 20px;
+}
+.portal-steps li{border-left:4px solid var(--brown-btn);}
+.portal-list li > div:first-child{flex:1 1 260px; min-width:0;}
+.portal-list strong{overflow-wrap:anywhere;}
+.portal-list-meta{display:block; font-size:14px; color:var(--muted); margin-top:4px;}
+.portal-doc-note{display:block; font-size:15px; margin-top:6px;}
+.portal-pill{display:inline-block; font-size:13px; padding:3px 10px; border-radius:20px; background:var(--cream-dark); white-space:nowrap;}
+.portal-pill--new{background:#a3402c; color:#fff; margin-left:8px; vertical-align:2px;}
+.portal-actions{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.portal-actions form{margin:0;}
+.btn.small{padding:9px 18px; font-size:16px;}
+.link-button{background:none; border:0; padding:0; font:inherit; font-size:15px; color:var(--brown-mid); text-decoration:underline; cursor:pointer;}
+summary.link-button{display:inline-block; list-style:none;}
+summary.link-button::-webkit-details-marker{display:none;}
+.portal-files{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px;}
+.portal-file-card{
+  display:flex; flex-direction:column; gap:4px; padding:20px 22px; border-radius:14px;
+  background:var(--white); border:1px solid rgba(49,25,15,.15); transition:border-color .15s ease, transform .15s ease;
+}
+.portal-file-card:hover{border-color:var(--brown-mid); transform:translateY(-2px);}
+.portal-file-card strong{font-family:'Gazpacho','Petrona',serif; font-size:24px; font-weight:400;}
+.portal-file-card .account-file-status{margin-top:0;}
+.portal-file-meta{margin-top:10px; font-size:14px; color:var(--muted);}
+.portal-form .field{margin-bottom:18px;}
+.portal-form.guide-form{margin-top:28px; padding:32px;}
+.portal-form details > form{margin-top:18px;}
+.portal-upload{margin:22px 0 0;}
+.portal-upload > summary{list-style:none; cursor:pointer;}
+.portal-upload > summary::-webkit-details-marker{display:none;}
+.portal-upload[open] > summary{display:none;}
+.portal-upload .guide-form{margin-top:0;}
+.portal-appt{margin-top:0; margin-bottom:14px;}
+.portal-appt h3{margin:4px 0 10px;}
+.portal-appt-details{font-size:15px; margin-bottom:14px;}
+.portal-request{margin-top:18px; border-top:1px solid rgba(49,25,15,.15); padding-top:14px;}
+.portal-request > summary{cursor:pointer; font-size:15px; text-decoration:underline; color:var(--brown-mid);}
+.portal-request .field-note{margin:12px 0 16px;}
+.portal-fieldset{border:0; padding:0; margin:0 0 18px; display:flex; flex-direction:column; gap:8px;}
+.portal-fieldset legend{font-size:15px; margin-bottom:10px; padding:0;}
+.portal-dl{display:grid; grid-template-columns:max-content 1fr; gap:6px 24px; margin:0 0 10px;}
+.portal-dl dt{color:var(--muted);}
+.portal-dl dd{margin:0;}
+.portal-table-wrap{overflow-x:auto;}
+.portal-table{width:100%; border-collapse:collapse; font-size:15px;}
+.portal-table th, .portal-table td{text-align:left; padding:12px 10px; border-bottom:1px solid rgba(49,25,15,.15);}
+.portal-table th{font-weight:500; color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:.06em;}
+.portal-table .num{text-align:right;}
+.login-wrap{max-width:560px;}
+.login-form{padding:34px;}
+.login-form .field{margin-bottom:18px;}
+.login-links{margin-top:22px; font-size:15px;}
+.login-links a{text-decoration:underline;}
+@media (max-width:900px){
+  .portal{grid-template-columns:1fr; gap:26px;}
+  .portal-nav{position:static; margin:0 -32px; padding:0 32px; overflow-x:auto;}
+  .portal-nav-name{display:none;}
+  .portal-nav ul{flex-direction:row; gap:6px; width:max-content;}
+  .portal-nav a{white-space:nowrap; padding:8px 14px; border:1px solid rgba(49,25,15,.15); font-size:15px;}
+  .portal-nav-logout{margin:0; padding:0; border:0;}
+}
+@media (max-width:600px){
+  .portal-nav{margin:0 -20px; padding:0 20px;}
+  .portal-form.guide-form, .login-form{padding:24px 20px;}
+  .portal-table thead{display:none;}
+  .portal-table tr{display:block; padding:10px 0; border-bottom:1px solid rgba(49,25,15,.15);}
+  .portal-table td{display:flex; justify-content:space-between; gap:12px; border:0; padding:4px 0;}
+  .portal-table td::before{content:attr(data-label); color:var(--muted);}
+  .portal-table .num{text-align:right;}
+}

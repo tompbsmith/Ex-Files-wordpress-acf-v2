@@ -114,7 +114,7 @@ The weights are constants at the top of `conflict.php`, to be tuned with the cli
 
 **Emails:** all account emails can be edited in **Ex Files → Email Copy**. Empty fields use the defaults in `inc/core/accounts/emails.php`.
 
-**Login:** clients log in at the normal WordPress login (branded), and go to My Ex File afterwards. They're kept out of wp-admin. In the portal phase this moves to WooCommerce's account area at the same URL.
+**Login:** clients log in on the branded Log in page (see Client portal below) and go to My Ex File afterwards. They're kept out of wp-admin.
 
 ### Services, payments and booking
 
@@ -127,6 +127,20 @@ The weights are constants at the top of `conflict.php`, to be tuned with the cli
 **Orders** (Ex Files → Orders) record the client, Ex File, service, amount, appointment and a history. Paying creates the client's questionnaire as a to-do (the form itself comes in phase 6), and sends confirmation emails to the client and to you, with a calendar invite when there's an appointment.
 
 **Booking** (`inc/core/commerce/booking.php`): set your weekly availability, how far ahead clients can book, the gap between appointments, dates you're away, and the minimum notice (default 24 hours) in **Ex Files → Settings → Bookings**. Paste your Google Calendar's **secret iCal address** there too, and busy times in your calendar (including recurring events) are never offered. Events marked "Free" are ignored. A chosen time is held for 30 minutes while the client pays. Bookings are checked again under a lock just before the order is created, so two people can't book the same time. Clients get a reminder email about 24 hours before.
+
+### Client portal (My Ex File)
+
+`page-account.php` with sections in `template-parts/portal/`, logic in `inc/core/portal/`. The sections are rewrite endpoints on the one My Ex File page: `/my-ex-file/` (overview: what to do next, and each Ex File), `ex-files/` and `ex-files/{id}/` (status, the reply form when you've asked for more information, services, questionnaires, documents), `documents/`, `appointments/`, `payments/` and `account-details/`. Wording is editable in **Ex Files → Portal Copy**. The header shows **My Ex File** to logged-in visitors and **Log in** to everyone else.
+
+**Documents** (Ex Files → Client Documents, or *Upload a document for this client* on an Ex File): files are stored privately, never in the media library. Tick *Email the client* to send a "document ready" email, which links to the portal rather than attaching the file. The portal marks new documents until the client opens them, and the admin shows when they did. Clients can send documents too (PDF, Word, Excel, CSV, text or photos, up to 15 MB, 20 an hour); you get an email, and they can remove their own uploads. Deleting a document deletes its file.
+
+**Appointments:** clients can download a calendar file, but can't move or cancel online. They send a request, which emails you and shows on the order, the Ex File and the dashboard. If you cancel, use *Cancel appointment* on the order to free the slot; it isn't refunded (refunds, if ever, are done in Stripe). **Payments** lists what they've paid, with a reference; Stripe emails the receipts, and there's no VAT.
+
+**Account details:** clients can change their phone, address and marketing choice. A new email address only takes effect after they click a link sent to it, and the old address is told. Name and date of birth can't be changed online, because they're part of the conflict check.
+
+**Log in** (`page-login.php`): branded log in, forgotten password and reset password. Every login and reset link on the site points here, and the reset email uses the wording in Email Copy. `wp-login.php` still works for staff. Ten failed logins from one address lock it out for 15 minutes.
+
+The **dashboard widget** shows conflict checks waiting, appointment requests, the next 7 days' appointments and recent client uploads.
 
 ### Private files
 

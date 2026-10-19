@@ -196,6 +196,7 @@ function exf_nav_links() {
 			esc_html( $item->title )
 		);
 	}
+	do_action( 'exf_after_nav_links' );
 }
 
 /**

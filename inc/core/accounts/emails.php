@@ -72,7 +72,31 @@ function exf_email_defaults() {
 		),
 		'booking_reminder' => array(
 			'Reminder: your appointment tomorrow',
-			"Hello {first_name},\n\nA reminder that your {service} appointment is on {appointment}.\n\n{meeting_details}\n\nIf you need to change it, please reply to this email.\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nA reminder that your {service} appointment is on {appointment}.\n\n{meeting_details}\n\nIf you need to change it, please send us a request from your Ex File:\n{link}\n\nBest wishes,\nThe Ex Files",
+		),
+		'document_ready'   => array(
+			'A new document is ready in your Ex File',
+			"Hello {first_name},\n\nWe've added a new document to your Ex File: {document}.\n\nFor your privacy we don't attach documents to emails. Please log in to view it:\n{link}\n\nBest wishes,\nThe Ex Files",
+		),
+		'email_change'     => array(
+			'Confirm your new email address',
+			"Hello {first_name},\n\nPlease confirm that you'd like to use {new_email} for your Ex File by clicking this link while logged in:\n\n{link}\n\nThe link works for 24 hours. If you didn't ask for this, you can ignore this email.\n\nBest wishes,\nThe Ex Files",
+		),
+		'email_changed'    => array(
+			'Your email address has been changed',
+			"Hello {first_name},\n\nThe email address for your Ex File has been changed to {new_email}. We'll use the new address from now on.\n\nIf you didn't make this change, please contact us straight away.\n\nBest wishes,\nThe Ex Files",
+		),
+		'password_reset'   => array(
+			'Reset your password',
+			"Hello {first_name},\n\nSomeone asked to reset the password for your Ex File. If this was you, choose a new password here:\n\n{link}\n\nIf you didn't ask for this, you can ignore this email and your password won't change.\n\nBest wishes,\nThe Ex Files",
+		),
+		'admin_appointment_request' => array(
+			'Appointment request from {client_name}: {request}',
+			"{client_name} has asked you to: {request}.\n\nService: {service}\nAppointment: {appointment}\n\nTheir message:\n{message}\n\nThe client can't change the booking online, so please contact them. If you cancel it, use \"Cancel appointment\" on the order to free the slot (this doesn't refund):\n{admin_link}",
+		),
+		'admin_client_upload' => array(
+			'New document from {client_name}',
+			"{client_name} has uploaded a document to their Ex File.\n\nFile: {document}\nType: {doc_type}\nTheir note: {note}\n\nOpen it here:\n{admin_link}",
 		),
 		'admin_order'      => array(
 			'New order: {service} for {client_name}',
@@ -94,9 +118,24 @@ function exf_email_defaults() {
  * @return bool
  */
 function exf_send_email( $key, $to, array $vars = array() ) {
+	$email = exf_email_render( $key, $vars );
+	if ( ! $email ) {
+		return false;
+	}
+	return (bool) wp_mail( $to, $email[0], $email[1], array( 'Content-Type: text/plain; charset=UTF-8' ) );
+}
+
+/**
+ * Subject and body of an email with its merge tags filled in.
+ *
+ * @param string $key  Email key from exf_email_defaults().
+ * @param array  $vars Merge tags without braces.
+ * @return array|null [ subject, body ]
+ */
+function exf_email_render( $key, array $vars = array() ) {
 	$defaults = exf_email_defaults();
 	if ( ! isset( $defaults[ $key ] ) ) {
-		return false;
+		return null;
 	}
 	$subject = (string) exf_get_option_field( $key . '_subject', EXF_EMAILS_ID, $defaults[ $key ][0] );
 	$body    = (string) exf_get_option_field( $key . '_body', EXF_EMAILS_ID, $defaults[ $key ][1] );
@@ -106,13 +145,7 @@ function exf_send_email( $key, $to, array $vars = array() ) {
 	foreach ( $vars as $k => $v ) {
 		$tags[ '{' . $k . '}' ] = (string) $v;
 	}
-
-	return (bool) wp_mail(
-		$to,
-		wp_strip_all_tags( strtr( $subject, $tags ) ),
-		strtr( $body, $tags ),
-		array( 'Content-Type: text/plain; charset=UTF-8' )
-	);
+	return array( wp_strip_all_tags( strtr( $subject, $tags ) ), strtr( $body, $tags ) );
 }
 
 /**

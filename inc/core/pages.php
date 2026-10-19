@@ -23,6 +23,7 @@ function exf_required_pages() {
 		'guide_sent'    => array( 'page-guide-sent.php', __( 'Your guide is on its way', 'exfiles' ), 'sent', 'guide_landing', 'template' ),
 		'register'      => array( 'page-register.php', __( 'Open your Ex File', 'exfiles' ), 'open-your-ex-file', '', 'template' ),
 		'account'       => array( 'page-account.php', __( 'My Ex File', 'exfiles' ), 'my-ex-file', '', 'template' ),
+		'login'         => array( 'page-login.php', __( 'Log in', 'exfiles' ), 'log-in', '', 'template' ),
 		'buy'           => array( 'page-buy.php', __( 'Choose your service', 'exfiles' ), 'buy', 'account', 'template' ),
 		'services'      => array( 'page-sections.php', __( 'Our services', 'exfiles' ), 'services', '', 'option' ),
 	);

@@ -20,7 +20,8 @@ add_action(
 		nocache_headers();
 
 		if ( ! is_user_logged_in() ) {
-			wp_safe_redirect( wp_login_url( get_permalink() ) );
+			$here = isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ? esc_url_raw( set_url_scheme( 'http://' . wp_unslash( $_SERVER['HTTP_HOST'] ) . wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) : get_permalink(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			wp_safe_redirect( wp_login_url( $here ) );
 			exit;
 		}
 
@@ -135,6 +136,6 @@ function exf_handle_info_reply( $ex_file_id, array $post ) {
 		exf_send_email( 'admin_info', exf_notify_emails(), exf_ex_file_email_vars( $ex_file_id ) );
 	}
 
-	wp_safe_redirect( add_query_arg( 'replied', 1, exf_page_url( 'account' ) ) );
+	wp_safe_redirect( add_query_arg( 'replied', 1, exf_portal_url( 'ex-files', $ex_file_id ) ) );
 	exit;
 }

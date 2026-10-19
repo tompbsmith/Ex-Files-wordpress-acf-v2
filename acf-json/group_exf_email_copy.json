@@ -569,6 +569,306 @@
             },
             "rows": 10,
             "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_document_ready",
+            "label": "Document ready",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_document_ready_subject",
+            "label": "Subject",
+            "name": "document_ready_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {client_name}, {document}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_document_ready_body",
+            "label": "Message",
+            "name": "document_ready_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {first_name}, {client_name}, {document}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_email_change",
+            "label": "Confirm new email",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_email_change_subject",
+            "label": "Subject",
+            "name": "email_change_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {new_email}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_email_change_body",
+            "label": "Message",
+            "name": "email_change_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {first_name}, {new_email}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_email_changed",
+            "label": "Email changed",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_email_changed_subject",
+            "label": "Subject",
+            "name": "email_changed_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {new_email}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_email_changed_body",
+            "label": "Message",
+            "name": "email_changed_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {first_name}, {new_email}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_password_reset",
+            "label": "Password reset",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_password_reset_subject",
+            "label": "Subject",
+            "name": "password_reset_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_password_reset_body",
+            "label": "Message",
+            "name": "password_reset_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {first_name}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_appointment_request",
+            "label": "To you: appointment request",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_appointment_request_subject",
+            "label": "Subject",
+            "name": "admin_appointment_request_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {service}, {appointment}, {request}, {message}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_appointment_request_body",
+            "label": "Message",
+            "name": "admin_appointment_request_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {service}, {appointment}, {request}, {message}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_client_upload",
+            "label": "To you: client upload",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_client_upload_subject",
+            "label": "Subject",
+            "name": "admin_client_upload_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {document}, {doc_type}, {note}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_client_upload_body",
+            "label": "Message",
+            "name": "admin_client_upload_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {document}, {doc_type}, {note}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
         }
     ],
     "location": [
@@ -589,5 +889,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792450494
+    "modified": 1792451617
 }
