@@ -65,7 +65,19 @@ function exf_handle_details_update( $user_id, array $post ) {
 	if ( $changed ) {
 		$first = exf_first_ex_file( $user_id );
 		if ( $first ) {
-			exf_ex_file_log( $first, 'Client updated their details: ' . implode( ', ', str_replace( 'billing_', '', $changed ) ) );
+			$labels = array(
+				'billing_phone'     => 'phone',
+				'billing_address_1' => 'address line 1',
+				'billing_address_2' => 'address line 2',
+				'billing_city'      => 'town or city',
+				'billing_postcode'  => 'postcode',
+				'exf_marketing'     => get_user_meta( $user_id, 'exf_marketing', true ) ? 'marketing emails (now on)' : 'marketing emails (now off)',
+			);
+			$named  = array();
+			foreach ( $changed as $k ) {
+				$named[] = $labels[ $k ] ?? $k;
+			}
+			exf_ex_file_log( $first, 'Client updated their details: ' . implode( ', ', $named ) );
 		}
 	}
 	wp_safe_redirect( add_query_arg( 'saved', 'details', exf_portal_url( 'account-details' ) ) );
