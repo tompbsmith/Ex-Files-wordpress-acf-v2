@@ -98,3 +98,11 @@
     });
   });
 })();
+
+// Day / Month / Year boxes: move on once a day or month has two digits.
+document.addEventListener('input', function (e) {
+  var input = e.target;
+  if (!input.closest || !input.closest('.date-part--d, .date-part--m') || input.value.length !== 2) { return; }
+  var next = input.closest('.date-part').nextElementSibling;
+  if (next) { next.querySelector('input').focus(); }
+});

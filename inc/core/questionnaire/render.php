@@ -125,6 +125,14 @@ function exf_q_render_field( $key, array $field, $value, $name, array $errors, a
 			return;
 	}
 
+	if ( 'date' === $field['type'] ) {
+		echo '<div role="group" aria-labelledby="' . esc_attr( $id ) . '-legend" class="field field--date q-field' . ( $error ? ' has-error' : '' ) . '"' . $show . $data . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		printf( '<div class="field-legend" id="%s-legend">%s</div>', esc_attr( $id ), esc_html( $field['label'] ) );
+		echo exf_date_parts_html( $name, $id, (string) $value, $aria ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $help . $error . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return;
+	}
+
 	echo '<div class="field q-field' . ( $error ? ' has-error' : '' ) . '"' . $show . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	printf( '<label for="%s">%s</label>', esc_attr( $id ), esc_html( $field['label'] ) );
 	if ( 'select' === $field['type'] ) {
@@ -195,9 +203,9 @@ function exf_q_render_money( $key, array $field, array $v, $name, array $errors,
 					<?php echo exf_q_error( $errors, $name . '[frequency]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 			<?php endif; ?>
-			<div class="field<?php echo isset( $errors[ $name . '[as_at]' ] ) ? ' has-error' : ''; ?>">
-				<label for="<?php echo esc_attr( exf_q_id( $name . '[as_at]' ) ); ?>"><?php esc_html_e( 'As at (date)', 'exfiles' ); ?></label>
-				<input type="date" max="2100-12-31" id="<?php echo esc_attr( exf_q_id( $name . '[as_at]' ) ); ?>" name="<?php echo esc_attr( $name . '[as_at]' ); ?>" value="<?php echo esc_attr( (string) ( $v['as_at'] ?? '' ) ); ?>">
+			<div role="group" aria-labelledby="<?php echo esc_attr( exf_q_id( $name . '[as_at]' ) ); ?>-legend" class="field field--date<?php echo isset( $errors[ $name . '[as_at]' ] ) ? ' has-error' : ''; ?>">
+				<div class="field-legend" id="<?php echo esc_attr( exf_q_id( $name . '[as_at]' ) ); ?>-legend"><?php esc_html_e( 'As at (date)', 'exfiles' ); ?></div>
+				<?php echo exf_date_parts_html( $name . '[as_at]', exf_q_id( $name . '[as_at]' ), (string) ( $v['as_at'] ?? '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<?php echo exf_q_error( $errors, $name . '[as_at]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</div>
 		</div>

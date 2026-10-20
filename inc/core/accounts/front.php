@@ -63,29 +63,50 @@ function exf_date_input_value( $value ) {
  * @param array  $desc  Ids describing the field.
  */
 function exf_form_date_field( $name, $label, array $args, $id, $error, array $desc ) {
-	$raw   = (string) ( $args['values'][ $name ] ?? '' );
+	$raw  = (string) ( $args['values'][ $name ] ?? '' );
+	$req  = $args['required'] ? ' required aria-required="true"' : '';
+	$aria = $error ? ' aria-invalid="true"' : '';
+	// A labelled group rather than fieldset/legend: a legend can't take part in the
+	// grid that lines up the boxes of side-by-side dates.
+	echo '<div role="group" aria-labelledby="' . esc_attr( $id . '-legend' ) . '" class="field field--date' . ( $error ? ' has-error' : '' ) . ( $args['class'] ? ' ' . esc_attr( $args['class'] ) : '' ) . '"' . ( $desc ? ' aria-describedby="' . esc_attr( implode( ' ', $desc ) ) . '"' : '' ) . '>';
+	printf( '<div class="field-legend" id="%s">%s%s</div>', esc_attr( $id . '-legend' ), esc_html( $label ), $args['required'] ? '' : ' <span class="optional">' . esc_html__( '(optional)', 'exfiles' ) . '</span>' );
+	echo exf_date_parts_html( $name, $id, $raw, $req . $aria . $args['attrs'], 'bday' === $args['autocomplete'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	if ( $args['note'] ) {
+		printf( '<p class="field-note" id="%s-note">%s</p>', esc_attr( $id ), esc_html( $args['note'] ) );
+	}
+	if ( $error ) {
+		printf( '<p class="field-error" id="%s-error">%s</p>', esc_attr( $id ), wp_kses( $error, array( 'a' => array( 'href' => array() ) ) ) );
+	}
+	echo '</div>';
+}
+
+/**
+ * The three Day / Month / Year boxes, named name[d], name[m], name[y].
+ *
+ * @param string $name  Field name.
+ * @param string $id    Id for the Day box (Month and Year get -m / -y).
+ * @param string $raw   Saved value: Y-m-d, Ymd or d/m/y as typed.
+ * @param string $attrs Extra attributes for each box (already escaped).
+ * @param bool   $bday  Offer the browser's saved date of birth.
+ * @return string
+ */
+function exf_date_parts_html( $name, $id, $raw, $attrs = '', $bday = false ) {
+	$raw   = (string) $raw;
 	$parts = array( '', '', '' );
 	if ( preg_match( '/^(\d{4})-?(\d{1,2})-?(\d{1,2})$/', $raw, $m ) ) {
 		$parts = array( ltrim( $m[3], '0' ), ltrim( $m[2], '0' ), $m[1] );
 	} elseif ( preg_match( '#^(\d{0,2})/(\d{0,2})/(\d{0,4})$#', $raw, $m ) ) {
 		$parts = array( $m[1], $m[2], $m[3] );
 	}
-	$req  = $args['required'] ? ' required aria-required="true"' : '';
-	$bday = 'bday' === $args['autocomplete'];
-	$aria = $error ? ' aria-invalid="true"' : '';
-	// A labelled group rather than fieldset/legend: a legend can't take part in the
-	// grid that lines up the boxes of side-by-side dates.
-	echo '<div role="group" aria-labelledby="' . esc_attr( $id . '-legend' ) . '" class="field field--date' . ( $error ? ' has-error' : '' ) . ( $args['class'] ? ' ' . esc_attr( $args['class'] ) : '' ) . '"' . ( $desc ? ' aria-describedby="' . esc_attr( implode( ' ', $desc ) ) . '"' : '' ) . '>';
-	printf( '<div class="field-legend" id="%s">%s%s</div>', esc_attr( $id . '-legend' ), esc_html( $label ), $args['required'] ? '' : ' <span class="optional">' . esc_html__( '(optional)', 'exfiles' ) . '</span>' );
-	echo '<div class="date-parts">';
 	$boxes = array(
 		'd' => array( __( 'Day', 'exfiles' ), 2, '[0-9]{1,2}', 'bday-day', $parts[0] ),
 		'm' => array( __( 'Month', 'exfiles' ), 2, '[0-9]{1,2}', 'bday-month', $parts[1] ),
 		'y' => array( __( 'Year', 'exfiles' ), 4, '[0-9]{4}', 'bday-year', $parts[2] ),
 	);
+	$html = '<div class="date-parts">';
 	foreach ( $boxes as $k => $b ) {
-		printf(
-			'<label class="date-part date-part--%1$s"><span>%2$s</span><input type="text" inputmode="numeric" id="%3$s" name="%4$s" value="%5$s" maxlength="%6$d" pattern="%7$s" autocomplete="%8$s"%9$s%10$s%11$s></label>',
+		$html .= sprintf(
+			'<label class="date-part date-part--%1$s"><span>%2$s</span><input type="text" inputmode="numeric" id="%3$s" name="%4$s" value="%5$s" maxlength="%6$d" pattern="%7$s" autocomplete="%8$s"%9$s></label>',
 			esc_attr( $k ),
 			esc_html( $b[0] ),
 			esc_attr( $id . ( 'd' === $k ? '' : '-' . $k ) ),
@@ -94,19 +115,10 @@ function exf_form_date_field( $name, $label, array $args, $id, $error, array $de
 			(int) $b[1],
 			esc_attr( $b[2] ),
 			esc_attr( $bday ? $b[3] : 'off' ),
-			$req, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			$args['attrs'] // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$attrs
 		);
 	}
-	echo '</div>';
-	if ( $args['note'] ) {
-		printf( '<p class="field-note" id="%s-note">%s</p>', esc_attr( $id ), esc_html( $args['note'] ) );
-	}
-	if ( $error ) {
-		printf( '<p class="field-error" id="%s-error">%s</p>', esc_attr( $id ), wp_kses( $error, array( 'a' => array( 'href' => array() ) ) ) );
-	}
-	echo '</div>';
+	return $html . '</div>';
 }
 
 /**
@@ -118,24 +130,44 @@ function exf_merge_date_parts() {
 	if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
 		return;
 	}
-	// phpcs:disable WordPress.Security.NonceVerification.Missing -- reshaping only; each handler checks its nonce.
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- reshaping only; each handler checks its nonce.
 	foreach ( $_POST as $key => $value ) {
-		if ( ! is_array( $value ) || array_keys( $value ) !== array( 'd', 'm', 'y' ) ) {
-			continue;
+		if ( is_array( $value ) ) {
+			$_POST[ $key ] = exf_merge_date_parts_in( $value );
+			if ( isset( $_REQUEST[ $key ] ) ) {
+				$_REQUEST[ $key ] = $_POST[ $key ];
+			}
 		}
+	}
+}
+
+/**
+ * Merge date boxes at any depth (the questionnaire nests them, e.g. q[properties][0][value][as_at]).
+ *
+ * @param array $value Posted array.
+ * @return array|string
+ */
+function exf_merge_date_parts_in( array $value ) {
+	$keys = array_keys( $value );
+	sort( $keys );
+	if ( array( 'd', 'm', 'y' ) === $keys ) {
 		$d = trim( (string) $value['d'] );
 		$m = trim( (string) $value['m'] );
 		$y = trim( (string) $value['y'] );
 		if ( '' === $d . $m . $y ) {
-			$_POST[ $key ] = '';
-		} elseif ( ctype_digit( $d . $m . $y ) && 4 === strlen( $y ) && checkdate( (int) $m, (int) $d, (int) $y ) ) {
-			$_POST[ $key ] = sprintf( '%04d-%02d-%02d', $y, $m, $d );
-		} else {
-			$_POST[ $key ] = $d . '/' . $m . '/' . $y;
+			return '';
 		}
-		$_REQUEST[ $key ] = $_POST[ $key ];
+		if ( ctype_digit( $d . $m . $y ) && 4 === strlen( $y ) && checkdate( (int) $m, (int) $d, (int) $y ) ) {
+			return sprintf( '%04d-%02d-%02d', $y, $m, $d );
+		}
+		return $d . '/' . $m . '/' . $y;
 	}
-	// phpcs:enable
+	foreach ( $value as $k => $v ) {
+		if ( is_array( $v ) ) {
+			$value[ $k ] = exf_merge_date_parts_in( $v );
+		}
+	}
+	return $value;
 }
 add_action( 'init', 'exf_merge_date_parts', 0 );
 

@@ -633,3 +633,9 @@ summary.link-button::-webkit-details-marker{display:none;}
 .field-row > .field--date{display:grid; grid-row:span 4; grid-template-rows:subgrid; row-gap:0;}
 .field-row > .field--date .field-legend{align-self:end;}
 .field-row > .field--date .date-parts{align-self:start;}
+/* Money rows: line the amount, "how often" and date boxes up along the bottom. */
+.q-money-row{row-gap:0;}
+.q-money-row > .field{display:grid; grid-template-rows:subgrid; grid-row:span 3; align-content:start;}
+.q-money-row > .field[hidden]{display:none;}
+.q-money-row > .field > label, .q-money-row > .field > .field-legend{align-self:end;}
+.q-money-row > .field > input, .q-money-row > .field > select, .q-money-row > .field > .q-pound, .q-money-row > .field > .date-parts{align-self:end;}

@@ -110,15 +110,6 @@
     syncDob();
   }
 
-  // Move to the next box once a day or month has two digits.
-  form.querySelectorAll('.date-part--d input, .date-part--m input').forEach(function (i) {
-    i.addEventListener('input', function () {
-      if (i.value.length === 2) {
-        var next = i.closest('.date-part').nextElementSibling;
-        if (next) { next.querySelector('input').focus(); }
-      }
-    });
-  });
 
   btnNext.addEventListener('click', function () {
     if (validStep(current)) { show(current + 1, true); }
