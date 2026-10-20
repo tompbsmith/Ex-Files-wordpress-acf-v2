@@ -63,10 +63,11 @@
     }
 
     if (n === 2) {
-      var dob = form.querySelector('[name="ex_dob"]');
+      var dobParts = form.querySelectorAll('[name^="ex_dob["]');
       var unknown = form.querySelector('[name="ex_dob_unknown"]');
-      if (!dob.value && !unknown.checked) {
-        ok = false; mark(dob, true); first = first || dob; message = cfg.exDob || message;
+      var filled = Array.prototype.some.call(dobParts, function (i) { return i.value.trim() !== ''; });
+      if (!filled && !unknown.checked) {
+        ok = false; dobParts.forEach(function (i) { mark(i, true); }); first = first || dobParts[0]; message = cfg.exDob || message;
       }
     }
 
@@ -97,14 +98,27 @@
 
   // Ticking "I don't know" clears the date.
   var unknownBox = form.querySelector('[name="ex_dob_unknown"]');
-  var exDob = form.querySelector('[name="ex_dob"]');
-  if (unknownBox && exDob) {
-    unknownBox.addEventListener('change', function () {
-      exDob.disabled = unknownBox.checked;
-      if (unknownBox.checked) { exDob.value = ''; mark(exDob, false); }
-    });
-    exDob.disabled = unknownBox.checked;
+  var exDob = form.querySelectorAll('[name^="ex_dob["]');
+  if (unknownBox && exDob.length) {
+    var syncDob = function () {
+      exDob.forEach(function (i) {
+        i.disabled = unknownBox.checked;
+        if (unknownBox.checked) { i.value = ''; mark(i, false); }
+      });
+    };
+    unknownBox.addEventListener('change', syncDob);
+    syncDob();
   }
+
+  // Move to the next box once a day or month has two digits.
+  form.querySelectorAll('.date-part--d input, .date-part--m input').forEach(function (i) {
+    i.addEventListener('input', function () {
+      if (i.value.length === 2) {
+        var next = i.closest('.date-part').nextElementSibling;
+        if (next) { next.querySelector('input').focus(); }
+      }
+    });
+  });
 
   btnNext.addEventListener('click', function () {
     if (validStep(current)) { show(current + 1, true); }

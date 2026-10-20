@@ -50,6 +50,94 @@ function exf_date_input_value( $value ) {
 }
 
 /**
+ * A date as three boxes (Day / Month / Year), the pattern GOV.UK uses for
+ * dates of birth: quicker than a calendar for dates years back, and the same in
+ * every browser. Posted as name[d], name[m], name[y]; exf_merge_date_parts()
+ * turns that back into one value before any form handler runs.
+ *
+ * @param string $name  Field name.
+ * @param string $label Label.
+ * @param array  $args  Field args.
+ * @param string $id    Base id.
+ * @param string $error Error message.
+ * @param array  $desc  Ids describing the field.
+ */
+function exf_form_date_field( $name, $label, array $args, $id, $error, array $desc ) {
+	$raw   = (string) ( $args['values'][ $name ] ?? '' );
+	$parts = array( '', '', '' );
+	if ( preg_match( '/^(\d{4})-?(\d{1,2})-?(\d{1,2})$/', $raw, $m ) ) {
+		$parts = array( ltrim( $m[3], '0' ), ltrim( $m[2], '0' ), $m[1] );
+	} elseif ( preg_match( '#^(\d{0,2})/(\d{0,2})/(\d{0,4})$#', $raw, $m ) ) {
+		$parts = array( $m[1], $m[2], $m[3] );
+	}
+	$req  = $args['required'] ? ' required aria-required="true"' : '';
+	$bday = 'bday' === $args['autocomplete'];
+	$aria = $error ? ' aria-invalid="true"' : '';
+	echo '<fieldset class="field field--date' . ( $error ? ' has-error' : '' ) . ( $args['class'] ? ' ' . esc_attr( $args['class'] ) : '' ) . '"' . ( $desc ? ' aria-describedby="' . esc_attr( implode( ' ', $desc ) ) . '"' : '' ) . '>';
+	printf( '<legend>%s%s</legend>', esc_html( $label ), $args['required'] ? '' : ' <span class="optional">' . esc_html__( '(optional)', 'exfiles' ) . '</span>' );
+	echo '<div class="date-parts">';
+	$boxes = array(
+		'd' => array( __( 'Day', 'exfiles' ), 2, '[0-9]{1,2}', 'bday-day', $parts[0] ),
+		'm' => array( __( 'Month', 'exfiles' ), 2, '[0-9]{1,2}', 'bday-month', $parts[1] ),
+		'y' => array( __( 'Year', 'exfiles' ), 4, '[0-9]{4}', 'bday-year', $parts[2] ),
+	);
+	foreach ( $boxes as $k => $b ) {
+		printf(
+			'<label class="date-part date-part--%1$s"><span>%2$s</span><input type="text" inputmode="numeric" id="%3$s" name="%4$s" value="%5$s" maxlength="%6$d" pattern="%7$s" autocomplete="%8$s"%9$s%10$s%11$s></label>',
+			esc_attr( $k ),
+			esc_html( $b[0] ),
+			esc_attr( $id . ( 'd' === $k ? '' : '-' . $k ) ),
+			esc_attr( $name . '[' . $k . ']' ),
+			esc_attr( $b[4] ),
+			(int) $b[1],
+			esc_attr( $b[2] ),
+			esc_attr( $bday ? $b[3] : 'off' ),
+			$req, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			$args['attrs'] // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		);
+	}
+	echo '</div>';
+	if ( $args['note'] ) {
+		printf( '<p class="field-note" id="%s-note">%s</p>', esc_attr( $id ), esc_html( $args['note'] ) );
+	}
+	if ( $error ) {
+		printf( '<p class="field-error" id="%s-error">%s</p>', esc_attr( $id ), wp_kses( $error, array( 'a' => array( 'href' => array() ) ) ) );
+	}
+	echo '</fieldset>';
+}
+
+/**
+ * Turn posted Day / Month / Year boxes into one value: Y-m-d when it's a real
+ * date, "d/m/y" as typed otherwise (so the form's own check reports it), or ''.
+ * Runs before any form handler, so handlers see a plain string as before.
+ */
+function exf_merge_date_parts() {
+	if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+		return;
+	}
+	// phpcs:disable WordPress.Security.NonceVerification.Missing -- reshaping only; each handler checks its nonce.
+	foreach ( $_POST as $key => $value ) {
+		if ( ! is_array( $value ) || array_keys( $value ) !== array( 'd', 'm', 'y' ) ) {
+			continue;
+		}
+		$d = trim( (string) $value['d'] );
+		$m = trim( (string) $value['m'] );
+		$y = trim( (string) $value['y'] );
+		if ( '' === $d . $m . $y ) {
+			$_POST[ $key ] = '';
+		} elseif ( ctype_digit( $d . $m . $y ) && 4 === strlen( $y ) && checkdate( (int) $m, (int) $d, (int) $y ) ) {
+			$_POST[ $key ] = sprintf( '%04d-%02d-%02d', $y, $m, $d );
+		} else {
+			$_POST[ $key ] = $d . '/' . $m . '/' . $y;
+		}
+		$_REQUEST[ $key ] = $_POST[ $key ];
+	}
+	// phpcs:enable
+}
+add_action( 'init', 'exf_merge_date_parts', 0 );
+
+/**
  * Print a labelled form field.
  *
  * @param string $name   Field name.
@@ -87,6 +175,11 @@ function exf_form_field( $name, $label, array $args = array() ) {
 	}
 	$aria = ( $desc ? ' aria-describedby="' . esc_attr( implode( ' ', $desc ) ) . '"' : '' ) . ( $error ? ' aria-invalid="true"' : '' );
 	$ac   = $args['autocomplete'] ? ' autocomplete="' . esc_attr( $args['autocomplete'] ) . '"' : '';
+
+	if ( 'date' === $args['type'] ) {
+		exf_form_date_field( $name, $label, $args, $id, $error, $desc );
+		return;
+	}
 
 	echo '<div class="field' . ( $error ? ' has-error' : '' ) . ( $args['class'] ? ' ' . esc_attr( $args['class'] ) : '' ) . '">';
 	printf( '<label for="%s">%s%s</label>', esc_attr( $id ), esc_html( $label ), $args['required'] ? '' : ' <span class="optional">' . esc_html__( '(optional)', 'exfiles' ) . '</span>' );
