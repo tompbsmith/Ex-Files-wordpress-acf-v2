@@ -220,7 +220,7 @@
     box-shadow:0 20px 45px rgba(49,25,15,.08);
     display:flex; flex-direction:column; gap:18px;
   }
-  .field label{display:block; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px;}
+  .field label{display:block; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--brown-btn); margin-bottom:8px;}
   .field input, .field textarea{
     width:100%; border:1px solid rgba(49,25,15,.25); background:var(--white);
     padding:13px 14px; font-family:'Jost',sans-serif; font-size:15px; color:var(--brown-dark);
@@ -607,7 +607,7 @@ summary.link-button::-webkit-details-marker{display:none;}
   .q-out-head{display:none;}
   .q-out-row{grid-template-columns:1fr 1fr; padding:14px 0;}
   .q-out-cat{grid-column:1/-1; font-weight:500;}
-  .q-out-label{display:block; font-size:12px; color:var(--muted); margin-bottom:4px;}
+  .q-out-label{display:block; font-size:12px; color:var(--brown-btn); margin-bottom:4px;}
   .q-start-list{columns:1;}
   .q-sum-table th{width:auto; display:block; padding-bottom:0; border:0;}
   .q-sum-table td{display:block; padding-top:2px;}
@@ -620,9 +620,9 @@ summary.link-button::-webkit-details-marker{display:none;}
 
 /* Day / Month / Year date boxes */
 .field--date{margin:0 0 18px; min-width:0;}
-.field--date .field-legend{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:10px;}
+.field--date .field-legend{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--brown-btn); margin-bottom:10px;}
 .date-parts{display:flex; gap:12px; align-items:flex-end;}
-.field .date-part{display:flex; flex-direction:column; margin:0; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);}
+.field .date-part{display:flex; flex-direction:column; margin:0; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--brown-btn);}
 .date-part span{display:block; margin-bottom:8px;}
 .date-part input{width:4.2em; text-align:center;}
 .date-part--y input{width:6em;}
