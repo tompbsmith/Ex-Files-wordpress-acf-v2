@@ -73,3 +73,32 @@ function exf_post_type_caps( $allow_create = true ) {
 		'create_posts'           => $allow_create ? EXF_CAP : 'do_not_allow',
 	);
 }
+
+// Plain "saved" messages instead of WordPress's "Post published." on the Ex Files record screens.
+add_filter(
+	'post_updated_messages',
+	function ( $messages ) {
+		$names = array(
+			'ex_file'          => __( 'Ex File', 'exfiles' ),
+			'client_document'  => __( 'Document', 'exfiles' ),
+			'conflict_record'  => __( 'Register entry', 'exfiles' ),
+			'fs_questionnaire' => __( 'Questionnaire', 'exfiles' ),
+			'exf_order'        => __( 'Order', 'exfiles' ),
+			'guide_request'    => __( 'Guide request', 'exfiles' ),
+		);
+		foreach ( $names as $type => $name ) {
+			/* translators: %s: record type, e.g. Document */
+			$saved             = sprintf( __( '%s saved.', 'exfiles' ), $name );
+			$messages[ $type ] = array(
+				0  => '',
+				1  => $saved,
+				4  => $saved,
+				6  => $saved,
+				7  => $saved,
+				8  => $saved,
+				10 => $saved,
+			);
+		}
+		return $messages;
+	}
+);
