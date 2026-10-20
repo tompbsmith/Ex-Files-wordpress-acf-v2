@@ -83,6 +83,16 @@ function exf_privacy_pairs( array $pairs ) {
  * @param string $email Email.
  * @param int    $page  Page.
  */
+/**
+ * A stored date (Ymd or Y-m-d) as dd/mm/yyyy for people to read.
+ *
+ * @param string $value Stored date.
+ */
+function exf_privacy_date( $value ) {
+	$norm = exf_norm_dob( (string) $value );
+	return $norm ? gmdate( 'd/m/Y', strtotime( $norm ) ) : (string) $value;
+}
+
 function exf_privacy_export( $email, $page = 1 ) {
 	$items = array();
 	$user  = get_user_by( 'email', $email );
@@ -98,7 +108,7 @@ function exf_privacy_export( $email, $page = 1 ) {
 				array(
 					'Name'           => trim( $d['first_name'] . ' ' . $d['last_name'] ),
 					'Previous names' => $d['prev_names'],
-					'Date of birth'  => $d['dob'],
+					'Date of birth'  => exf_privacy_date( $d['dob'] ),
 					'Email'          => $d['email'],
 					'Phone'          => $d['phone'],
 					'Address'        => trim( implode( ', ', array_filter( array( get_user_meta( $uid, 'billing_address_1', true ), get_user_meta( $uid, 'billing_address_2', true ), get_user_meta( $uid, 'billing_city', true ), $d['postcode'] ) ) ) ),
@@ -117,13 +127,13 @@ function exf_privacy_export( $email, $page = 1 ) {
 					array(
 						"Ex's name"            => trim( $ex['first_name'] . ' ' . $ex['last_name'] ),
 						"Ex's other names"     => $ex['prev_names'],
-						"Ex's date of birth"   => $ex['dob'],
+						"Ex's date of birth"   => exf_privacy_date( $ex['dob'] ),
 						"Ex's email"           => $ex['email'],
 						"Ex's phone"           => $ex['phone'],
 						"Ex's postcode"        => $ex['postcode'],
 						'Relationship'         => get_post_meta( $f, 'relationship', true ),
-						'Date of marriage'     => get_post_meta( $f, 'marriage_date', true ),
-						'Date of separation'   => get_post_meta( $f, 'separation_date', true ),
+						'Date of marriage'     => exf_privacy_date( get_post_meta( $f, 'marriage_date', true ) ),
+						'Date of separation'   => exf_privacy_date( get_post_meta( $f, 'separation_date', true ) ),
 						'Opened'               => get_the_date( 'j M Y', $f ),
 					)
 				),
