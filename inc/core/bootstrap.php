@@ -65,6 +65,7 @@ require EXF_CORE_DIR . '/questionnaire/render.php';
 require EXF_CORE_DIR . '/questionnaire/front.php';
 require EXF_CORE_DIR . '/questionnaire/outputs.php';
 require EXF_CORE_DIR . '/questionnaire/admin.php';
+require EXF_CORE_DIR . '/questionnaire/gdrive.php';
 
 require EXF_CORE_DIR . '/admin/audit.php';
 require EXF_CORE_DIR . '/admin/retention.php';

@@ -567,6 +567,109 @@
             "placeholder": "sk_test_\u2026"
         },
         {
+            "key": "field_exf_set_tab_gdrive",
+            "label": "Google Drive",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_set_gdrive_help",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_exf_set_gdrive_enabled",
+            "label": "Save asset schedules to Google Sheets",
+            "name": "gdrive_enabled",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Only works once Google Drive is connected above.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "off": "No",
+                "on": "Yes"
+            },
+            "default_value": "off",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_set_gdrive_client_id",
+            "label": "Google client ID",
+            "name": "gdrive_client_id",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Or define EXF_GOOGLE_CLIENT_ID in wp-config.php.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_set_gdrive_client_secret",
+            "label": "Google client secret",
+            "name": "gdrive_client_secret",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "Or define EXF_GOOGLE_CLIENT_SECRET in wp-config.php.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_set_stripe_mode",
+                        "operator": "==",
+                        "value": "test"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "sk_test_\u2026"
+        },
+        {
             "key": "field_exf_set_tab_payments",
             "label": "Payments",
             "name": "",
@@ -743,5 +846,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792460747
+    "modified": 1792462422
 }

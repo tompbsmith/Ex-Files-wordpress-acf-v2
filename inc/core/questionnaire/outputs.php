@@ -409,5 +409,8 @@ function exf_q_generate_xlsx( $q ) {
 	exf_private_delete( (string) get_post_meta( $q, 'q_xlsx', true ) );
 	update_post_meta( $q, 'q_xlsx', $stored );
 	update_post_meta( $q, 'q_xlsx_name', $name );
+	if ( function_exists( 'exf_gdrive_enabled' ) && exf_gdrive_enabled() ) {
+		exf_q_send_to_gsheets( $q );
+	}
 	return true;
 }

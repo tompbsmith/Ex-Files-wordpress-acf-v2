@@ -87,6 +87,13 @@ function exf_q_download_links( $q ) {
 	if ( get_post_meta( $q, 'q_xlsx', true ) ) {
 		$links[] = '<a href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=exf_q_xlsx&q=' . $q ), 'exf_q_xlsx_' . $q ) ) . '">' . esc_html__( 'Asset schedule (Excel)', 'exfiles' ) . '</a>';
 	}
+	$sheet = (string) get_post_meta( $q, 'q_gsheet_url', true );
+	if ( $sheet ) {
+		$links[] = '<a href="' . esc_url( $sheet ) . '" target="_blank" rel="noopener">' . esc_html__( 'Google Sheet', 'exfiles' ) . '</a>';
+	} elseif ( get_post_meta( $q, 'q_xlsx', true ) && function_exists( 'exf_gdrive_enabled' ) && exf_gdrive_enabled() ) {
+		$links[] = '<a href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=exf_q_gsheet&q=' . $q ), 'exf_q_gsheet_' . $q ) ) . '">' . esc_html__( 'Send to Google Sheets', 'exfiles' ) . '</a>'
+			. ( get_post_meta( $q, 'q_gsheet_error', true ) ? ' <span style="color:#b32d2e" title="' . esc_attr( (string) get_post_meta( $q, 'q_gsheet_error', true ) ) . '">' . esc_html__( '(last try failed)', 'exfiles' ) . '</span>' : '' );
+	}
 	echo $links ? implode( ' · ', $links ) : '—'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
