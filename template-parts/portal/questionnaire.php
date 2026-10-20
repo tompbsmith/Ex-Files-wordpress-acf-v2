@@ -164,6 +164,12 @@ $exf_form_open = function ( $action ) use ( $exf_q ) {
 			<?php if ( ! empty( $exf_sec['intro'] ) ) : ?>
 				<p class="q-intro"><?php echo esc_html( $exf_sec['intro'] ); ?></p>
 			<?php endif; ?>
+			<?php
+			// Coming back to a saved section: mark what still needs attention.
+			if ( ! $exf_errors && isset( $exf_data[ $exf_step ] ) && ! empty( $exf_all_errors[ $exf_step ] ) ) {
+				$exf_errors = $exf_all_errors[ $exf_step ];
+			}
+			?>
 			<?php if ( $exf_errors ) : ?>
 				<div class="notice-box notice-box--error" role="alert"><p><?php esc_html_e( "Your answers are saved, but some need attention before you move on. They're marked below.", 'exfiles' ); ?></p></div>
 			<?php endif; ?>

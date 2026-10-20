@@ -186,9 +186,9 @@ function exf_q_handle_step( $q, array $post ) {
 		wp_safe_redirect( exf_q_url( $q, $pos > 0 ? $visible[ $pos - 1 ] : $key ) );
 		exit;
 	}
-	if ( $errors ) {
-		return $errors;
-	}
+	// Missing or wrong answers don't stop them moving on: the section button turns
+	// red, and the answers are marked when they come back to it (or at review).
+	unset( $errors );
 	$next = $visible[ $pos + 1 ] ?? 'review';
 	if ( 'review' === sanitize_key( $post['return'] ?? '' ) ) {
 		$next = 'review';
