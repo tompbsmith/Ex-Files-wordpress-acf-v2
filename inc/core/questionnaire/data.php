@@ -291,7 +291,11 @@ function exf_q_validate_fields( array $fields, array $values, $prefix, array $al
 				$errors += exf_q_validate_fields( $field['fields'], is_array( $v ) ? $v : array(), $name, $all );
 				break;
 			case 'repeater':
-				foreach ( ( is_array( $v ) ? $v : array() ) as $i => $item ) {
+				$v = array_filter( is_array( $v ) ? $v : array(), 'is_array' );
+				if ( ! $v && ! empty( $field['min_items'] ) ) {
+					$v = array( array() ); // Check the empty first block, so its questions show what's missing.
+				}
+				foreach ( $v as $i => $item ) {
 					if ( is_array( $item ) ) {
 						$errors += exf_q_validate_fields( $field['fields'], $item, $name . '[' . $i . ']', $all );
 					}

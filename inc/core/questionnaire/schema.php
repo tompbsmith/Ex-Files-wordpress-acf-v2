@@ -692,6 +692,16 @@ function exf_q_sections() {
 function exf_q_apply_required( array $sections ) {
 	foreach ( $sections as &$section ) {
 		$section['fields'] = exf_q_apply_required_fields( $section['fields'] );
+		// Answering Yes to a section's opening question means at least one block
+		// (account, property, child…) has to be filled in.
+		if ( ! empty( $section['gate'] ) ) {
+			foreach ( $section['fields'] as &$field ) {
+				if ( 'repeater' === $field['type'] ) {
+					$field['min_items'] = 1;
+				}
+			}
+			unset( $field );
+		}
 	}
 	return $sections;
 }
