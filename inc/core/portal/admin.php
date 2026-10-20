@@ -180,6 +180,37 @@ function exf_dashboard_widget() {
 		<?php endif; ?>
 	</p>
 
+	<?php
+	$todo    = function_exists( 'exf_orders_to_do' ) ? count( exf_orders_to_do() ) : 0;
+	$waiting = function_exists( 'exf_questionnaires_waiting' ) ? exf_questionnaires_waiting() : array();
+	$expired = (int) get_transient( 'exf_retention_due' );
+	?>
+	<?php if ( $waiting ) : ?>
+		<h3><strong><?php esc_html_e( 'Questionnaires waiting for you', 'exfiles' ); ?></strong></h3>
+		<ul>
+			<?php foreach ( $waiting as $q ) : ?>
+				<?php $u = get_userdata( (int) get_post_field( 'post_author', $q ) ); ?>
+				<li><a href="<?php echo esc_url( get_edit_post_link( $q ) ); ?>"><?php echo esc_html( ( $u ? $u->display_name : '' ) . ' – ' . exf_q_service_name( $q ) ); ?></a> (<?php echo esc_html( wp_date( 'j M', (int) get_post_meta( $q, 'q_submitted_at', true ) ) ); ?>)</li>
+			<?php endforeach; ?>
+		</ul>
+	<?php endif; ?>
+	<p>
+		<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=exf_order&exf_todo=1' ) ); ?>">
+			<?php
+			/* translators: %d: count */
+			echo esc_html( sprintf( _n( '%d service to deliver', '%d services to deliver', $todo, 'exfiles' ), $todo ) );
+			?>
+		</a>
+		<?php if ( $expired ) : ?>
+			&nbsp;·&nbsp; <a href="<?php echo esc_url( admin_url( 'edit.php?post_type=ex_file&page=exf-retention' ) ); ?>">
+				<?php
+				/* translators: %d: count */
+				echo esc_html( sprintf( _n( '%d matter past retention', '%d matters past retention', $expired, 'exfiles' ), $expired ) );
+				?>
+			</a>
+		<?php endif; ?>
+	</p>
+
 	<?php if ( $requests ) : ?>
 		<h3><strong><?php esc_html_e( 'Appointment requests', 'exfiles' ); ?></strong></h3>
 		<ul>

@@ -499,6 +499,7 @@ function exf_ex_file_log( $ex_file_id, $message ) {
 		'msg'  => $message,
 	);
 	update_post_meta( $ex_file_id, 'exf_log', array_slice( array_filter( $log ), -200 ) );
+	do_action( 'exf_ex_file_logged', $ex_file_id, $message );
 }
 
 /**

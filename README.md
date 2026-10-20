@@ -155,6 +155,15 @@ The **dashboard widget** shows conflict checks waiting, appointment requests, th
 - If the client buys another service for the same separation, they can start from their last answers.
 - Reminders go 3 and 7 days after payment, and 2 days before a Know Your Position appointment, if it hasn't been submitted (never two within a day).
 
+### Admin tools
+
+- **Activity log** (Ex Files → Activity log): who did what, newest first, with search and CSV download. Everything recorded on an Ex File is copied here, plus staff logins, staff downloads of client documents, matter deletions and data protection requests. Kept for the client retention period.
+- **Retention review** (Ex Files → Retention review): matters with no activity for the retention period (Settings → Data retention, default 6 years). Nothing is deleted automatically. Deleting a matter removes its documents, questionnaires, schedules and orders, and the client's account if it was their only matter; the client and their ex are added to the Conflict Register first so future conflict checks still find them. Deleting a client from Users does the same.
+- **Data protection requests** use WordPress's own tools (Tools → Export / Erase Personal Data). The export covers the account, Ex Files, orders, documents, questionnaire answers and free guide requests. Erasing deletes free guide requests and registrations with no work; a paying client's matters are kept as legal records (the request says until when) and marketing is switched off.
+- **Delivery to-do:** paid services stay on the dashboard and in Orders → To do until marked **completed** on the order. The client then sees "Completed". The dashboard also lists submitted questionnaires waiting for you and matters past retention.
+- **Email** (Settings → Email): from name and address, reply-to, and SMTP details from your email provider, with a test button. On the live site, put the SMTP details in `wp-config.php` instead (`EXF_SMTP_HOST`, `EXF_SMTP_PORT`, `EXF_SMTP_SECURE`, `EXF_SMTP_USER`, `EXF_SMTP_PASS`).
+- **Security:** the WordPress version is hidden, XML-RPC is off, usernames can't be listed (`?author=` and the REST users list), wp-login.php gives the same error for a wrong username or password, the theme/plugin file editors are off, and pages send standard security headers.
+
 ### Private files
 
 Client files go in `wp-content/uploads/exfiles-private/`, which has an `.htaccess` that blocks direct access on Apache. **On Nginx hosts, also add a rule denying web access to that folder.** Files are only served through PHP after a permission or token check (`inc/core/storage.php`).

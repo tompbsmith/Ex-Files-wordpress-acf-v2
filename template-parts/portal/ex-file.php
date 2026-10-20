@@ -98,7 +98,7 @@ $exf_docs   = exf_client_documents( $exf_uid, $exf_id );
 							<span class="portal-list-meta"><?php echo esc_html( exf_booking_label( $exf_os, (int) get_post_meta( $exf_o, 'booking_end', true ) ) ); ?><?php echo $exf_os < time() ? ' ' . esc_html__( '(past)', 'exfiles' ) : ''; ?></span>
 						<?php endif; ?>
 					</div>
-					<span class="portal-pill"><?php echo esc_html( exf_order_status_label( exf_order_status( $exf_o ) ) ); ?></span>
+					<span class="portal-pill"><?php echo esc_html( apply_filters( 'exf_client_order_label', exf_order_status_label( exf_order_status( $exf_o ) ), $exf_o ) ); ?></span>
 				</li>
 			<?php endforeach; ?>
 		</ul>

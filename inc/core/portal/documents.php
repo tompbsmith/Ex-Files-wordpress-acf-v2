@@ -272,6 +272,9 @@ add_action(
 			wp_die( esc_html__( "Sorry, you can't open that document.", 'exfiles' ), '', array( 'response' => 403 ) );
 		}
 		$is_owner = (int) get_post_meta( $id, 'client_id', true ) === get_current_user_id();
+		if ( ! $is_owner && function_exists( 'exf_audit' ) ) {
+			exf_audit( 'document_download', 'Downloaded ' . get_post_meta( $id, 'file_name', true ) . ' (' . get_the_title( (int) get_post_meta( $id, 'ex_file_id', true ) ) . ')', 'document', $id );
+		}
 		if ( $is_owner && 'firm' === get_post_meta( $id, 'uploaded_by', true ) && ! get_post_meta( $id, 'viewed_at', true ) ) {
 			update_post_meta( $id, 'viewed_at', time() );
 			$ex_file = (int) get_post_meta( $id, 'ex_file_id', true );
