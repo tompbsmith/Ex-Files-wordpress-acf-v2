@@ -651,3 +651,4 @@ summary.link-button::-webkit-details-marker{display:none;}
 .q-money-row > .field[hidden]{display:none;}
 .q-money-row > .field > label, .q-money-row > .field > .field-legend{align-self:end;}
 .q-money-row > .field > input, .q-money-row > .field > select, .q-money-row > .field > .q-pound, .q-money-row > .field > .date-parts{align-self:end;}
+.account-locked-note{margin-bottom:18px;}

@@ -106,3 +106,11 @@ document.addEventListener('input', function (e) {
   var next = input.closest('.date-part').nextElementSibling;
   if (next) { next.querySelector('input').focus(); }
 });
+
+// Phones: the portal tabs scroll sideways, so bring the current one into view.
+(function () {
+  var active = document.querySelector('.portal-nav a.active');
+  var nav = active && active.closest('.portal-nav');
+  if (!nav || nav.scrollWidth <= nav.clientWidth) { return; }
+  nav.scrollLeft = Math.max(0, active.offsetLeft - nav.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2);
+})();

@@ -52,7 +52,7 @@ $exf_pending = get_user_meta( $exf_uid, 'exf_new_email', true );
 			<dd><?php echo esc_html( wp_date( 'j F Y', strtotime( exf_norm_dob( $exf_d['dob'] ) . ' 12:00' ) ) ); ?></dd>
 		<?php endif; ?>
 	</dl>
-	<p class="field-note"><?php echo esc_html( exf_portal_copy( 'locked_details' ) ); ?></p>
+	<p class="field-note account-locked-note"><?php echo esc_html( exf_portal_copy( 'locked_details' ) ); ?></p>
 
 	<form method="post" novalidate>
 		<?php exf_portal_form_fields( 'details' ); ?>
