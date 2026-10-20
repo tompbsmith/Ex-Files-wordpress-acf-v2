@@ -52,9 +52,17 @@ get_header();
 			<?php endif; ?>
 			<p><strong><?php esc_html_e( 'Ex File:', 'exfiles' ); ?></strong> <?php echo esc_html( trim( implode( ' ', array_slice( exf_ex_details( (int) get_post_meta( $exf_order, 'ex_file_id', true ) ), 0, 2 ) ) ) ); ?></p>
 			<?php if ( exf_order_is_live( $exf_order ) && $exf_osvc && $exf_osvc['questionnaire'] ) : ?>
-				<p style="margin-top:14px"><?php esc_html_e( "Next, you'll complete a questionnaire about your finances. We'll email you when it's ready.", 'exfiles' ); ?></p>
+				<?php $exf_oq = (int) get_post_meta( $exf_order, 'questionnaire_id', true ); ?>
+				<?php if ( $exf_oq && function_exists( 'exf_q_url' ) ) : ?>
+					<p style="margin-top:14px"><?php esc_html_e( 'Next, please complete your financial questionnaire. Your answers are saved as you go, so you can do it in more than one sitting.', 'exfiles' ); ?></p>
+				<?php else : ?>
+					<p style="margin-top:14px"><?php esc_html_e( "Next, you'll complete a questionnaire about your finances. We'll email you when it's ready.", 'exfiles' ); ?></p>
+				<?php endif; ?>
 			<?php endif; ?>
 			<p style="margin-top:22px">
+				<?php if ( ! empty( $exf_oq ) && function_exists( 'exf_q_url' ) ) : ?>
+					<a class="btn" href="<?php echo esc_url( exf_q_url( $exf_oq ) ); ?>"><?php esc_html_e( 'Start your questionnaire', 'exfiles' ); ?></a>
+				<?php endif; ?>
 				<?php if ( 'cancelled' === $exf_status && $exf_osvc ) : ?>
 					<a class="btn" href="<?php echo esc_url( add_query_arg( 'service', $exf_osvc['id'], exf_page_url( 'buy' ) ) ); ?>"><?php esc_html_e( 'Try again', 'exfiles' ); ?></a>
 				<?php endif; ?>

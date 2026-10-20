@@ -338,11 +338,14 @@ function exf_handle_client_upload( $user_id ) {
 	}
 	exf_ex_file_log( $ex_file, 'Client uploaded: ' . $stored['file_name'] );
 
-	$vars = exf_ex_file_email_vars( $ex_file ) + array(
-		'document'   => $stored['file_name'],
-		'doc_type'   => exf_document_type_label( $type ),
-		'note'       => $note ? $note : '—',
-		'admin_link' => admin_url( 'post.php?post=' . $doc . '&action=edit' ),
+	$vars = array_merge(
+		exf_ex_file_email_vars( $ex_file ),
+		array(
+			'document'   => $stored['file_name'],
+			'doc_type'   => exf_document_type_label( $type ),
+			'note'       => $note ? $note : '—',
+			'admin_link' => admin_url( 'post.php?post=' . $doc . '&action=edit' ),
+		)
 	);
 	exf_send_email( 'admin_client_upload', exf_notify_emails(), $vars );
 

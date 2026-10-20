@@ -264,14 +264,14 @@ function exf_q_after_submit( $q ) {
 	}
 
 	$counts = exf_q_flag_counts( $data );
-	$vars   = ( $ex_file ? exf_ex_file_email_vars( $ex_file ) : array() ) + array(
+	$vars   = array_merge( ( $ex_file ? exf_ex_file_email_vars( $ex_file ) : array() ), array(
 		'service'    => exf_q_service_name( $q ),
 		'link'       => exf_portal_url( 'documents' ),
 		'admin_link' => admin_url( 'post.php?post=' . $q . '&action=edit' ),
 		'dont_know'  => $counts['dont_know'],
 		'estimates'  => $counts['estimate'],
 		'flags'      => $flags ? implode( "\n", $flags ) . "\n" : '',
-	);
+	) );
 	if ( $client ) {
 		exf_send_email( 'questionnaire_received', $client->user_email, $vars );
 	}
@@ -293,10 +293,10 @@ function exf_q_reopen( $q ) {
 		exf_send_email(
 			'questionnaire_reopened',
 			$client->user_email,
-			( $ex ? exf_ex_file_email_vars( $ex ) : array() ) + array(
+			array_merge( ( $ex ? exf_ex_file_email_vars( $ex ) : array() ), array(
 				'service' => exf_q_service_name( $q ),
 				'link'    => exf_q_url( $q, 'review' ),
-			)
+			) )
 		);
 	}
 }
@@ -391,7 +391,7 @@ function exf_q_send_reminders() {
 			exf_send_email(
 				'questionnaire_reminder',
 				$client->user_email,
-				( $ex ? exf_ex_file_email_vars( $ex ) : array() ) + array(
+				array_merge( ( $ex ? exf_ex_file_email_vars( $ex ) : array() ), array(
 					'service'     => exf_q_service_name( $q ),
 					'link'        => exf_q_url( $q ),
 					'appointment' => $start ? exf_booking_label( $start, (int) get_post_meta( $order, 'booking_end', true ) ) : '',
@@ -399,7 +399,7 @@ function exf_q_send_reminders() {
 						/* translators: %s: appointment date */
 						? sprintf( __( 'Your appointment is on %s, and we need your answers before then to prepare.', 'exfiles' ), exf_booking_label( $start ) ) . "\n\n"
 						: '',
-				)
+				) )
 			);
 		}
 		$sent[ $due ] = $now;

@@ -285,7 +285,7 @@ function exf_order_email_vars( $order_id ) {
 			: __( 'Next, please complete your questionnaire in your Ex File.', 'exfiles' );
 	}
 
-	return ( $ex_file ? exf_ex_file_email_vars( $ex_file ) : array() ) + array(
+	return array_merge( ( $ex_file ? exf_ex_file_email_vars( $ex_file ) : array() ), array(
 		'order_id'        => $order_id,
 		'service'         => (string) get_post_meta( $order_id, 'service_name', true ),
 		'amount'          => $pence ? '£' . number_format( $pence / 100, 2 ) : __( 'Free', 'exfiles' ),
@@ -297,7 +297,7 @@ function exf_order_email_vars( $order_id ) {
 		'next_steps'      => $next,
 		'link'            => exf_page_url( 'account' ),
 		'admin_link'      => admin_url( 'post.php?post=' . $order_id . '&action=edit' ),
-	);
+	) );
 }
 
 /**
