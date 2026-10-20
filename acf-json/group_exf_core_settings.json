@@ -125,7 +125,7 @@
             "name": "client_retention_years",
             "aria-label": "",
             "type": "number",
-            "instructions": "Matters with no activity for this long appear in Ex Files \u2192 Retention review for you to delete. Nothing is deleted automatically. 0 = keep forever. Six years is common for legal files; please confirm what your regulator and insurer expect.",
+            "instructions": "Matters with no activity for this long appear in Ex Files → Retention review for you to delete. Nothing is deleted automatically. 0 = keep forever. Six years is common for legal files; please confirm what your regulator and insurer expect.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -135,9 +135,9 @@
             },
             "default_value": 6,
             "min": 0,
-            "max": 120,
+            "max": 50,
             "step": 1,
-            "append": "months"
+            "append": "years"
         },
         {
             "key": "field_exf_set_tab_bookings",
@@ -182,7 +182,7 @@
             "name": "availability",
             "aria-label": "",
             "type": "repeater",
-            "instructions": "Add a row per block of time. Several rows for one day are fine (e.g. a lunch break). Leave empty to use weekdays 9:30am\u20135pm.",
+            "instructions": "Add a row per block of time. Several rows for one day are fine (e.g. a lunch break). Leave empty to use weekdays 9:30am–5pm.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -330,7 +330,7 @@
             "name": "calendar_ical_url",
             "aria-label": "",
             "type": "url",
-            "instructions": "So clients can't book times you're busy. In Google Calendar: Settings \u2192 your calendar \u2192 Integrate calendar \u2192 Secret address in iCal format. Keep it private. Events marked \u201cFree\u201d are ignored.",
+            "instructions": "So clients can't book times you're busy. In Google Calendar: Settings → your calendar → Integrate calendar → Secret address in iCal format. Keep it private. Events marked “Free” are ignored.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -380,7 +380,7 @@
             "name": "page_setup",
             "aria-label": "",
             "type": "select",
-            "instructions": "New features sometimes need new pages (for example the registration page). Choose whether they're created automatically after a deploy, or only when you click \u201cCreate missing pages\u201d. Existing pages are never changed.",
+            "instructions": "New features sometimes need new pages (for example the registration page). Choose whether they're created automatically after a deploy, or only when you click “Create missing pages”. Existing pages are never changed.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -520,9 +520,10 @@
                 "id": ""
             },
             "default_value": 587,
-            "max": 120,
+            "max": 65535,
             "step": 1,
-            "append": "months"
+            "append": "",
+            "min": 1
         },
         {
             "key": "field_exf_set_smtp_secure",
@@ -590,7 +591,7 @@
                 "class": "",
                 "id": ""
             },
-            "placeholder": "sk_test_\u2026"
+            "placeholder": "sk_test_…"
         },
         {
             "key": "field_exf_set_tab_gdrive",
@@ -693,7 +694,7 @@
                 "class": "",
                 "id": ""
             },
-            "placeholder": "sk_test_\u2026"
+            "placeholder": "sk_test_…"
         },
         {
             "key": "field_exf_set_tab_payments",
@@ -727,7 +728,7 @@
                 "class": "",
                 "id": ""
             },
-            "message": "Payments go through Stripe Checkout. In your Stripe dashboard (Developers \u2192 Webhooks) add an endpoint at {webhook_url} for these events: <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>checkout.session.expired</code>, <code>charge.refunded</code>. Then paste its signing secret below. On the live site it's safer to put the keys in wp-config.php instead (EXF_STRIPE_SECRET_KEY and EXF_STRIPE_WEBHOOK_SECRET), which overrides these fields.",
+            "message": "Payments go through Stripe Checkout. In your Stripe dashboard (Developers → Webhooks) add an endpoint at {webhook_url} for these events: <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>, <code>checkout.session.expired</code>, <code>charge.refunded</code>. Then paste its signing secret below. On the live site it's safer to put the keys in wp-config.php instead (EXF_STRIPE_SECRET_KEY and EXF_STRIPE_WEBHOOK_SECRET), which overrides these fields.",
             "new_lines": "wpautop",
             "esc_html": 0
         },
@@ -779,7 +780,7 @@
                 "class": "",
                 "id": ""
             },
-            "placeholder": "sk_test_\u2026"
+            "placeholder": "sk_test_…"
         },
         {
             "key": "field_exf_set_stripe_test_wh",
@@ -803,7 +804,7 @@
                 "class": "",
                 "id": ""
             },
-            "placeholder": "whsec_\u2026"
+            "placeholder": "whsec_…"
         },
         {
             "key": "field_exf_set_stripe_live_sk",
@@ -827,7 +828,7 @@
                 "class": "",
                 "id": ""
             },
-            "placeholder": "sk_live_\u2026"
+            "placeholder": "sk_live_…"
         },
         {
             "key": "field_exf_set_stripe_live_wh",
@@ -851,7 +852,7 @@
                 "class": "",
                 "id": ""
             },
-            "placeholder": "whsec_\u2026"
+            "placeholder": "whsec_…"
         }
     ],
     "location": [
@@ -872,5 +873,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792463621
+    "modified": 1792497327
 }
