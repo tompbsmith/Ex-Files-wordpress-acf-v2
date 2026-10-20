@@ -14,6 +14,17 @@ defined( 'ABSPATH' ) || exit;
 const EXF_Q_CERTAINTY = array( 'Known current', 'Estimated current', "Don't know" );
 
 /**
+ * Certainty choices for a money question: Known / Estimated / Don't know, plus
+ * "None" where the question has 'none' => true (e.g. child maintenance received).
+ *
+ * @param array $field Field definition.
+ * @return string[]
+ */
+function exf_q_certainty_options( array $field ) {
+	return ! empty( $field['none'] ) ? array_merge( EXF_Q_CERTAINTY, array( 'None' ) ) : EXF_Q_CERTAINTY;
+}
+
+/**
  * A questionnaire's answers.
  *
  * @param int $q Questionnaire.
@@ -99,7 +110,7 @@ function exf_q_clean_date( $raw ) {
 function exf_q_clean_money( array $field, $in ) {
 	$in        = is_array( $in ) ? $in : array();
 	$certainty = sanitize_text_field( (string) ( $in['certainty'] ?? '' ) );
-	$certainty = in_array( $certainty, EXF_Q_CERTAINTY, true ) ? $certainty : '';
+	$certainty = in_array( $certainty, exf_q_certainty_options( $field ), true ) ? $certainty : '';
 	$out       = array( 'certainty' => $certainty );
 	if ( in_array( $certainty, array( 'Known current', 'Estimated current' ), true ) || ( '' === $certainty && ! empty( $in['amount'] ) ) ) {
 		$out['amount'] = exf_q_clean_amount( $in['amount'] ?? '' );
@@ -350,11 +361,13 @@ function exf_q_validate_money( array $field, array $v, $name ) {
 		if ( ! empty( $v['amount'] ) ) {
 			$errors[ $name . '[certainty]' ] = __( "Please say whether this is known, estimated or you don't know.", 'exfiles' );
 		} elseif ( empty( $field['optional'] ) ) {
-			$errors[ $name . '[certainty]' ] = __( "Please choose Known current, Estimated current or Don't know.", 'exfiles' );
+			$errors[ $name . '[certainty]' ] = ! empty( $field['none'] )
+				? __( "Please choose Known current, Estimated current, Don't know or None.", 'exfiles' )
+				: __( "Please choose Known current, Estimated current or Don't know.", 'exfiles' );
 		}
 		return $errors;
 	}
-	if ( "Don't know" === $certainty ) {
+	if ( "Don't know" === $certainty || 'None' === $certainty ) {
 		return $errors;
 	}
 	$amount = $v['amount'] ?? '';
@@ -511,6 +524,9 @@ function exf_q_money_text( array $field, array $v ) {
 	$c = $v['certainty'] ?? '';
 	if ( "Don't know" === $c ) {
 		return array( __( "Don't know", 'exfiles' ), 'dont_know' );
+	}
+	if ( 'None' === $c ) {
+		return array( __( 'None', 'exfiles' ), '' );
 	}
 	if ( '' === $c && empty( $v['amount'] ) ) {
 		return array( '', '' );

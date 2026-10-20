@@ -182,7 +182,7 @@ function exf_q_render_money( $key, array $field, array $v, $name, array $errors,
 	<fieldset class="q-money q-scope<?php echo $any_err ? ' has-error' : ''; ?><?php echo isset( $errors[ $name . '[certainty]' ] ) ? ' has-cert-error' : ''; ?>" data-key="<?php echo esc_attr( $key ); ?>"<?php echo $show; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 		<legend><?php echo esc_html( $field['label'] ) . $opt; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></legend>
 		<div class="q-pills q-pills--certainty">
-			<?php foreach ( EXF_Q_CERTAINTY as $o ) : ?>
+			<?php foreach ( exf_q_certainty_options( $field ) as $o ) : ?>
 				<label class="q-pill"><input type="radio" name="<?php echo esc_attr( $name . '[certainty]' ); ?>" value="<?php echo esc_attr( $o ); ?>" data-key="certainty" <?php checked( $c, $o ); ?>><span><?php echo esc_html( $o ); ?></span></label>
 			<?php endforeach; ?>
 		</div>

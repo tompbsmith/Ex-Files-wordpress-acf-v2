@@ -107,6 +107,9 @@ function exf_q_money_cell( $v ) {
 	if ( "Don't know" === $c ) {
 		return array( 'v' => "Don't know", 's' => 'dont_know' );
 	}
+	if ( 'None' === $c ) {
+		return array( 'v' => 0.0, 's' => 'money' );
+	}
 	if ( ! isset( $v['amount'] ) || '' === $v['amount'] || ! is_numeric( $v['amount'] ) ) {
 		return null;
 	}
@@ -294,7 +297,7 @@ function exf_q_build_xlsx( $q ) {
 		foreach ( (array) ( $g['benefits'] ?? array() ) as $e ) {
 			$line( 'Benefit', $e['benefit'] ?? '', $e['amount'] ?? null );
 		}
-		if ( ! empty( $g['maintenance']['certainty'] ) ) {
+		if ( ! empty( $g['maintenance']['certainty'] ) && 'None' !== $g['maintenance']['certainty'] ) {
 			$line( 'Child maintenance', '', $g['maintenance'] );
 		}
 		foreach ( (array) ( $g['pension_inc'] ?? array() ) as $e ) {

@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EXF_VERSION', '1.7.12' );
+define( 'EXF_VERSION', '1.7.13' );
 define( 'EXF_DIR', get_template_directory() );
 define( 'EXF_URI', get_template_directory_uri() );
 

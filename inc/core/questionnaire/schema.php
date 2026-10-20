@@ -148,7 +148,7 @@ function exf_q_income_fields( $spouse ) {
 				'amount'  => exf_q_money( __( 'Amount', 'exfiles' ), array( 'freq' => true ) ),
 			),
 		),
-		'maintenance' => exf_q_money( __( 'Child maintenance received', 'exfiles' ), array( 'freq' => true ) ),
+		'maintenance' => exf_q_money( __( 'Child maintenance received', 'exfiles' ), array( 'freq' => true, 'none' => true ) ),
 		'pension_inc' => array(
 			'type'   => 'repeater',
 			'label'  => __( 'Pension income currently received', 'exfiles' ),
