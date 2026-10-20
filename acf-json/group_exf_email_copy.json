@@ -869,6 +869,206 @@
             },
             "rows": 10,
             "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_questionnaire_reminder",
+            "label": "Questionnaire reminder",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_questionnaire_reminder_subject",
+            "label": "Subject",
+            "name": "questionnaire_reminder_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {service}, {link}, {appointment}, {before_appt}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_questionnaire_reminder_body",
+            "label": "Message",
+            "name": "questionnaire_reminder_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {first_name}, {service}, {link}, {appointment}, {before_appt}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_questionnaire_received",
+            "label": "Questionnaire received",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_questionnaire_received_subject",
+            "label": "Subject",
+            "name": "questionnaire_received_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {service}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_questionnaire_received_body",
+            "label": "Message",
+            "name": "questionnaire_received_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {first_name}, {service}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_questionnaire_reopened",
+            "label": "Questionnaire reopened",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_questionnaire_reopened_subject",
+            "label": "Subject",
+            "name": "questionnaire_reopened_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {service}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_questionnaire_reopened_body",
+            "label": "Message",
+            "name": "questionnaire_reopened_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {first_name}, {service}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_questionnaire",
+            "label": "To you: questionnaire submitted",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_questionnaire_subject",
+            "label": "Subject",
+            "name": "admin_questionnaire_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {service}, {flags}, {dont_know}, {estimates}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_questionnaire_body",
+            "label": "Message",
+            "name": "admin_questionnaire_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {service}, {flags}, {dont_know}, {estimates}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
         }
     ],
     "location": [
@@ -889,5 +1089,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792451617
+    "modified": 1792455407
 }

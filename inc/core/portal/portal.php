@@ -42,7 +42,7 @@ add_action(
 			}
 		}
 		// New endpoints need the rewrite rules rebuilt once.
-		$sig = md5( implode( ',', array_keys( exf_portal_sections() ) ) . '|login' );
+		$sig = md5( implode( ',', array_merge( array_keys( exf_portal_sections() ), (array) apply_filters( 'exf_portal_extra_sections', array() ) ) ) . '|login' );
 		if ( get_option( 'exf_rewrite_sig' ) !== $sig ) {
 			flush_rewrite_rules( false );
 			update_option( 'exf_rewrite_sig', $sig, false );
@@ -58,7 +58,7 @@ add_action(
  */
 function exf_portal_current() {
 	global $wp_query;
-	foreach ( array_keys( exf_portal_sections() ) as $slug ) {
+	foreach ( array_merge( array_keys( exf_portal_sections() ), (array) apply_filters( 'exf_portal_extra_sections', array() ) ) as $slug ) {
 		if ( 'overview' !== $slug && isset( $wp_query->query_vars[ $slug ] ) ) {
 			return array( $slug, (string) $wp_query->query_vars[ $slug ] );
 		}
@@ -92,6 +92,9 @@ function exf_portal_copy( $key ) {
 		'documents_intro' => __( "Reports and documents we prepare for you appear here. You can also send us documents, such as bank statements or pension letters. Only you and The Ex Files can see them.", 'exfiles' ),
 		'upload_help'     => __( 'PDF, Word, Excel or photos, up to 15 MB each.', 'exfiles' ),
 		'change_policy'   => __( "Appointments can't be changed online. If you need to move or cancel one, send us a request below and we'll be in touch. Please note that cancellations are not refunded.", 'exfiles' ),
+		'q_intro'         => __( "This tells us about your finances and your family, so we can give you advice that fits your situation. It usually takes 30 to 60 minutes. It helps to have recent bank, mortgage and pension statements to hand, but if you don't know something, just say so: please don't guess.", 'exfiles' ),
+		'q_review'        => __( "Please check everything before you submit. Answers you've estimated are highlighted in yellow, and answers you don't know in red. Use Edit to change a section.", 'exfiles' ),
+		'q_submitted'     => __( "Thank you. We've received your answers and will be in touch. Receiving them doesn't mean we have checked your financial disclosure yet.", 'exfiles' ),
 		'locked_details'  => __( 'Your name and date of birth are part of the checks we carry out before acting for you, so please contact us if they need changing.', 'exfiles' ),
 	);
 	return (string) exf_get_option_field( $key, EXF_PORTAL_ID, $defaults[ $key ] ?? '' );

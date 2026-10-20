@@ -27,6 +27,7 @@ require EXF_CORE_DIR . '/storage.php';
 require EXF_CORE_DIR . '/settings.php';
 require EXF_CORE_DIR . '/pages.php';
 require EXF_CORE_DIR . '/pdf.php';
+require EXF_CORE_DIR . '/xlsx.php';
 require EXF_CORE_DIR . '/cron.php';
 
 require EXF_CORE_DIR . '/guide/defaults.php';
@@ -57,3 +58,10 @@ require EXF_CORE_DIR . '/portal/appointments.php';
 require EXF_CORE_DIR . '/portal/account-details.php';
 require EXF_CORE_DIR . '/portal/login.php';
 require EXF_CORE_DIR . '/portal/admin.php';
+
+require EXF_CORE_DIR . '/questionnaire/schema.php';
+require EXF_CORE_DIR . '/questionnaire/data.php';
+require EXF_CORE_DIR . '/questionnaire/render.php';
+require EXF_CORE_DIR . '/questionnaire/front.php';
+require EXF_CORE_DIR . '/questionnaire/outputs.php';
+require EXF_CORE_DIR . '/questionnaire/admin.php';

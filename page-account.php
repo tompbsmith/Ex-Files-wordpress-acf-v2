@@ -13,8 +13,11 @@ $exf_uid      = (int) $exf_user->ID;
 $exf_is_staff = current_user_can( EXF_CAP );
 list( $exf_section, $exf_value ) = exf_portal_current();
 
-// One Ex File: only the client's own.
+// One Ex File or questionnaire: only the client's own.
 if ( 'ex-files' === $exf_section && '' !== $exf_value && ! exf_portal_owns_ex_file( absint( $exf_value ) ) ) {
+	$exf_section = 'not-found';
+}
+if ( 'questionnaire' === $exf_section && ! exf_q_owned( absint( $exf_value ) ) ) {
 	$exf_section = 'not-found';
 }
 
@@ -50,7 +53,7 @@ get_header();
 					<ul>
 						<?php foreach ( exf_portal_sections() as $exf_slug => $exf_label ) : ?>
 							<?php
-							$exf_current = $exf_slug === $exf_section || ( 'not-found' === $exf_section && 'ex-files' === $exf_slug );
+							$exf_current = $exf_slug === $exf_section || ( in_array( $exf_section, array( 'not-found', 'questionnaire' ), true ) && 'ex-files' === $exf_slug );
 							$exf_badge   = '';
 							if ( 'documents' === $exf_slug ) {
 								$exf_new   = count( exf_client_new_documents( $exf_uid ) );
@@ -68,6 +71,8 @@ get_header();
 					if ( 'not-found' === $exf_section ) {
 						echo '<div class="notice-box notice-box--error" role="alert"><p>' . esc_html__( "We couldn't find that Ex File.", 'exfiles' ) . '</p></div>';
 						exf_portal_part( 'ex-files', array( 'user' => $exf_user ) );
+					} elseif ( 'questionnaire' === $exf_section ) {
+						exf_portal_part( 'questionnaire', array( 'user' => $exf_user, 'questionnaire' => absint( $exf_value ) ) );
 					} elseif ( 'ex-files' === $exf_section && '' !== $exf_value ) {
 						exf_portal_part( 'ex-file', array( 'user' => $exf_user, 'ex_file' => absint( $exf_value ) ) );
 					} else {

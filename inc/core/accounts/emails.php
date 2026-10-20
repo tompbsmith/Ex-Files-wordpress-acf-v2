@@ -94,6 +94,22 @@ function exf_email_defaults() {
 			'Appointment request from {client_name}: {request}',
 			"{client_name} has asked you to: {request}.\n\nService: {service}\nAppointment: {appointment}\n\nTheir message:\n{message}\n\nThe client can't change the booking online, so please contact them. If you cancel it, use \"Cancel appointment\" on the order to free the slot (this doesn't refund):\n{admin_link}",
 		),
+		'questionnaire_reminder' => array(
+			'Reminder: your financial questionnaire',
+			"Hello {first_name},\n\n{before_appt}We're still waiting for your financial questionnaire for {service}. Your answers are saved as you go, so you can pick up where you left off:\n\n{link}\n\nIf you don't know an answer, just say so; please don't guess.\n\nBest wishes,\nThe Ex Files",
+		),
+		'questionnaire_received' => array(
+			"We've received your questionnaire",
+			"Hello {first_name},\n\nThank you for completing your financial questionnaire for {service}. We'll be in touch.\n\nA copy of your answers is in your Ex File:\n{link}\n\nPlease note that receiving your answers doesn't mean we have checked your financial disclosure yet.\n\nBest wishes,\nThe Ex Files",
+		),
+		'questionnaire_reopened' => array(
+			'Your questionnaire is open again',
+			"Hello {first_name},\n\nWe've reopened your financial questionnaire for {service} so you can update your answers. When you're done, please submit it again:\n\n{link}\n\nBest wishes,\nThe Ex Files",
+		),
+		'admin_questionnaire' => array(
+			'Questionnaire submitted: {client_name}',
+			"{client_name} has submitted their questionnaire for {service}.\n\n{flags}Answers marked \"Don't know\": {dont_know}\nEstimated answers: {estimates}\n\nThe answers, PDF and asset schedule are here:\n{admin_link}",
+		),
 		'admin_client_upload' => array(
 			'New document from {client_name}',
 			"{client_name} has uploaded a document to their Ex File.\n\nFile: {document}\nType: {doc_type}\nTheir note: {note}\n\nOpen it here:\n{admin_link}",

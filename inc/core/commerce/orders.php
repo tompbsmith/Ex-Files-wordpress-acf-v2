@@ -277,7 +277,11 @@ function exf_order_email_vars( $order_id ) {
 
 	$next = '';
 	if ( $service && $service['questionnaire'] ) {
-		$next = __( 'Next, please complete your questionnaire in your Ex File. We will email you when it is ready to fill in.', 'exfiles' );
+		$q    = (int) get_post_meta( $order_id, 'questionnaire_id', true );
+		$next = $q && function_exists( 'exf_q_url' )
+			/* translators: %s: link */
+			? sprintf( __( "Next, please complete your financial questionnaire. Your answers are saved as you go:\n%s", 'exfiles' ), exf_q_url( $q ) )
+			: __( 'Next, please complete your questionnaire in your Ex File.', 'exfiles' );
 	}
 
 	return ( $ex_file ? exf_ex_file_email_vars( $ex_file ) : array() ) + array(

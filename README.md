@@ -142,6 +142,19 @@ The weights are constants at the top of `conflict.php`, to be tuned with the cli
 
 The **dashboard widget** shows conflict checks waiting, appointment requests, the next 7 days' appointments and recent client uploads.
 
+### Full service questionnaire
+
+`inc/core/questionnaire/` (schema, saving and validation, form fields, portal pages, outputs, admin), `template-parts/portal/questionnaire.php`, `assets/js/questionnaire.js`. The questions come from the client's spreadsheet (*The Ex Files Full Service Questionnaire.xlsx*) and are defined in code in `schema.php`, with the spreadsheet's dropdown options copied verbatim. Wording around the form (intro, review, after submitting, declaration) is in **Ex Files → Portal Copy**.
+
+- A questionnaire is created as a to-do when a service that needs one is paid for. The client fills it in at `/my-ex-file/questionnaire/{id}/`, one section per step. Each step is saved when they press Next, Back or *Save and finish later*.
+- Sections 2–9 start with Yes / No / Don't know. No skips the section; Don't know asks what they do know. Agreements and offers only appears if they said Yes to one in About you. Answers hidden by a later choice are deleted when the step is saved, not just hidden.
+- Every amount asks Known current / Estimated current / Don't know, with the amount, the date and (for estimates) how it was estimated. Don't know never saves a figure. Amounts paid regularly ask how often, and the monthly equivalent is shown but never replaces what they entered.
+- The review page highlights estimates (yellow) and Don't knows (red), with an Edit link per section. Submitting needs the declaration, then locks the questionnaire.
+- On submit: a PDF copy goes into the client's Documents; an **asset schedule** (.xlsx: summary, assets, liabilities, pensions, income, outgoings and children, with totals) is saved for you only; you and the client are emailed. If the client says they're **not married** to their ex, the questionnaire carries on, but the Ex File is flagged and your email says so.
+- In the admin, a questionnaire shows every answer read-only, the downloads, and **Reopen for the client** (they're emailed and can submit again).
+- If the client buys another service for the same separation, they can start from their last answers.
+- Reminders go 3 and 7 days after payment, and 2 days before a Know Your Position appointment, if it hasn't been submitted (never two within a day).
+
 ### Private files
 
 Client files go in `wp-content/uploads/exfiles-private/`, which has an `.htaccess` that blocks direct access on Apache. **On Nginx hosts, also add a rule denying web access to that folder.** Files are only served through PHP after a permission or token check (`inc/core/storage.php`).

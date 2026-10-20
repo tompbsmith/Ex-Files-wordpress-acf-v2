@@ -28,6 +28,9 @@ $exf_sep_messages = array(
 	</h1>
 </header>
 
+<?php if ( isset( $_GET['saved'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+	<div class="notice-box" role="status"><p><?php esc_html_e( 'Your questionnaire answers are saved. You can carry on whenever you like.', 'exfiles' ); ?></p></div>
+<?php endif; ?>
 <?php if ( isset( $exf_sep_messages[ $exf_sep ] ) ) : ?>
 	<div class="notice-box" role="status"><p><?php echo esc_html( $exf_sep_messages[ $exf_sep ] ); ?></p></div>
 <?php endif; ?>
