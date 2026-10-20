@@ -56,11 +56,11 @@ function exf_email_defaults() {
 		),
 		'unable'         => array(
 			'About your Ex File',
-			"Hello {first_name},\n\nThank you for your interest in The Ex Files. Unfortunately we're unable to act for you on this matter. We're sorry we can't help on this occasion.\n\nIf you have any questions, please reply to this email.\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nThank you for your interest in The Ex Files. Unfortunately we're unable to take on your matter. We can't give details, as it can be for a number of reasons. We're sorry we can't help on this occasion.\n\nIf you have any questions, please reply to this email.\n\nBest wishes,\nThe Ex Files",
 		),
 		'admin_review'   => array(
 			'Conflict check needs review: {client_name}',
-			"A new Ex File needs a manual conflict check.\n\nClient: {client_name}\nEx: {ex_name}\nScore: {score}\n\nReview it here:\n{admin_link}",
+			"A new Ex File needs a manual conflict check.\n\nClient: {client_name}\nEx: {ex_name}\nScore: {score} ({strength})\n\nThe client has been told only that you're checking a few details. If you decline, they'll get the same general message whatever the reason.\n\nReview it here:\n{admin_link}",
 		),
 		'admin_blocked'  => array(
 			'Account blocked by conflict check: {client_name}',
@@ -203,6 +203,7 @@ function exf_ex_file_email_vars( $ex_file_id ) {
 		'client_name' => trim( $client['first_name'] . ' ' . $client['last_name'] ),
 		'ex_name'     => trim( $ex['first_name'] . ' ' . $ex['last_name'] ),
 		'score'       => (int) get_post_meta( $ex_file_id, 'conflict_score', true ),
+		'strength'    => (int) get_post_meta( $ex_file_id, 'conflict_score', true ) >= EXF_CONFLICT_BLOCK ? 'strong match: we recommend declining' : 'possible match',
 		'admin_link'  => admin_url( 'post.php?post=' . $ex_file_id . '&action=edit' ),
 	);
 }

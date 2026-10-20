@@ -80,7 +80,7 @@ $exf_docs   = exf_client_documents( $exf_uid, $exf_id );
 	</div>
 <?php elseif ( 'blocked' === $exf_fs ) : ?>
 	<div class="guide-card account-card">
-		<p><?php esc_html_e( "We're unable to act for you on this matter. Please contact us if you have any questions.", 'exfiles' ); ?></p>
+		<p><?php esc_html_e( "We're unable to take on this matter. We can't give details, as it can be for a number of reasons.", 'exfiles' ); ?></p>
 	</div>
 <?php endif; ?>
 

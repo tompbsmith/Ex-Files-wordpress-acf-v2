@@ -15,7 +15,7 @@ $exf_sep          = isset( $_GET['separation'] ) ? sanitize_key( wp_unslash( $_G
 $exf_sep_messages = array(
 	'clear'   => __( 'Your new Ex File is open.', 'exfiles' ),
 	'review'  => __( "Thanks. We're running a routine check on your new Ex File and will email you as soon as it's done, usually within one working day.", 'exfiles' ),
-	'blocked' => __( "We're unable to act for you on this new matter. Your other Ex Files aren't affected. Please contact us if you have any questions.", 'exfiles' ),
+	'blocked' => __( "We're unable to take on this new matter. We can't give details, as it can be for a number of reasons. Your other Ex Files aren't affected.", 'exfiles' ),
 );
 ?>
 <header class="portal-head">

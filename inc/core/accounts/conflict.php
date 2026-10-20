@@ -22,6 +22,15 @@
 defined( 'ABSPATH' ) || exit;
 
 const EXF_CONFLICT_BLOCK  = 100;
+
+/**
+ * Whether strong matches are turned away automatically. Off by default: an instant
+ * rejection straight after someone names their ex could let them infer that the
+ * ex is a client, so strong matches go to manual review and are declined later.
+ */
+function exf_conflict_auto_block() {
+	return 'on' === exf_setting( 'conflict_auto_block', 'off' );
+}
 const EXF_CONFLICT_REVIEW = 30;
 
 // Reverse matches and "other" register entries can raise a review, never a block on their own.
@@ -411,7 +420,7 @@ function exf_conflict_evaluate( $ex_file_id ) {
 	);
 	$score = $matches ? $matches[0]['score'] : 0;
 
-	if ( $score >= EXF_CONFLICT_BLOCK ) {
+	if ( $score >= EXF_CONFLICT_BLOCK && exf_conflict_auto_block() ) {
 		$outcome = 'blocked';
 	} elseif ( $score >= EXF_CONFLICT_REVIEW ) {
 		$outcome = 'review';

@@ -47,7 +47,7 @@ function exf_ex_file_client_label( $status ) {
 		'clear'          => __( 'Open', 'exfiles' ),
 		'review'         => __( "We're checking a few details", 'exfiles' ),
 		'info_requested' => __( 'We need more information from you', 'exfiles' ),
-		'blocked'        => __( "We're unable to act on this matter", 'exfiles' ),
+		'blocked'        => __( "We're unable to take on this matter", 'exfiles' ),
 	);
 	return $labels[ $status ] ?? '';
 }

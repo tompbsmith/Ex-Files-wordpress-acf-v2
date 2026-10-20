@@ -102,7 +102,7 @@ Names are normalised (case, accents, titles, punctuation, previous names, double
 
 Reverse matches and "other" register entries are capped at 60, so they raise a review but never block on their own. The highest score decides the outcome:
 
-- **100+: blocked.** The client sees and is emailed a generic "unable to act" message (never the reason), can't log in, and the solicitor is alerted.
+- **100+: strong match.** By default this goes to manual review like any other match, flagged "strong match: we recommend declining". The client sees only "we're checking a few details"; if the solicitor declines, they get a general "unable to take on your matter" message (never the reason). Turning people away instantly could let them work out that their ex is a client, so automatic blocking is off unless switched on in Settings → Notifications ("Strong conflict matches").
 - **30–99: review.** The client can log in but can't buy anything. The Ex File appears in **Ex Files → Conflict Review**.
 - **Under 30: clear.** The account is active.
 

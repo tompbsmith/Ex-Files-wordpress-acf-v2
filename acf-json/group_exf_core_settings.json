@@ -36,6 +36,32 @@
             }
         },
         {
+            "key": "field_exf_set_conflict_auto_block",
+            "label": "Strong conflict matches",
+            "name": "conflict_auto_block",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Turning people away the moment they name their ex can let them work out that their ex is your client. Holding strong matches for review means you decline later, with the same general message whatever the reason.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "off": "Hold for my review (recommended)",
+                "on": "Turn away automatically"
+            },
+            "default_value": "off",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
             "key": "field_exf_set_tab_retention",
             "label": "Data retention",
             "name": "",
@@ -846,5 +872,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792462422
+    "modified": 1792463621
 }

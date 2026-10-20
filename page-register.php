@@ -72,7 +72,7 @@ get_header();
 		<header class="guide-form-head">
 			<p class="eyebrow"><?php esc_html_e( 'Open your Ex File', 'exfiles' ); ?></p>
 			<h1><?php echo esc_html( $exf_f( 'unable_heading' ) ? $exf_f( 'unable_heading' ) : __( "We're unable to help on this occasion", 'exfiles' ) ); ?></h1>
-			<p class="lead"><?php echo exf_lines( $exf_f( 'unable_text' ) ? $exf_f( 'unable_text' ) : __( "Thank you for your interest in The Ex Files. Unfortunately we're unable to act for you on this matter. We've sent you an email confirming this. If you have any questions, please get in touch.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+			<p class="lead"><?php echo exf_lines( $exf_f( 'unable_text' ) ? $exf_f( 'unable_text' ) : __( "Thank you for your interest in The Ex Files. Unfortunately we're unable to take on your matter. We can't give details, as it can be for a number of reasons. We've sent you an email confirming this. If you have any questions, please get in touch.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 			<p style="margin-top:28px"><a class="btn outline" href="<?php echo esc_url( home_url( '/#contact' ) ); ?>"><?php esc_html_e( 'Contact us', 'exfiles' ); ?></a></p>
 		</header>
 

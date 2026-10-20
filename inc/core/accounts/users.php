@@ -113,7 +113,7 @@ add_filter(
 			);
 		}
 		if ( EXF_STATUS_BLOCKED === $status ) {
-			return new WP_Error( 'exf_blocked', __( "We're unable to open an account for you. Please contact us if you have any questions.", 'exfiles' ) );
+			return new WP_Error( 'exf_blocked', __( "We're unable to open an account for you. We can't give details, as it can be for a number of reasons.", 'exfiles' ) );
 		}
 		return $user;
 	},
