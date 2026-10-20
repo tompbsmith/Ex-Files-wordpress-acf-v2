@@ -95,13 +95,21 @@ $exf_form_open = function ( $action ) use ( $exf_q ) {
 		<ol>
 			<?php foreach ( $exf_vis as $exf_i => $exf_k ) : ?>
 				<?php
-				$exf_done = isset( $exf_data[ $exf_k ] ) && ! isset( $exf_all_errors[ $exf_k ] );
-				$exf_cls  = $exf_k === $exf_step && 'step' === $exf_view ? 'current' : ( $exf_done ? 'done' : '' );
+				$exf_state  = exf_q_section_state( $exf_k, $exf_data, $exf_all_errors );
+				$exf_is_cur = $exf_k === $exf_step && 'step' === $exf_view;
+				$exf_cls    = trim( 'q-state--' . $exf_state . ( $exf_is_cur ? ' current' : '' ) );
+				$exf_says   = array(
+					'not_started' => __( 'not started', 'exfiles' ),
+					'missing'     => __( 'required answers missing', 'exfiles' ),
+					'partial'     => __( 'some optional answers blank', 'exfiles' ),
+					'complete'    => __( 'complete', 'exfiles' ),
+				);
 				?>
-				<li class="<?php echo esc_attr( $exf_cls ); ?>"><a href="<?php echo esc_url( exf_q_url( $exf_q, $exf_k ) ); ?>"<?php echo 'current' === $exf_cls ? ' aria-current="step"' : ''; ?>><span><?php echo (int) ( $exf_i + 1 ); ?></span> <?php echo esc_html( $exf_secs[ $exf_k ]['title'] ); ?></a></li>
+				<li class="<?php echo esc_attr( $exf_cls ); ?>"><a href="<?php echo esc_url( exf_q_url( $exf_q, $exf_k ) ); ?>" title="<?php echo esc_attr( ucfirst( $exf_says[ $exf_state ] ) ); ?>"<?php echo $exf_is_cur ? ' aria-current="step"' : ''; ?>><span><?php echo (int) ( $exf_i + 1 ); ?></span> <?php echo esc_html( $exf_secs[ $exf_k ]['title'] ); ?><em class="screen-reader-text"> (<?php echo esc_html( $exf_says[ $exf_state ] ); ?>)</em></a></li>
 			<?php endforeach; ?>
 			<li class="<?php echo 'review' === $exf_view ? 'current' : ''; ?>"><a href="<?php echo esc_url( exf_q_url( $exf_q, 'review' ) ); ?>"><span>✓</span> <?php esc_html_e( 'Review and submit', 'exfiles' ); ?></a></li>
 		</ol>
+		<p class="q-progress-key" aria-hidden="true"><span class="k k--missing"></span><?php esc_html_e( 'Required answers missing', 'exfiles' ); ?> <span class="k k--partial"></span><?php esc_html_e( 'Some optional answers blank', 'exfiles' ); ?> <span class="k k--complete"></span><?php esc_html_e( 'Complete', 'exfiles' ); ?></p>
 	</nav>
 
 	<?php if ( 'review' === $exf_view ) : ?>

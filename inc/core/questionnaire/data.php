@@ -389,6 +389,80 @@ function exf_q_validate_all( array $data ) {
 	return $out;
 }
 
+/**
+ * How far through a section the client is, for the section buttons:
+ * not_started, missing (a required answer is missing or wrong), partial (all
+ * required answers given, some optional ones blank) or complete.
+ *
+ * @param string $key    Section key.
+ * @param array  $data   All answers.
+ * @param array  $errors exf_q_validate_all() result.
+ */
+function exf_q_section_state( $key, array $data, array $errors ) {
+	if ( ! isset( $data[ $key ] ) ) {
+		return 'not_started';
+	}
+	if ( ! empty( $errors[ $key ] ) ) {
+		return 'missing';
+	}
+	$section = exf_q_sections()[ $key ];
+	$values  = (array) $data[ $key ];
+	if ( ! empty( $section['gate'] ) && 'Yes' !== ( $values['_gate'] ?? '' ) ) {
+		return 'complete';
+	}
+	return exf_q_count_blank( $section['fields'], $values, $data ) ? 'partial' : 'complete';
+}
+
+/**
+ * Optional questions left blank (only those that apply). "Additional information"
+ * boxes don't count, and the outgoings table counts as answered once any amount
+ * is in it, as most lines won't apply to everyone.
+ *
+ * @param array $fields Field definitions.
+ * @param array $values Answers.
+ * @param array $all    All answers.
+ * @return int
+ */
+function exf_q_count_blank( array $fields, array $values, array $all ) {
+	$blank = 0;
+	foreach ( $fields as $key => $field ) {
+		if ( 'additional' === $key || ! exf_q_field_visible( $field, $values, $all ) ) {
+			continue;
+		}
+		$v = $values[ $key ] ?? '';
+		switch ( $field['type'] ) {
+			case 'money':
+				$blank += '' === ( is_array( $v ) ? ( $v['certainty'] ?? '' ) : '' ) ? 1 : 0;
+				break;
+			case 'group':
+				$blank += exf_q_count_blank( $field['fields'], is_array( $v ) ? $v : array(), $all );
+				break;
+			case 'repeater':
+				$items = array_filter( is_array( $v ) ? $v : array(), 'is_array' );
+				if ( ! $items ) {
+					++$blank;
+				}
+				foreach ( $items as $item ) {
+					$blank += exf_q_count_blank( $field['fields'], $item, $all );
+				}
+				break;
+			case 'outgoings':
+				$any = false;
+				foreach ( array_filter( is_array( $v ) ? $v : array(), 'is_array' ) as $row ) {
+					if ( '' !== (string) ( $row['current'] ?? '' ) || '' !== (string) ( $row['future'] ?? '' ) ) {
+						$any = true;
+						break;
+					}
+				}
+				$blank += $any ? 0 : 1;
+				break;
+			default:
+				$blank += '' === trim( (string) ( is_array( $v ) ? '' : $v ) ) ? 1 : 0;
+		}
+	}
+	return $blank;
+}
+
 /* -------------------------------------------------------------------------
  * Summary rows, for the review page, the admin and the PDF.
  * ---------------------------------------------------------------------- */

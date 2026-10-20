@@ -531,8 +531,16 @@ summary.link-button::-webkit-details-marker{display:none;}
 .q-progress ol{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px;}
 .q-progress a{display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; font-size:14px; border:1px solid rgba(49,25,15,.18); background:var(--white);}
 .q-progress span{display:inline-block; min-width:20px; height:20px; border-radius:10px; background:var(--cream-dark); font-size:12px; line-height:20px; text-align:center;}
-.q-progress .done a{border-color:#7c9a7d;}
-.q-progress .done span{background:#3d6b3f; color:#fff;}
+.q-progress .q-state--complete a{border-color:#7c9a7d;}
+.q-progress .q-state--complete span{background:#3d6b3f; color:#fff;}
+.q-progress .q-state--partial a{border-color:#d1a94f;}
+.q-progress .q-state--partial span{background:#c9962a; color:#fff;}
+.q-progress .q-state--missing a{border-color:#c98a7e;}
+.q-progress .q-state--missing span{background:#a3402c; color:#fff;}
+.q-progress-key{font-size:13px; color:var(--muted); margin:10px 0 0; display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px;}
+.q-progress-key .k{display:inline-block; width:10px; height:10px; border-radius:5px; margin-left:6px;}
+.q-progress-key .k:first-child{margin-left:0;}
+.k--missing{background:#a3402c;} .k--partial{background:#c9962a;} .k--complete{background:#3d6b3f;}
 .q-progress .current a{background:var(--brown-btn); border-color:var(--brown-btn); color:var(--white);}
 .q-progress .current span{background:var(--white); color:var(--brown-dark);}
 .q-form .eyebrow{margin-bottom:6px;}
