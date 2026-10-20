@@ -193,3 +193,17 @@ add_filter(
 		return exf_page_url( 'register' );
 	}
 );
+
+/*
+ * WordPress emails the site admin every time anyone resets their password.
+ * For clients that's just noise in the firm's inbox, so only keep it for staff.
+ */
+add_action(
+	'after_password_reset',
+	function ( $user ) {
+		if ( $user instanceof WP_User && ! user_can( $user, EXF_CAP ) ) {
+			remove_action( 'after_password_reset', 'wp_password_change_notification' );
+		}
+	},
+	0
+);
