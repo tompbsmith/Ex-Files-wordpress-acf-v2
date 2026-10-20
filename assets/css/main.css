@@ -619,10 +619,17 @@ summary.link-button::-webkit-details-marker{display:none;}
 }
 
 /* Day / Month / Year date boxes */
-.field--date{border:0; padding:0; margin:0 0 18px; min-width:0;}
-.field--date legend{display:block; font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:8px; padding:0;}
+.field--date{margin:0 0 18px; min-width:0;}
+.field--date .field-legend{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin-bottom:10px;}
 .date-parts{display:flex; gap:12px; align-items:flex-end;}
-.date-part{display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--muted);}
+.field .date-part{display:flex; flex-direction:column; margin:0; font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted);}
+.date-part span{display:block; margin-bottom:8px;}
 .date-part input{width:4.2em; text-align:center;}
 .date-part--y input{width:6em;}
 .field--date.has-error input{border-color:#a3402c; background:#fbf1ee;}
+/* Side-by-side dates share rows, so a label that wraps to two lines doesn't push
+   its boxes below the neighbour's. */
+.field-row:has(> .field--date){row-gap:0;}
+.field-row > .field--date{display:grid; grid-row:span 4; grid-template-rows:subgrid; row-gap:0;}
+.field-row > .field--date .field-legend{align-self:end;}
+.field-row > .field--date .date-parts{align-self:start;}

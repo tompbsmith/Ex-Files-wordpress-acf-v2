@@ -73,8 +73,10 @@ function exf_form_date_field( $name, $label, array $args, $id, $error, array $de
 	$req  = $args['required'] ? ' required aria-required="true"' : '';
 	$bday = 'bday' === $args['autocomplete'];
 	$aria = $error ? ' aria-invalid="true"' : '';
-	echo '<fieldset class="field field--date' . ( $error ? ' has-error' : '' ) . ( $args['class'] ? ' ' . esc_attr( $args['class'] ) : '' ) . '"' . ( $desc ? ' aria-describedby="' . esc_attr( implode( ' ', $desc ) ) . '"' : '' ) . '>';
-	printf( '<legend>%s%s</legend>', esc_html( $label ), $args['required'] ? '' : ' <span class="optional">' . esc_html__( '(optional)', 'exfiles' ) . '</span>' );
+	// A labelled group rather than fieldset/legend: a legend can't take part in the
+	// grid that lines up the boxes of side-by-side dates.
+	echo '<div role="group" aria-labelledby="' . esc_attr( $id . '-legend' ) . '" class="field field--date' . ( $error ? ' has-error' : '' ) . ( $args['class'] ? ' ' . esc_attr( $args['class'] ) : '' ) . '"' . ( $desc ? ' aria-describedby="' . esc_attr( implode( ' ', $desc ) ) . '"' : '' ) . '>';
+	printf( '<div class="field-legend" id="%s">%s%s</div>', esc_attr( $id . '-legend' ), esc_html( $label ), $args['required'] ? '' : ' <span class="optional">' . esc_html__( '(optional)', 'exfiles' ) . '</span>' );
 	echo '<div class="date-parts">';
 	$boxes = array(
 		'd' => array( __( 'Day', 'exfiles' ), 2, '[0-9]{1,2}', 'bday-day', $parts[0] ),
@@ -104,7 +106,7 @@ function exf_form_date_field( $name, $label, array $args, $id, $error, array $de
 	if ( $error ) {
 		printf( '<p class="field-error" id="%s-error">%s</p>', esc_attr( $id ), wp_kses( $error, array( 'a' => array( 'href' => array() ) ) ) );
 	}
-	echo '</fieldset>';
+	echo '</div>';
 }
 
 /**
