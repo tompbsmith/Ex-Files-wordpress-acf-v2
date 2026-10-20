@@ -39,13 +39,24 @@ $exf_details   = (string) exf_setting( 'meeting_details', '' );
 		?>
 		<div class="guide-card portal-appt">
 			<p class="eyebrow"><?php echo esc_html( (string) get_post_meta( $exf_o, 'service_name', true ) ); ?></p>
-			<h3><?php echo esc_html( exf_booking_label( $exf_start, (int) get_post_meta( $exf_o, 'booking_end', true ) ) ); ?></h3>
+			<?php $exf_resched = (bool) get_post_meta( $exf_o, 'needs_reschedule', true ); ?>
+			<h3><?php echo $exf_resched ? esc_html__( 'Time to be rearranged', 'exfiles' ) : esc_html( exf_booking_label( $exf_start, (int) get_post_meta( $exf_o, 'booking_end', true ) ) ); ?></h3>
+			<?php if ( $exf_resched ) : ?>
+				<p class="field-note">
+					<?php
+					/* translators: %s: the time they chose */
+					echo esc_html( sprintf( __( 'The time you chose (%s) was booked by someone else while you were paying. Your payment has been received and we’ll contact you to arrange a new time.', 'exfiles' ), exf_booking_label( $exf_start, (int) get_post_meta( $exf_o, 'booking_end', true ) ) ) );
+					?>
+				</p>
+			<?php endif; ?>
 			<?php if ( $exf_details ) : ?>
 				<p class="portal-appt-details"><?php echo exf_lines( $exf_details ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 			<?php endif; ?>
+			<?php if ( ! $exf_resched ) : ?>
 			<p class="portal-actions">
 				<a class="btn small outline" href="<?php echo esc_url( exf_appointment_ics_url( $exf_o ) ); ?>"><?php esc_html_e( 'Add to calendar', 'exfiles' ); ?></a>
 			</p>
+			<?php endif; ?>
 			<?php if ( $exf_req ) : ?>
 				<p class="field-note">
 					<?php

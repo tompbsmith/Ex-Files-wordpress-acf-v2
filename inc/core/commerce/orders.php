@@ -255,7 +255,8 @@ function exf_order_fulfil( $order_id ) {
 	}
 
 	$vars = exf_order_email_vars( $order_id );
-	$ics  = get_post_meta( $order_id, 'booking_start', true ) ? exf_booking_ics( $order_id ) : '';
+	// No calendar invite for a time that has to be rearranged.
+	$ics  = get_post_meta( $order_id, 'booking_start', true ) && ! get_post_meta( $order_id, 'needs_reschedule', true ) ? exf_booking_ics( $order_id ) : '';
 	$user = get_userdata( $client_id );
 	if ( $user ) {
 		exf_send_email_with_ics( 'order_confirmed', $user->user_email, $vars, $ics );
@@ -288,7 +289,10 @@ function exf_order_email_vars( $order_id ) {
 		'order_id'        => $order_id,
 		'service'         => (string) get_post_meta( $order_id, 'service_name', true ),
 		'amount'          => $pence ? '£' . number_format( $pence / 100, 2 ) : __( 'Free', 'exfiles' ),
-		'appointment'     => $start ? exf_booking_label( $start, $end ) : __( 'No appointment needed', 'exfiles' ),
+		'appointment'     => ! $start ? __( 'No appointment needed', 'exfiles' ) : ( get_post_meta( $order_id, 'needs_reschedule', true )
+			/* translators: %s: the time they chose */
+			? sprintf( __( 'To be rearranged. The time you chose (%s) was booked by someone else while you were paying, so we’ll contact you to arrange a new time.', 'exfiles' ), exf_booking_label( $start, $end ) )
+			: exf_booking_label( $start, $end ) ),
 		'meeting_details' => (string) exf_setting( 'meeting_details', '' ),
 		'next_steps'      => $next,
 		'link'            => exf_page_url( 'account' ),

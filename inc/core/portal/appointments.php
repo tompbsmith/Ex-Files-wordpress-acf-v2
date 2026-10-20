@@ -103,7 +103,7 @@ add_action(
 		$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
 		$owner = (int) get_post_meta( $id, 'client_id', true ) === get_current_user_id();
 		if ( ! is_user_logged_in() || ! wp_verify_nonce( $nonce, 'exf_ics_' . $id ) || ( ! $owner && ! exf_user_can_manage() )
-			|| 'exf_order' !== get_post_type( $id ) || ! get_post_meta( $id, 'booking_start', true ) || ! exf_order_is_live( $id ) ) {
+			|| 'exf_order' !== get_post_type( $id ) || ! get_post_meta( $id, 'booking_start', true ) || ! exf_order_is_live( $id ) || get_post_meta( $id, 'needs_reschedule', true ) ) {
 			wp_die( esc_html__( 'Sorry, that appointment is no longer available.', 'exfiles' ), '', array( 'response' => 404 ) );
 		}
 		nocache_headers();
