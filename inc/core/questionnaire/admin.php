@@ -120,7 +120,7 @@ add_action(
 		if ( 'submitted' === exf_q_status( $q ) ) {
 			exf_q_reopen( $q );
 		}
-		wp_safe_redirect( get_edit_post_link( $q, 'url' ) );
+		wp_safe_redirect( add_query_arg( 'exf_q_done', 'reopened', get_edit_post_link( $q, 'url' ) ) );
 		exit;
 	}
 );
@@ -136,7 +136,7 @@ add_action(
 		exf_q_generate_pdf( $q );
 		exf_q_generate_xlsx( $q );
 		exf_q_log( $q, 'PDF and asset schedule recreated' );
-		wp_safe_redirect( get_edit_post_link( $q, 'url' ) );
+		wp_safe_redirect( add_query_arg( 'exf_q_done', 'regenerated', get_edit_post_link( $q, 'url' ) ) );
 		exit;
 	}
 );
@@ -239,6 +239,25 @@ function exf_q_answers_box( $post ) {
 	echo '</p>';
 	echo exf_q_summary_html( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in parts.
 }
+
+// Confirm Reopen / Recreate on the questionnaire screen.
+add_action(
+	'admin_notices',
+	function () {
+		$screen = get_current_screen();
+		$done   = isset( $_GET['exf_q_done'] ) ? sanitize_key( $_GET['exf_q_done'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! $screen || 'fs_questionnaire' !== $screen->post_type || ! $done ) {
+			return;
+		}
+		$messages = array(
+			'reopened'    => __( 'Questionnaire reopened. The client has been emailed and can change their answers.', 'exfiles' ),
+			'regenerated' => __( 'The PDF and asset schedule have been recreated.', 'exfiles' ),
+		);
+		if ( isset( $messages[ $done ] ) ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $messages[ $done ] ) . '</p></div>';
+		}
+	}
+);
 
 // Flag on the Ex File list and screen when the client isn't married.
 add_action(
