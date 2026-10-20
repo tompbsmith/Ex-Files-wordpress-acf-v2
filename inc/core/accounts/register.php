@@ -139,12 +139,22 @@ function exf_handle_register( array $post ) {
 	$e = array();
 	foreach ( exf_register_fields() as $name => $f ) {
 		if ( $f[1] && empty( $v[ $name ] ) ) {
-			/* translators: %s: field label */
-			$e[ $name ] = 'terms' === $name ? __( 'Please accept the terms and privacy notice.', 'exfiles' ) : sprintf( __( 'Please enter %s.', 'exfiles' ), strtolower( $f[0] ) );
+			if ( 'terms' === $name ) {
+				$e[ $name ] = __( 'Please accept the terms and privacy notice.', 'exfiles' );
+			} elseif ( 'relationship' === $name ) {
+				$e[ $name ] = __( 'Please choose an option.', 'exfiles' );
+			} else {
+				/* translators: %s: field label */
+				$e[ $name ] = sprintf( __( 'Please enter %s.', 'exfiles' ), strtolower( $f[0] ) );
+			}
 		}
 	}
 
-	if ( $v['email'] && ! is_email( $v['email'] ) ) {
+	// sanitize_email() turns an invalid address into '', so check what was typed.
+	if ( '' === $v['email'] && '' !== trim( (string) ( $post['email'] ?? '' ) ) ) {
+		$v['email']     = sanitize_text_field( (string) $post['email'] );
+		$e['email']     = __( 'Please enter a valid email address.', 'exfiles' );
+	} elseif ( $v['email'] && ! is_email( $v['email'] ) ) {
 		$e['email'] = __( 'Please enter a valid email address.', 'exfiles' );
 	} elseif ( $v['email'] && email_exists( $v['email'] ) ) {
 		$e['email'] = sprintf(
