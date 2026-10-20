@@ -308,18 +308,24 @@ function exf_q_validate_fields( array $fields, array $values, $prefix, array $al
 				}
 				break;
 			case 'number':
-				if ( '' !== $v && ( ! is_numeric( $v ) || $v < 0 || ( false !== strpos( $field['attrs'] ?? '', 'max="100"' ) && $v > 100 ) ) ) {
+				if ( ! empty( $field['required'] ) && '' === (string) $v ) {
+					$errors[ $name ] = __( 'Please enter a number.', 'exfiles' );
+				} elseif ( '' !== $v && ( ! is_numeric( $v ) || $v < 0 || ( false !== strpos( $field['attrs'] ?? '', 'max="100"' ) && $v > 100 ) ) ) {
 					$errors[ $name ] = __( 'Please enter a number.', 'exfiles' );
 				}
 				break;
 			case 'date':
-				if ( '' !== $v && ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $v ) ) {
+				if ( ! empty( $field['required'] ) && '' === (string) $v ) {
+					$errors[ $name ] = __( 'Please enter the date.', 'exfiles' );
+				} elseif ( '' !== $v && ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $v ) ) {
 					$errors[ $name ] = __( 'Please enter a valid date.', 'exfiles' );
 				}
 				break;
 			default:
-				if ( ! empty( $field['required'] ) && '' === (string) $v ) {
-					$errors[ $name ] = __( 'Please choose an answer.', 'exfiles' );
+				if ( ! empty( $field['required'] ) && '' === trim( (string) ( is_array( $v ) ? '' : $v ) ) ) {
+					$errors[ $name ] = in_array( $field['type'], array( 'text', 'textarea' ), true )
+						? __( "Please answer this. If you don't know, say so.", 'exfiles' )
+						: __( 'Please choose an answer.', 'exfiles' );
 				}
 		}
 	}

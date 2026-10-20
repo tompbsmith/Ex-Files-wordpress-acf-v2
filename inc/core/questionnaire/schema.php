@@ -148,7 +148,7 @@ function exf_q_income_fields( $spouse ) {
 				'amount'  => exf_q_money( __( 'Amount', 'exfiles' ), array( 'freq' => true ) ),
 			),
 		),
-		'maintenance' => exf_q_money( __( 'Child maintenance received', 'exfiles' ), array( 'freq' => true, 'optional' => true ) ),
+		'maintenance' => exf_q_money( __( 'Child maintenance received', 'exfiles' ), array( 'freq' => true ) ),
 		'pension_inc' => array(
 			'type'   => 'repeater',
 			'label'  => __( 'Pension income currently received', 'exfiles' ),
@@ -251,8 +251,9 @@ function exf_q_sections() {
 					'item'   => __( 'child', 'exfiles' ),
 					'fields' => array(
 						'name'            => array(
-							'type'  => 'text',
-							'label' => __( "Child's name (optional)", 'exfiles' ),
+							'type'     => 'text',
+							'label'    => __( "Child's name", 'exfiles' ),
+							'optional' => true, // The only question the client's spreadsheet marks optional.
 						),
 						'gender'          => array(
 							'type'    => 'select',
@@ -395,10 +396,11 @@ function exf_q_sections() {
 							'options' => $owner_general,
 						),
 						'value'         => exf_q_money( __( 'Current realisable value', 'exfiles' ) ),
-						'maturity'      => exf_q_money( __( 'Future or maturity value', 'exfiles' ), array( 'optional' => true ) ),
+						'maturity'      => exf_q_money( __( 'Future or maturity value', 'exfiles' ) ),
 						'maturity_date' => array(
 							'type'  => 'date',
 							'label' => __( 'Expected maturity date, if known', 'exfiles' ),
+							'optional' => true, // Spreadsheet: "expected date if known".
 						),
 						'additional'    => exf_q_additional(),
 					),
@@ -480,7 +482,7 @@ function exf_q_sections() {
 							'label'   => __( 'Where did you get this value from?', 'exfiles' ),
 							'show_if' => array( 'know_value', array( 'Yes' ) ),
 						),
-						'cgt'             => exf_q_money( __( 'Capital gains tax that would arise', 'exfiles' ), array( 'optional' => true ) ),
+						'cgt'             => exf_q_money( __( 'Capital gains tax that would arise', 'exfiles' ) ),
 						'additional'      => exf_q_additional(),
 					),
 				),
@@ -519,7 +521,7 @@ function exf_q_sections() {
 							'options' => EXF_Q_YND,
 						),
 						'balance'       => exf_q_money( __( 'Outstanding balance', 'exfiles' ) ),
-						'monthly'       => exf_q_money( __( 'Monthly repayment', 'exfiles' ), array( 'optional' => true ) ),
+						'monthly'       => exf_q_money( __( 'Monthly repayment', 'exfiles' ) ),
 						'additional'    => exf_q_additional(),
 					),
 				),
@@ -618,8 +620,8 @@ function exf_q_sections() {
 							'type'  => 'text',
 							'label' => __( 'What is it?', 'exfiles' ),
 						),
-						'current'     => exf_q_money( __( 'Current amount', 'exfiles' ), array( 'freq' => true, 'optional' => true ) ),
-						'future'      => exf_q_money( __( 'Future amount', 'exfiles' ), array( 'freq' => true, 'optional' => true ) ),
+						'current'     => exf_q_money( __( 'Current amount', 'exfiles' ), array( 'freq' => true ) ),
+						'future'      => exf_q_money( __( 'Future amount', 'exfiles' ), array( 'freq' => true ) ),
 					),
 				),
 				'additional' => array(
@@ -675,7 +677,42 @@ function exf_q_sections() {
 			),
 		),
 	);
-	return apply_filters( 'exf_questionnaire_sections', $sections );
+	return apply_filters( 'exf_questionnaire_sections', exf_q_apply_required( $sections ) );
+}
+
+/**
+ * The client's spreadsheet marks only "Child's name" as optional, so every other
+ * question is required when it applies (hidden questions never are). Exceptions:
+ * the "Additional information" boxes, fields marked 'optional' (where the
+ * spreadsheet says so or says "if known"), and the outgoings table.
+ *
+ * @param array $sections Sections.
+ * @return array
+ */
+function exf_q_apply_required( array $sections ) {
+	foreach ( $sections as &$section ) {
+		$section['fields'] = exf_q_apply_required_fields( $section['fields'] );
+	}
+	return $sections;
+}
+
+/**
+ * Mark question fields required (see exf_q_apply_required()).
+ *
+ * @param array $fields Field definitions.
+ * @return array
+ */
+function exf_q_apply_required_fields( array $fields ) {
+	foreach ( $fields as $key => &$field ) {
+		if ( ! empty( $field['fields'] ) ) {
+			$field['fields'] = exf_q_apply_required_fields( $field['fields'] );
+		}
+		if ( in_array( $field['type'], array( 'text', 'textarea', 'date', 'select', 'radio', 'number' ), true )
+			&& 'additional' !== $key && empty( $field['optional'] ) ) {
+			$field['required'] = true;
+		}
+	}
+	return $fields;
 }
 
 /**
