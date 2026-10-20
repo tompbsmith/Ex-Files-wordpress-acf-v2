@@ -225,13 +225,14 @@ function exf_q_render_money( $key, array $field, array $v, $name, array $errors,
  * @param string $show   Show-if attributes.
  */
 function exf_q_render_repeater( $key, array $field, array $items, $name, array $errors, array $all, $show ) {
+	$items = array_filter( $items, 'is_array' );
 	if ( ! $items ) {
 		$items = array( array() ); // Start with one empty block.
 	}
 	$item_label = ucfirst( $field['item'] );
 	echo '<div class="q-repeater" data-repeater="' . esc_attr( $key ) . '" data-item-label="' . esc_attr( $item_label ) . '"' . $show . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo '<div class="q-items">';
-	foreach ( array_values( $items ) as $i => $item ) {
+	foreach ( array_values( array_filter( $items, 'is_array' ) ) as $i => $item ) {
 		exf_q_render_item( $field, $item, $name . '[' . $i . ']', $errors, $all, $item_label . ' ' . ( $i + 1 ) );
 	}
 	echo '</div>';

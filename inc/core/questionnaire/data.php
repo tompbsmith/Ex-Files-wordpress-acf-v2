@@ -20,7 +20,25 @@ const EXF_Q_CERTAINTY = array( 'Known current', 'Estimated current', "Don't know
  */
 function exf_q_data( $q ) {
 	$data = get_post_meta( $q, 'q_data', true );
-	return is_array( $data ) ? $data : array();
+	return is_array( $data ) ? exf_q_normalise( $data ) : array();
+}
+
+/**
+ * Bring stored answers into the current shape: answers saved before a question
+ * was added or changed are cleaned against today's schema, so every repeater is a
+ * list and every money answer an array. Cleaning is idempotent for current data.
+ *
+ * @param array $data Stored answers.
+ */
+function exf_q_normalise( array $data ) {
+	$sections = exf_q_sections();
+	$out      = array();
+	foreach ( $data as $key => $values ) {
+		if ( isset( $sections[ $key ] ) && is_array( $values ) ) {
+			$out[ $key ] = exf_q_clean_section( $key, $values, $out + $data );
+		}
+	}
+	return $out;
 }
 
 /**
@@ -273,13 +291,16 @@ function exf_q_validate_fields( array $fields, array $values, $prefix, array $al
 				$errors += exf_q_validate_fields( $field['fields'], is_array( $v ) ? $v : array(), $name, $all );
 				break;
 			case 'repeater':
-				foreach ( (array) $v as $i => $item ) {
-					$errors += exf_q_validate_fields( $field['fields'], $item, $name . '[' . $i . ']', $all );
+				foreach ( ( is_array( $v ) ? $v : array() ) as $i => $item ) {
+					if ( is_array( $item ) ) {
+						$errors += exf_q_validate_fields( $field['fields'], $item, $name . '[' . $i . ']', $all );
+					}
 				}
 				break;
 			case 'outgoings':
-				foreach ( (array) $v as $i => $row ) {
+				foreach ( array_filter( is_array( $v ) ? $v : array(), 'is_array' ) as $i => $row ) {
 					foreach ( array( 'current', 'future' ) as $col ) {
+						$row[ $col ] = $row[ $col ] ?? '';
 						if ( '' !== $row[ $col ] && ( ! is_numeric( $row[ $col ] ) || $row[ $col ] < 0 ) ) {
 							$errors[ $name . '[' . $i . '][' . $col . ']' ] = __( 'Please enter an amount in pounds, like 250 or 99.50.', 'exfiles' );
 						}
@@ -459,7 +480,7 @@ function exf_q_summary_fields( array $fields, array $values, array $all, $depth 
 				$rows   = array_merge( $rows, exf_q_summary_fields( $field['fields'], is_array( $v ) ? $v : array(), $all, $depth + 1 ) );
 				break;
 			case 'repeater':
-				$items = (array) $v;
+				$items = array_values( array_filter( is_array( $v ) ? $v : array(), 'is_array' ) );
 				if ( ! $items ) {
 					break;
 				}
@@ -469,7 +490,7 @@ function exf_q_summary_fields( array $fields, array $values, array $all, $depth 
 				}
 				break;
 			case 'outgoings':
-				$rows[] = array( 'type' => 'outgoings', 'label' => $field['label'], 'rows' => (array) $v, 'depth' => $depth );
+				$rows[] = array( 'type' => 'outgoings', 'label' => $field['label'], 'rows' => array_filter( is_array( $v ) ? $v : array(), 'is_array' ), 'depth' => $depth );
 				break;
 			case 'money':
 				list( $text, $flag ) = exf_q_money_text( $field, is_array( $v ) ? $v : array() );

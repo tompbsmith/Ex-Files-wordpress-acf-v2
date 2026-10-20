@@ -323,10 +323,13 @@ function exf_conflict_pool_exes( $exclude_user ) {
  * Conflict register entries.
  */
 function exf_conflict_pool_register() {
-	static $rows = null;
-	if ( null !== $rows ) {
+	// Cached for one request, until any post changes (e.g. a register entry is added).
+	static $rows = null, $stamp = null;
+	$changed = wp_cache_get_last_changed( 'posts' );
+	if ( null !== $rows && $stamp === $changed ) {
 		return $rows;
 	}
+	$stamp = $changed;
 	$rows = array();
 	$ids  = get_posts(
 		array(
