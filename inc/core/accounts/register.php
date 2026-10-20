@@ -153,7 +153,9 @@ function exf_handle_register( array $post ) {
 			esc_url( wp_login_url( exf_page_url( 'account' ) ) )
 		);
 	}
-	if ( $v['ex_email'] && ! is_email( $v['ex_email'] ) ) {
+	// sanitize_email() turns an invalid address into '', so check what was typed.
+	if ( ( $v['ex_email'] && ! is_email( $v['ex_email'] ) ) || ( '' === $v['ex_email'] && '' !== trim( (string) ( $post['ex_email'] ?? '' ) ) ) ) {
+		$v['ex_email'] = sanitize_text_field( (string) ( $post['ex_email'] ?? '' ) );
 		$e['ex_email'] = __( 'Please enter a valid email address, or leave it blank.', 'exfiles' );
 	}
 	if ( $v['ex_email'] && strtolower( $v['ex_email'] ) === strtolower( $v['email'] ) ) {

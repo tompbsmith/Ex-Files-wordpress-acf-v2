@@ -220,7 +220,8 @@ function exf_handle_new_separation( array $post ) {
 	if ( ! $v['ex_dob'] && ! $v['ex_dob_unknown'] ) {
 		$e['ex_dob'] = __( "Please enter their date of birth, or tick that you don't know it.", 'exfiles' );
 	}
-	if ( $v['ex_email'] && ! is_email( $v['ex_email'] ) ) {
+	if ( ( $v['ex_email'] && ! is_email( $v['ex_email'] ) ) || ( '' === $v['ex_email'] && '' !== trim( (string) ( $post['ex_email'] ?? '' ) ) ) ) {
+		$v['ex_email'] = sanitize_text_field( (string) ( $post['ex_email'] ?? '' ) );
 		$e['ex_email'] = __( 'Please enter a valid email address, or leave it blank.', 'exfiles' );
 	}
 	if ( $e ) {
