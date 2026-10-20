@@ -86,11 +86,13 @@ function exf_q_render_field( $key, array $field, $value, $name, array $errors, a
 	$help  = ! empty( $field['help'] ) ? '<p class="field-note">' . esc_html( $field['help'] ) . '</p>' : '';
 	$data  = ' data-key="' . esc_attr( $key ) . '"';
 	$aria  = $error ? ' aria-invalid="true" aria-describedby="' . esc_attr( $id ) . '-error"' : '';
+	// Questions without 'required' in the schema say so (money answers use "(if any)" instead).
+	$opt = empty( $field['required'] ) ? ' <span class="optional">' . esc_html__( '(optional)', 'exfiles' ) . '</span>' : '';
 
 	switch ( $field['type'] ) {
 		case 'radio':
 			echo '<fieldset class="q-field q-radio' . ( $error ? ' has-error' : '' ) . '"' . $show . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '<legend>' . esc_html( $field['label'] ) . '</legend>' . $help; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo '<legend>' . esc_html( $field['label'] ) . $opt . '</legend>' . $help; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<div class="q-pills">';
 			foreach ( $field['options'] as $opt ) {
 				printf(
@@ -127,14 +129,14 @@ function exf_q_render_field( $key, array $field, $value, $name, array $errors, a
 
 	if ( 'date' === $field['type'] ) {
 		echo '<div role="group" aria-labelledby="' . esc_attr( $id ) . '-legend" class="field field--date q-field' . ( $error ? ' has-error' : '' ) . '"' . $show . $data . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		printf( '<div class="field-legend" id="%s-legend">%s</div>', esc_attr( $id ), esc_html( $field['label'] ) );
+		printf( '<div class="field-legend" id="%s-legend">%s%s</div>', esc_attr( $id ), esc_html( $field['label'] ), $opt ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo exf_date_parts_html( $name, $id, (string) $value, $aria ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $help . $error . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		return;
 	}
 
 	echo '<div class="field q-field' . ( $error ? ' has-error' : '' ) . '"' . $show . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	printf( '<label for="%s">%s</label>', esc_attr( $id ), esc_html( $field['label'] ) );
+	printf( '<label for="%s">%s%s</label>', esc_attr( $id ), esc_html( $field['label'] ), $opt ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	if ( 'select' === $field['type'] ) {
 		printf( '<select id="%1$s" name="%2$s"%3$s%4$s>', esc_attr( $id ), esc_attr( $name ), $data, $aria ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo '<option value="">' . esc_html__( 'Choose…', 'exfiles' ) . '</option>';

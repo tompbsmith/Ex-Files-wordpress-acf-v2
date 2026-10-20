@@ -369,6 +369,8 @@ section[id]{scroll-margin-top:70px;}
 .field select:focus{outline:2px solid var(--brown-mid); outline-offset:1px;}
 .field input[type="date"]{min-height:47px;}
 .field .optional{text-transform:none; letter-spacing:0; font-size:12px;}
+.q-radio .optional, .q-money legend .optional{font-size:13px; font-weight:400; color:var(--muted);}
+.field .optional{color:var(--muted);}
 .field.has-error input, .field.has-error select, .field.has-error textarea{border-color:#a3402c; background:#fbf1ee;}
 .field-error{font-size:14px; color:#a3402c; margin-top:6px;}
 .field-error a{text-decoration:underline;}
