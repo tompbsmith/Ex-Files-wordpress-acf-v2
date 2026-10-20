@@ -13,6 +13,19 @@ add_filter( 'the_generator', '__return_empty_string' );
 
 // XML-RPC isn't used, and is a common target for password guessing.
 add_filter( 'xmlrpc_enabled', '__return_false' );
+// xmlrpc_enabled only stops the login methods; refuse the whole endpoint (it still listed its methods).
+add_action(
+	'init',
+	function () {
+		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && apply_filters( 'exf_block_xmlrpc', true ) ) {
+			status_header( 403 );
+			header( 'Content-Type: text/plain; charset=utf-8' );
+			echo 'XML-RPC is not available on this site.';
+			exit;
+		}
+	},
+	0
+);
 add_filter(
 	'wp_headers',
 	function ( $headers ) {
