@@ -235,22 +235,36 @@ function exf_order_fulfil( $order_id ) {
 	$ex_file   = (int) get_post_meta( $order_id, 'ex_file_id', true );
 	$service   = exf_service( (int) get_post_meta( $order_id, 'service_id', true ) );
 
-	// The full service questionnaire (built in a later phase) starts as a to-do.
+	// One financial questionnaire per Ex File: a later service uses the one the
+	// client already has (submitted or not) rather than starting another. If their
+	// circumstances change, it can be reopened from the admin.
 	if ( $service && $service['questionnaire'] ) {
-		$q = wp_insert_post(
-			array(
-				'post_type'   => 'fs_questionnaire',
-				'post_status' => 'publish',
-				'post_author' => $client_id,
-				/* translators: 1: service, 2: Ex File */
-				'post_title'  => sprintf( __( '%1$s questionnaire – %2$s', 'exfiles' ), $service['name'], get_the_title( $ex_file ) ),
-			)
-		);
-		if ( $q && ! is_wp_error( $q ) ) {
-			update_post_meta( $q, 'ex_file_id', $ex_file );
-			update_post_meta( $q, 'order_id', $order_id );
-			update_post_meta( $q, 'q_status', 'to_do' );
+		$existing = $ex_file && function_exists( 'exf_client_questionnaires' ) ? exf_client_questionnaires( $client_id, $ex_file ) : array();
+		if ( $existing ) {
+			$q = $existing[0];
+			exf_q_link_order( $q, $order_id );
 			update_post_meta( $order_id, 'questionnaire_id', $q );
+			if ( function_exists( 'exf_q_log' ) ) {
+				/* translators: %s: service name */
+				exf_q_log( $q, sprintf( 'Also used for %s', $service['name'] ) );
+			}
+		} else {
+			$q = wp_insert_post(
+				array(
+					'post_type'   => 'fs_questionnaire',
+					'post_status' => 'publish',
+					'post_author' => $client_id,
+					/* translators: %s: Ex File */
+					'post_title'  => sprintf( __( 'Financial questionnaire – %s', 'exfiles' ), get_the_title( $ex_file ) ),
+				)
+			);
+			if ( $q && ! is_wp_error( $q ) ) {
+				update_post_meta( $q, 'ex_file_id', $ex_file );
+				update_post_meta( $q, 'order_id', $order_id );
+				exf_q_link_order( $q, $order_id );
+				update_post_meta( $q, 'q_status', 'to_do' );
+				update_post_meta( $order_id, 'questionnaire_id', $q );
+			}
 		}
 	}
 
@@ -262,6 +276,20 @@ function exf_order_fulfil( $order_id ) {
 		exf_send_email_with_ics( 'order_confirmed', $user->user_email, $vars, $ics );
 	}
 	exf_send_email_with_ics( 'admin_order', exf_notify_emails(), $vars, $ics );
+}
+
+/**
+ * Record that a questionnaire is used for an order (meta "order_ids").
+ *
+ * @param int $q        Questionnaire.
+ * @param int $order_id Order.
+ */
+function exf_q_link_order( $q, $order_id ) {
+	$ids = array_map( 'intval', (array) get_post_meta( $q, 'order_ids', true ) );
+	if ( ! in_array( (int) $order_id, $ids, true ) ) {
+		$ids[] = (int) $order_id;
+		update_post_meta( $q, 'order_ids', array_values( array_filter( $ids ) ) );
+	}
 }
 
 /**
@@ -278,11 +306,15 @@ function exf_order_email_vars( $order_id ) {
 
 	$next = '';
 	if ( $service && $service['questionnaire'] ) {
-		$q    = (int) get_post_meta( $order_id, 'questionnaire_id', true );
-		$next = $q && function_exists( 'exf_q_url' )
+		$q = (int) get_post_meta( $order_id, 'questionnaire_id', true );
+		if ( $q && 'submitted' === get_post_meta( $q, 'q_status', true ) ) {
+			$next = __( "We'll use the financial questionnaire you've already completed, so there's nothing more to fill in. If anything has changed since, please let us know and we'll reopen it for you.", 'exfiles' );
+		} elseif ( $q && function_exists( 'exf_q_url' ) ) {
 			/* translators: %s: link */
-			? sprintf( __( "Next, please complete your financial questionnaire. Your answers are saved as you go:\n%s", 'exfiles' ), exf_q_url( $q ) )
-			: __( 'Next, please complete your questionnaire in your Ex File.', 'exfiles' );
+			$next = sprintf( __( "Next, please complete your financial questionnaire. Your answers are saved as you go:\n%s", 'exfiles' ), exf_q_url( $q ) );
+		} else {
+			$next = __( 'Next, please complete your questionnaire in your Ex File.', 'exfiles' );
+		}
 	}
 
 	return array_merge( ( $ex_file ? exf_ex_file_email_vars( $ex_file ) : array() ), array(

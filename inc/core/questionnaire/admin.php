@@ -182,7 +182,6 @@ function exf_q_status_box( $post ) {
 	$status  = exf_q_status( $q );
 	$client  = get_userdata( (int) $post->post_author );
 	$ex_file = (int) get_post_meta( $q, 'ex_file_id', true );
-	$order   = (int) get_post_meta( $q, 'order_id', true );
 	$log     = array_reverse( array_filter( (array) get_post_meta( $q, 'q_log', true ) ) );
 	?>
 	<p><strong><?php echo esc_html( exf_questionnaire_status_label( $status ) ); ?></strong>
@@ -196,7 +195,14 @@ function exf_q_status_box( $post ) {
 	<p>
 		<?php esc_html_e( 'Client:', 'exfiles' ); ?> <?php echo $client ? '<a href="' . esc_url( get_edit_user_link( $client->ID ) ) . '">' . esc_html( $client->display_name ) . '</a>' : '—'; ?><br>
 		<?php esc_html_e( 'Ex File:', 'exfiles' ); ?> <?php echo $ex_file ? '<a href="' . esc_url( get_edit_post_link( $ex_file ) ) . '">' . esc_html( get_the_title( $ex_file ) ) . '</a>' : '—'; ?><br>
-		<?php esc_html_e( 'Order:', 'exfiles' ); ?> <?php echo $order ? '<a href="' . esc_url( get_edit_post_link( $order ) ) . '">' . esc_html( exf_q_service_name( $q ) ) . '</a>' : '—'; ?>
+		<?php esc_html_e( 'Used for:', 'exfiles' ); ?>
+		<?php
+		$links = array();
+		foreach ( exf_q_orders( $q ) as $order ) {
+			$links[] = '<a href="' . esc_url( get_edit_post_link( $order ) ) . '">' . esc_html( (string) get_post_meta( $order, 'service_name', true ) ) . '</a>';
+		}
+		echo $links ? implode( ', ', $links ) : '—'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
 	</p>
 	<?php if ( $ex_file && get_post_meta( $ex_file, 'flag_unmarried', true ) ) : ?>
 		<p style="color:#b32d2e"><strong><?php esc_html_e( 'The client says they are not married to their ex. Please check the matter is suitable.', 'exfiles' ); ?></strong></p>

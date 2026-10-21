@@ -151,7 +151,7 @@ function exf_portal_next_steps( $user_id ) {
 		$status = (string) get_post_meta( $q, 'q_status', true );
 		if ( in_array( $status, array( 'to_do', 'in_progress' ), true ) ) {
 			$url     = (string) apply_filters( 'exf_questionnaire_url', '', $q );
-			$service = (string) get_post_meta( (int) get_post_meta( $q, 'order_id', true ), 'service_name', true );
+			$service = function_exists( 'exf_q_service_name' ) ? exf_q_service_name( $q ) : (string) get_post_meta( (int) get_post_meta( $q, 'order_id', true ), 'service_name', true );
 			$steps[] = array(
 				'text'  => $url
 					/* translators: %s: service name */

@@ -93,7 +93,26 @@ function exf_q_log( $q, $message ) {
  * @param int $q Questionnaire.
  */
 function exf_q_service_name( $q ) {
-	return (string) get_post_meta( (int) get_post_meta( $q, 'order_id', true ), 'service_name', true );
+	$names = array();
+	foreach ( exf_q_orders( $q ) as $order ) {
+		$name = (string) get_post_meta( $order, 'service_name', true );
+		if ( '' !== $name ) {
+			$names[ $name ] = $name;
+		}
+	}
+	return implode( ' and ', $names );
+}
+
+/**
+ * Orders a questionnaire is used for, oldest first. There's one questionnaire per
+ * Ex File, so a later service is linked to the existing one (meta "order_ids").
+ *
+ * @param int $q Questionnaire.
+ * @return int[]
+ */
+function exf_q_orders( $q ) {
+	$ids = array_merge( array( (int) get_post_meta( $q, 'order_id', true ) ), array_map( 'intval', (array) get_post_meta( $q, 'order_ids', true ) ) );
+	return array_values( array_unique( array_filter( $ids ) ) );
 }
 
 /**
@@ -362,16 +381,24 @@ function exf_q_send_reminders() {
 	);
 	$now = time();
 	foreach ( $ids as $q ) {
-		$order = (int) get_post_meta( $q, 'order_id', true );
-		if ( ! $order || ! exf_order_is_live( $order ) ) {
+		$live = array_values( array_filter( exf_q_orders( $q ), 'exf_order_is_live' ) );
+		if ( ! $live ) {
 			continue;
 		}
-		$sent  = array_filter( (array) get_post_meta( $q, 'q_reminders', true ) );
-		$paid  = (int) get_post_meta( $order, 'paid_at', true );
-		$paid  = $paid ? $paid : get_post_timestamp( $q );
-		$start = (int) get_post_meta( $order, 'booking_start', true );
+		$order = $live[0];
+		$start = 0;
+		foreach ( $live as $o ) {
+			$s = (int) get_post_meta( $o, 'booking_start', true );
+			if ( $s > $now && ( ! $start || $s < $start ) ) {
+				$start = $s;
+				$order = $o;
+			}
+		}
+		$sent = array_filter( (array) get_post_meta( $q, 'q_reminders', true ) );
+		$paid = (int) get_post_meta( $live[0], 'paid_at', true );
+		$paid = $paid ? $paid : get_post_timestamp( $q );
 		$due   = '';
-		if ( $start && $start > $now && $start - $now <= 2 * DAY_IN_SECONDS && empty( $sent['appointment'] ) ) {
+		if ( $start && $start - $now <= 2 * DAY_IN_SECONDS && empty( $sent['appointment'] ) ) {
 			$due = 'appointment';
 		} elseif ( $now - $paid >= 7 * DAY_IN_SECONDS && empty( $sent['day7'] ) ) {
 			$due = 'day7';

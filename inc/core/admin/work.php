@@ -60,10 +60,10 @@ function exf_questionnaires_waiting() {
 	foreach ( exf_orders_to_do() as $o ) {
 		$q = (int) get_post_meta( $o, 'questionnaire_id', true );
 		if ( $q && 'submitted' === exf_q_status( $q ) ) {
-			$out[] = $q;
+			$out[ $q ] = $q;
 		}
 	}
-	return $out;
+	return array_values( $out );
 }
 
 add_action(
