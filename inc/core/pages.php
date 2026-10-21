@@ -187,7 +187,7 @@ function exf_seed_guide_landing_sections( $page_id ) {
 				'acf_fc_layout' => 'guide',
 				'heading'       => __( 'Your free, personalised divorce guide', 'exfiles' ),
 				'text'          => __( "Answer a few anonymous questions about where you are in your separation. We'll email you a guide written around your answers, explaining the divorce process and the financial steps that apply to you.", 'exfiles' ),
-				'card_heading'  => __( 'It takes about two minutes', 'exfiles' ),
+				'card_heading'  => __( 'Free and anonymous', 'exfiles' ),
 				'card_text'     => __( "We don't ask for your name or your ex's details. Just your email address, so we can send you the guide.", 'exfiles' ),
 				'card_button'   => array(
 					'title'  => __( 'Start the questions', 'exfiles' ),

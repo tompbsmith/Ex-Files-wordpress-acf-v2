@@ -48,7 +48,7 @@ function exf_email_defaults() {
 		),
 		'review'         => array(
 			"We're just checking a few details",
-			"Hello {first_name},\n\nThank you for confirming your email. Before we can act for you, we need to complete a routine check, which we do by hand for some new clients. This is usually done within one working day, and we'll email you as soon as it's finished.\n\nYou can log in to your Ex File in the meantime:\n\n{link}\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nThank you for confirming your email. Before we can act for you, we need to complete a routine check, which we do by hand for some new clients. We'll email you as soon as it's finished.\n\nYou can log in to your Ex File in the meantime:\n\n{link}\n\nBest wishes,\nThe Ex Files",
 		),
 		'info_requested' => array(
 			'We need a little more information',

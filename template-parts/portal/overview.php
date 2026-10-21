@@ -14,7 +14,7 @@ $exf_steps  = exf_portal_next_steps( $exf_uid );
 $exf_sep          = isset( $_GET['separation'] ) ? sanitize_key( wp_unslash( $_GET['separation'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $exf_sep_messages = array(
 	'clear'   => __( 'Your new Ex File is open.', 'exfiles' ),
-	'review'  => __( "Thanks. We're running a routine check on your new Ex File and will email you as soon as it's done, usually within one working day.", 'exfiles' ),
+	'review'  => __( "Thanks. We're running a routine check on your new Ex File and will email you as soon as it's done.", 'exfiles' ),
 	'blocked' => __( "We're unable to take on this new matter. We can't give details, as it can be for a number of reasons. Your other Ex Files aren't affected.", 'exfiles' ),
 );
 ?>

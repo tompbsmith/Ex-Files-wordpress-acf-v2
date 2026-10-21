@@ -74,7 +74,7 @@ $exf_details   = (string) exf_setting( 'meeting_details', '' );
 					<fieldset class="portal-fieldset">
 						<legend><?php esc_html_e( 'What would you like to do?', 'exfiles' ); ?></legend>
 						<label class="gq-option"><input type="radio" name="request_kind" value="change" checked><span><?php esc_html_e( 'Move it to another time', 'exfiles' ); ?></span></label>
-						<label class="gq-option"><input type="radio" name="request_kind" value="cancel"><span><?php esc_html_e( 'Cancel it (not refunded)', 'exfiles' ); ?></span></label>
+						<label class="gq-option"><input type="radio" name="request_kind" value="cancel"><span><?php esc_html_e( 'Cancel it', 'exfiles' ); ?></span></label>
 					</fieldset>
 					<?php
 					exf_form_field(

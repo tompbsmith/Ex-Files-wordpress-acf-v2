@@ -3,7 +3,7 @@
  * Appointments and payments in the portal.
  *
  * Clients can't move or cancel an appointment themselves. They send a request, which
- * emails the solicitor and is logged on the order. Cancellations aren't refunded.
+ * emails the solicitor and is logged on the order. Whether a cancellation is refunded is up to the firm (refunds are done in Stripe).
  *
  * @package exfiles
  */

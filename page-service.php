@@ -51,7 +51,7 @@ get_header();
 						<?php echo esc_html( $exf_service['buy_label'] ? $exf_service['buy_label'] : ( $exf_service['booking'] ? __( 'Book now', 'exfiles' ) : __( 'Get started', 'exfiles' ) ) ); ?>
 					</a>
 					<?php if ( ! is_user_logged_in() ) : ?>
-						<p class="field-note" style="margin-top:12px"><?php esc_html_e( "You'll open your Ex File first. It takes about five minutes.", 'exfiles' ); ?></p>
+						<p class="field-note" style="margin-top:12px"><?php esc_html_e( "You'll open your Ex File first.", 'exfiles' ); ?></p>
 					<?php endif; ?>
 				<?php else : ?>
 					<p><?php esc_html_e( 'Please get in touch to book this service.', 'exfiles' ); ?></p>

@@ -245,7 +245,7 @@ function exf_guide_default_copy() {
 		'email_subject'      => 'Your free divorce guide from The Ex Files',
 		'email_body'         => "Hello,\n\nThank you for using The Ex Files’ free divorce guide. Your personalised guide is attached as a PDF. Your answers to the questionnaire are included at Annex A.\n\nThis guide is general information based on your answers. It is not legal advice.\n\n{services}Best wishes,\nThe Ex Files",
 		'email_services'     => "You told us you’d like to hear about these services:\n{list}\n\n",
-		'marketing_label'    => 'I’d like The Ex Files to email me about their services. You can unsubscribe at any time.',
-		'privacy_note'       => 'We only use your email address to send you this guide and keep a record of what we sent. We don’t ask for your name or your ex’s details.',
+		'marketing_label'    => 'I’d like The Ex Files to email me about their services. Reply to any of our emails to stop.',
+		'privacy_note'       => 'We only use your email address to send you this guide, keep a record of what we sent and, if you tick the box below, to tell you about our services. We don’t ask for your name or your ex’s details.',
 	);
 }

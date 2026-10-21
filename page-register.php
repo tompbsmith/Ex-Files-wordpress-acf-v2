@@ -81,7 +81,7 @@ get_header();
 		<header class="guide-form-head">
 			<p class="eyebrow"><?php esc_html_e( 'Open your Ex File', 'exfiles' ); ?></p>
 			<h1><?php echo esc_html( $exf_f( 'intro_heading' ) ? $exf_f( 'intro_heading' ) : __( 'Open your Ex File', 'exfiles' ) ); ?></h1>
-			<p class="lead"><?php echo exf_lines( $exf_f( 'intro_text' ) ? $exf_f( 'intro_text' ) : __( 'Your Ex File is your private account with us. It holds your questionnaires, documents and appointments, and it takes about five minutes to set up.', 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+			<p class="lead"><?php echo exf_lines( $exf_f( 'intro_text' ) ? $exf_f( 'intro_text' ) : __( 'Your Ex File is your private account with us. It holds your questionnaires, documents and appointments.', 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 			<p class="field-note" style="margin-top:14px">
 				<?php
 				printf(
@@ -141,7 +141,7 @@ get_header();
 			<fieldset class="reg-step" data-reg-step="2">
 				<legend class="gq-label" tabindex="-1"><?php esc_html_e( 'About your ex', 'exfiles' ); ?></legend>
 				<div class="reg-why">
-					<?php echo wp_kses_post( wpautop( $exf_f( 'why_text' ) ? $exf_f( 'why_text' ) : __( "We ask for your ex's details to make sure we haven't already been instructed by them, which would stop us acting for you. It's a routine check that every law firm carries out. We don't contact your ex.\n\nThe more you can tell us, the quicker the check. If we can't tell your ex apart from someone else with the same name, we may need to ask you for more information.", 'exfiles' ) ) ); ?>
+					<?php echo wp_kses_post( wpautop( $exf_f( 'why_text' ) ? $exf_f( 'why_text' ) : __( "We ask for your ex's details to make sure we haven't already been instructed by them, which would stop us acting for you.\n\nThe more you can tell us, the quicker the check. If we can't tell your ex apart from someone else with the same name, we may need to ask you for more information.", 'exfiles' ) ) ); ?>
 				</div>
 				<div class="field-row">
 					<?php
@@ -208,7 +208,7 @@ get_header();
 				<?php if ( isset( $exf_errors['terms'] ) ) : ?>
 					<p class="field-error"><?php echo esc_html( $exf_errors['terms'] ); ?></p>
 				<?php endif; ?>
-				<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="marketing" value="1" <?php checked( ! empty( $exf_values['marketing'] ) ); ?>><span><?php esc_html_e( 'I’d like The Ex Files to email me about their services. You can unsubscribe at any time.', 'exfiles' ); ?></span></label>
+				<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="marketing" value="1" <?php checked( ! empty( $exf_values['marketing'] ) ); ?>><span><?php esc_html_e( 'I’d like The Ex Files to email me about their services. You can change this at any time in your Ex File.', 'exfiles' ); ?></span></label>
 			</fieldset>
 
 			<div class="hp-field" aria-hidden="true">

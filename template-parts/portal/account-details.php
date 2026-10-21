@@ -71,7 +71,7 @@ $exf_pending = get_user_meta( $exf_uid, 'exf_new_email', true );
 			exf_form_field( 'postcode', __( 'Postcode', 'exfiles' ), $exf_a + array( 'required' => true, 'autocomplete' => 'postal-code' ) );
 			?>
 		</div>
-		<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="marketing" value="1" <?php checked( (bool) get_user_meta( $exf_uid, 'exf_marketing', true ) ); ?>><span><?php esc_html_e( 'I’d like The Ex Files to email me about their services. You can unsubscribe at any time.', 'exfiles' ); ?></span></label>
+		<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="marketing" value="1" <?php checked( (bool) get_user_meta( $exf_uid, 'exf_marketing', true ) ); ?>><span><?php esc_html_e( 'I’d like The Ex Files to email me about their services. You can change this at any time here.', 'exfiles' ); ?></span></label>
 		<div class="guide-nav"><button type="submit" class="btn"><?php esc_html_e( 'Save details', 'exfiles' ); ?></button></div>
 	</form>
 </div>

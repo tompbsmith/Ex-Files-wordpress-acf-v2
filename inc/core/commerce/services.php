@@ -186,7 +186,7 @@ function exf_default_services() {
 				'appointment_minutes'    => 60,
 				'requires_questionnaire' => 1,
 				'deliverable'            => 'appointment',
-				'intro'                  => __( 'A fixed-fee appointment to understand your financial position before you negotiate.', 'exfiles' ),
+				'intro'                  => __( 'Gain clarity on your financial claims with a 1-hour virtual consultation and the option to receive a written advisory report.', 'exfiles' ),
 			),
 		),
 		'svc_cyd'  => array(
@@ -197,7 +197,7 @@ function exf_default_services() {
 				'requires_booking'       => 0,
 				'requires_questionnaire' => 1,
 				'deliverable'            => 'report',
-				'intro'                  => __( 'A written review of an agreement you have already reached, so you know whether it is sensible before you sign.', 'exfiles' ),
+				'intro'                  => __( 'Review your existing agreement to ensure it is a fair and legally sound resolution for your specific circumstances.', 'exfiles' ),
 			),
 		),
 		'svc_mil'  => array(
@@ -208,7 +208,7 @@ function exf_default_services() {
 				'requires_booking'       => 0,
 				'requires_questionnaire' => 1,
 				'deliverable'            => 'document',
-				'intro'                  => __( 'We prepare the financial consent order that makes your agreement legally binding once the court approves it.', 'exfiles' ),
+				'intro'                  => __( 'Transform your agreement into a legally binding financial consent order.', 'exfiles' ),
 			),
 		),
 	);
