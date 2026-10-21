@@ -66,7 +66,7 @@ Everything beyond the marketing pages lives in `inc/core/`. It's kept separate f
 - **Open your Ex File** (`/open-your-ex-file/`, template *Open Your Ex File*): registration
 - **My Ex File** (`/my-ex-file/`, template *My Ex File (account)*): the client's account page
 - **Choose your service** (`/my-ex-file/buy/`, template *Buy a Service*): checkout
-- **Our services** (`/services/`, a Sections page) and one page per service under it (template *Service*): Know Your Position, Check Your Deal, Make It Legal, Free 15-minute consultation
+- **Our services** (`/services/`, a Sections page) and one page per service under it (template *Service*): Know Your Position, Check Your Deal, Make It Legal. (The free 15-minute consultation was dropped at the client's request; existing copies of its page are switched to draft. Ticking "Free" in a service page's Service settings makes a free bookable service if one is wanted again.)
 
 Pages are found by their template, so they can be renamed or moved.
 

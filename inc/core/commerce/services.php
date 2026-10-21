@@ -169,6 +169,10 @@ add_action(
 /**
  * Default settings for the service pages created automatically.
  *
+ * The free 15-minute consultation was dropped at the client's request (people
+ * unsure what they need use the enquiry form). Free bookable services still work:
+ * set "Free" in a service page's Service settings to bring one back.
+ *
  * @return array key => [ title, slug, settings ]
  */
 function exf_default_services() {
@@ -207,19 +211,29 @@ function exf_default_services() {
 				'intro'                  => __( 'We prepare the financial consent order that makes your agreement legally binding once the court approves it.', 'exfiles' ),
 			),
 		),
-		'svc_free' => array(
-			__( 'Free 15-minute consultation', 'exfiles' ),
-			'free-consultation',
-			array(
-				'service_type'           => 'free_consultation',
-				'is_free'                => 1,
-				'requires_booking'       => 1,
-				'appointment_minutes'    => 15,
-				'requires_questionnaire' => 0,
-				'deliverable'            => 'appointment',
-				'buy_label'              => __( 'Book a free call', 'exfiles' ),
-				'intro'                  => __( 'A short call to talk through your situation and which service would help.', 'exfiles' ),
-			),
-		),
 	);
 }
+
+/*
+ * One-off tidy-up: the free consultation page that earlier versions created is
+ * switched to draft (not deleted), so it can be republished if it's wanted again.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_free_consult_retired' ) || ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+		update_option( 'exf_free_consult_retired', time(), false );
+		$id = (int) get_option( 'exf_page_svc_free' );
+		if ( $id && 'page' === get_post_type( $id ) && 'publish' === get_post_status( $id ) ) {
+			wp_update_post(
+				array(
+					'ID'          => $id,
+					'post_status' => 'draft',
+				)
+			);
+		}
+		delete_option( 'exf_page_svc_free' );
+	}
+);
