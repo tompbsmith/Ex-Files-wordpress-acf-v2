@@ -16,9 +16,47 @@
                 "class": "",
                 "id": ""
             },
-            "message": "Leave a field empty to use the default wording. Merge tags are replaced when the email is sent; each email lists the ones it supports. Emails are sent as plain text.",
+            "message": "Leave a field empty to use the default wording. Merge tags are replaced when the email is sent; each email lists the ones it supports.\n\nWrite messages as plain text. They're sent in the website's design (logo, colours and fonts), with a plain-text copy for email apps that don't show it. A link on its own line becomes a button. Lines starting with \"- \" become a bulleted list.",
             "new_lines": "wpautop",
             "esc_html": 0
+        },
+        {
+            "key": "field_exf_em_tab_design",
+            "label": "Design and footer",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_email_footer",
+            "label": "Footer",
+            "name": "email_footer",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown at the bottom of every email, one item per line (an email address on its own line becomes a link). Leave empty to use the website footer's tagline and contact email.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Making separation feel less alien\ninfo@theexfiles.co.uk",
+            "maxlength": "",
+            "rows": 5,
+            "new_lines": ""
         },
         {
             "key": "field_exf_em_tab_verify",
@@ -1089,5 +1127,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792455407
+    "modified": 1792601170
 }

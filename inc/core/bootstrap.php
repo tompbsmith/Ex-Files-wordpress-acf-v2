@@ -39,6 +39,7 @@ require EXF_CORE_DIR . '/guide/admin.php';
 
 require EXF_CORE_DIR . '/accounts/users.php';
 require EXF_CORE_DIR . '/accounts/emails.php';
+require EXF_CORE_DIR . '/email-html.php';
 require EXF_CORE_DIR . '/accounts/conflict.php';
 require EXF_CORE_DIR . '/accounts/conflict-register.php';
 require EXF_CORE_DIR . '/accounts/register.php';
