@@ -63,6 +63,16 @@ add_action(
 			)
 		);
 
+		// Motion: GSAP 3.15 + ScrollTrigger, served from the theme (free licence, no CDN).
+		$defer = array(
+			'in_footer' => true,
+			'strategy'  => 'defer',
+		);
+		wp_enqueue_script( 'gsap', EXF_URI . '/assets/js/vendor/gsap/gsap.min.js', array(), '3.15.0', $defer );
+		wp_enqueue_script( 'gsap-scrolltrigger', EXF_URI . '/assets/js/vendor/gsap/ScrollTrigger.min.js', array( 'gsap' ), '3.15.0', $defer );
+		$motion = EXF_DIR . '/assets/js/motion.js';
+		wp_enqueue_script( 'exf-motion', EXF_URI . '/assets/js/motion.js', array( 'gsap', 'gsap-scrolltrigger' ), file_exists( $motion ) ? (string) filemtime( $motion ) : EXF_VERSION, $defer );
+
 		wp_localize_script(
 			'exf-main',
 			'exfContact',
@@ -73,6 +83,16 @@ add_action(
 			)
 		);
 	}
+);
+
+// Let the CSS hide scroll-reveal content before first paint (see assets/js/motion.js).
+// Skipped for reduced motion; undone after 3s if motion.js never runs.
+add_action(
+	'wp_head',
+	function () {
+		echo "<script>(function(d){if(!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches){return;}d.classList.add('exf-motion');setTimeout(function(){if(!window.exfMotionReady){d.classList.remove('exf-motion');}},3000);})(document.documentElement);</script>\n";
+	},
+	2
 );
 
 // Preconnect to Google Fonts, as the original page did.

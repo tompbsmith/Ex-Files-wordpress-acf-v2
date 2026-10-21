@@ -77,6 +77,7 @@
     }
 
     if (focus) {
+      if (window.exfReveal) { window.exfReveal(steps[step], { height: false }); }
       var label = steps[step].querySelector('.gq-label');
       if (label) { label.focus({ preventScroll: true }); }
       var top = form.getBoundingClientRect().top + window.pageYOffset - 110;

@@ -32,7 +32,11 @@
     return '';
   }
 
-  function applyConditions() {
+  // Ease in content a gate question has just shown (assets/js/motion.js).
+  function revealEl(el) { if (window.exfReveal) { window.exfReveal(el); } }
+  function resetEl(el) { if (window.exfReveal) { window.exfReveal.reset(el); } }
+
+  function applyConditions(animate) {
     var els = form.querySelectorAll('[data-show-if]');
     for (var i = 0; i < els.length; i++) {
       var el = els[i];
@@ -44,7 +48,10 @@
       if (el.parentElement && el.parentElement.classList.contains('q-money')) { parent = el.parentElement; }
       if (!parent) { continue; }
       var show = rule.values.indexOf(scopeValue(parent, rule.key)) !== -1;
+      var wasHidden = el.hidden;
       el.hidden = !show;
+      if (animate && wasHidden && show) { revealEl(el); }
+      if (!show && !wasHidden) { resetEl(el); }
     }
   }
 
@@ -105,6 +112,7 @@
       rep.querySelector(':scope > .q-items').appendChild(item);
       renumber(rep);
       applyConditions();
+      revealEl(item);
       var first = item.querySelector('input:not([type=radio]), select, textarea');
       if (first) { first.focus(); }
       return;
@@ -121,7 +129,7 @@
     }
   });
 
-  form.addEventListener('change', function () { applyConditions(); updateMonthly(); updateTotals(); });
+  form.addEventListener('change', function () { applyConditions(true); updateMonthly(); updateTotals(); });
   form.addEventListener('input', function (e) {
     if (e.target.matches('[data-key="amount"]')) { updateMonthly(); }
     if (e.target.closest('[data-outgoings]')) { updateTotals(); }
