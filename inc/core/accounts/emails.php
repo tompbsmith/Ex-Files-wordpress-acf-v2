@@ -161,7 +161,9 @@ function exf_email_render( $key, array $vars = array() ) {
 	foreach ( $vars as $k => $v ) {
 		$tags[ '{' . $k . '}' ] = (string) $v;
 	}
-	return array( wp_strip_all_tags( strtr( $subject, $tags ) ), strtr( $body, $tags ) );
+	// Empty merge tags (e.g. no appointment details) would leave gaps: keep at most one blank line.
+	$body = preg_replace( "/(\r?\n[ \t]*){3,}/", "\n\n", strtr( $body, $tags ) );
+	return array( wp_strip_all_tags( strtr( $subject, $tags ) ), trim( $body ) . "\n" );
 }
 
 /**

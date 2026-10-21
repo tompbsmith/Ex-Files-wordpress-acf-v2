@@ -52,8 +52,14 @@ get_header();
 			<?php endif; ?>
 			<p><strong><?php esc_html_e( 'Ex File:', 'exfiles' ); ?></strong> <?php echo esc_html( trim( implode( ' ', array_slice( exf_ex_details( (int) get_post_meta( $exf_order, 'ex_file_id', true ) ), 0, 2 ) ) ) ); ?></p>
 			<?php if ( exf_order_is_live( $exf_order ) && $exf_osvc && $exf_osvc['questionnaire'] ) : ?>
-				<?php $exf_oq = (int) get_post_meta( $exf_order, 'questionnaire_id', true ); ?>
-				<?php if ( $exf_oq && function_exists( 'exf_q_url' ) ) : ?>
+				<?php
+				$exf_oq   = (int) get_post_meta( $exf_order, 'questionnaire_id', true );
+				$exf_qsub = $exf_oq && 'submitted' === get_post_meta( $exf_oq, 'q_status', true );
+				?>
+				<?php if ( $exf_qsub ) : ?>
+					<?php $exf_oq = 0; // Nothing to fill in: no questionnaire button. ?>
+					<p style="margin-top:14px"><?php esc_html_e( "We'll use the financial questionnaire you've already completed, so there's nothing more to fill in. If anything has changed since, please let us know and we'll reopen it for you.", 'exfiles' ); ?></p>
+				<?php elseif ( $exf_oq && function_exists( 'exf_q_url' ) ) : ?>
 					<p style="margin-top:14px"><?php esc_html_e( 'Next, please complete your financial questionnaire. Your answers are saved as you go, so you can do it in more than one sitting.', 'exfiles' ); ?></p>
 				<?php else : ?>
 					<p style="margin-top:14px"><?php esc_html_e( "Next, you'll complete a questionnaire about your finances. We'll email you when it's ready.", 'exfiles' ); ?></p>

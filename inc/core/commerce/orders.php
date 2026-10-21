@@ -325,7 +325,8 @@ function exf_order_email_vars( $order_id ) {
 			/* translators: %s: the time they chose */
 			? sprintf( __( 'To be rearranged. The time you chose (%s) was booked by someone else while you were paying, so we’ll contact you to arrange a new time.', 'exfiles' ), exf_booking_label( $start, $end ) )
 			: exf_booking_label( $start, $end ) ),
-		'meeting_details' => (string) exf_setting( 'meeting_details', '' ),
+		// How the appointment works: only relevant when there is one.
+		'meeting_details' => $start ? (string) exf_setting( 'meeting_details', '' ) : '',
 		'next_steps'      => $next,
 		'link'            => exf_page_url( 'account' ),
 		'admin_link'      => admin_url( 'post.php?post=' . $order_id . '&action=edit' ),
