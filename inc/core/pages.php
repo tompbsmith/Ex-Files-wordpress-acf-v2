@@ -233,7 +233,7 @@ function exf_handle_create_pages() {
  *   ''     (default) automatic on test sites, manual on the live site
  *
  * A test site is one whose WordPress environment type isn't "production", or
- * whose address is on InstaWP, Local or localhost.
+ * whose address is on InstaWP, Local or localhost, or starts with "staging.".
  */
 function exf_pages_auto_create() {
 	$mode = (string) exf_setting( 'page_setup', '' );
@@ -254,7 +254,8 @@ function exf_is_test_site() {
 		return true;
 	}
 	$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
-	return (bool) preg_match( '/(\.instawp\.(site|xyz|co|io)|\.local|\.test|^localhost)$/i', $host );
+	// staging.* covers the InstaWP copy mapped to staging.ex-files.tompbsmith.com.
+	return (bool) preg_match( '/(\.instawp\.(site|xyz|co|io)|\.local|\.test|^localhost)$/i', $host ) || 0 === stripos( $host, 'staging.' );
 }
 
 /**
