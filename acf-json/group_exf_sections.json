@@ -361,6 +361,26 @@
                             "message": "",
                             "ui_on_text": "",
                             "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_hero_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
                         }
                     ],
                     "min": "",
@@ -540,6 +560,26 @@
                             },
                             "ui": 1,
                             "default_value": 0,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_guide_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
                             "message": "",
                             "ui_on_text": "",
                             "ui_off_text": ""
@@ -752,6 +792,26 @@
                             "message": "",
                             "ui_on_text": "",
                             "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_services_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
                         }
                     ],
                     "min": "",
@@ -941,6 +1001,26 @@
                             },
                             "ui": 1,
                             "default_value": 0,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_steps_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
                             "message": "",
                             "ui_on_text": "",
                             "ui_off_text": ""
@@ -1170,6 +1250,26 @@
                             },
                             "ui": 1,
                             "default_value": 0,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_trust_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
                             "message": "",
                             "ui_on_text": "",
                             "ui_off_text": ""
@@ -1434,6 +1534,26 @@
                             "message": "",
                             "ui_on_text": "",
                             "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_contact_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
                         }
                     ],
                     "min": "",
@@ -1676,5 +1796,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1792450494
+    "modified": 1792597860
 }

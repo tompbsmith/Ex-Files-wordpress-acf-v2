@@ -654,9 +654,10 @@ summary.link-button::-webkit-details-marker{display:none;}
 .account-locked-note{margin-bottom:18px;}
 
 /* Motion: assets/js/motion.js reveals these. .exf-motion is only set when the
-   visitor hasn't asked for reduced motion, and it's removed if the script fails. */
-.exf-motion .hero .wrap > *,
-.exf-motion :is(.services, .howitworks, .trust, .guide, .contact) .wrap > :not(.cards, .steps, .trust-items),
-.exf-motion :is(.services, .howitworks, .trust, .guide, .contact) :is(.cards, .steps, .trust-items) > *{
+   visitor hasn't asked for reduced motion, and it's removed if the script fails.
+   Sections with "With motion?" switched off carry data-motion="off". */
+.exf-motion .hero:not([data-motion="off"]) .wrap > *,
+.exf-motion :is(.services, .howitworks, .trust, .guide, .contact):not([data-motion="off"]) .wrap > :not(.cards, .steps, .trust-items),
+.exf-motion :is(.services, .howitworks, .trust, .guide, .contact):not([data-motion="off"]) :is(.cards, .steps, .trust-items) > *{
   opacity:0;
 }

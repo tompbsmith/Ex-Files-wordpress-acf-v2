@@ -54,11 +54,13 @@
   }
   gsap.registerPlugin(window.ScrollTrigger);
 
-  var SECTIONS = '.services, .howitworks, .trust, .guide, .contact';
+  // Sections with "With motion?" switched off in the editor carry data-motion="off".
+  var ON = ':not([data-motion="off"])';
+  var SECTIONS = ['.services', '.howitworks', '.trust', '.guide', '.contact'].map(function (s) { return s + ON; }).join(', ');
   var GROUPS = '.cards, .steps, .trust-items';
 
   // Hero text: a gentle staggered fade on load.
-  var hero = document.querySelectorAll('.hero .wrap > *');
+  var hero = document.querySelectorAll('.hero' + ON + ' .wrap > *');
   if (hero.length) {
     gsap.fromTo(hero, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out', stagger: 0.12, delay: 0.1 });
   }

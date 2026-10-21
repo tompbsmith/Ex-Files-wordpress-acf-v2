@@ -99,6 +99,11 @@ function exf_section_attrs( $class ) {
 	if ( $id ) {
 		echo ' id="' . esc_attr( $id ) . '"';
 	}
+	// "With motion?" is on unless it's been switched off (rows saved before the
+	// switch existed have no value, so they keep their motion).
+	if ( false === get_sub_field( 'motion' ) ) {
+		echo ' data-motion="off"';
+	}
 }
 
 /**
