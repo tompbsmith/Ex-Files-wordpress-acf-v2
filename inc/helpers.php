@@ -181,6 +181,7 @@ function exf_nav_links() {
 		$items = array(
 			(object) array( 'title' => __( 'Home', 'exfiles' ), 'url' => '#top', 'target' => '', 'classes' => array(), 'menu_item_parent' => 0 ),
 			(object) array( 'title' => __( 'Our Services', 'exfiles' ), 'url' => '#services', 'target' => '', 'classes' => array(), 'menu_item_parent' => 0 ),
+			(object) array( 'title' => __( 'The Brains', 'exfiles' ), 'url' => '/the-brains/', 'target' => '', 'classes' => is_page( 'the-brains' ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
 			(object) array( 'title' => __( 'Open Your Ex File', 'exfiles' ), 'url' => '/open-your-ex-file/', 'target' => '', 'classes' => array(), 'menu_item_parent' => 0 ),
 		);
 	} else {

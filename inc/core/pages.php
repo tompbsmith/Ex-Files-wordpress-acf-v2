@@ -19,6 +19,7 @@ defined( 'ABSPATH' ) || exit;
 function exf_required_pages() {
 	$pages = array(
 		'guide_landing' => array( 'page-sections.php', __( 'Free Divorce Guide', 'exfiles' ), 'free-divorce-guide', '', 'option' ),
+		'brains'        => array( 'page-sections.php', __( 'The Brains', 'exfiles' ), 'the-brains', '', 'option' ),
 		'guide_form'    => array( 'page-guide-form.php', __( 'Get your free guide', 'exfiles' ), 'start', 'guide_landing', 'template' ),
 		'guide_sent'    => array( 'page-guide-sent.php', __( 'Your guide is on its way', 'exfiles' ), 'sent', 'guide_landing', 'template' ),
 		'register'      => array( 'page-register.php', __( 'Open your Ex File', 'exfiles' ), 'open-your-ex-file', '', 'template' ),
@@ -145,6 +146,9 @@ function exf_create_missing_pages() {
 	if ( isset( $new['guide_landing'] ) ) {
 		exf_seed_guide_landing_sections( $new['guide_landing'] );
 	}
+	if ( isset( $new['brains'] ) ) {
+		exf_seed_brains_sections( $new['brains'] );
+	}
 	foreach ( exf_default_services() as $key => $svc ) {
 		if ( isset( $new[ $key ] ) ) {
 			exf_seed_service_page( $new[ $key ], $svc[2] );
@@ -198,6 +202,74 @@ function exf_seed_guide_landing_sections( $page_id ) {
 		),
 		$page_id
 	);
+}
+
+/**
+ * Starting content for "The Brains": a profile with the solicitor's name. The photo
+ * and the "About" text are added in the page's Profile section.
+ *
+ * @param int $page_id Page.
+ */
+function exf_seed_brains_sections( $page_id ) {
+	if ( ! function_exists( 'update_field' ) ) {
+		return;
+	}
+	update_field(
+		'field_exf_sections',
+		array(
+			array(
+				'acf_fc_layout' => 'profile',
+				'eyebrow'       => __( 'The Brains', 'exfiles' ),
+				'name'          => 'Rachael Harwin',
+				'role'          => __( 'Founder, The Ex Files', 'exfiles' ),
+				'button'        => array(
+					'title'  => __( 'See our services', 'exfiles' ),
+					'url'    => home_url( '/#services' ),
+					'target' => '',
+				),
+			),
+		),
+		$page_id
+	);
+
+	// Add it to the main menu, if one is in use (otherwise the default menu shows it).
+	$locations = get_nav_menu_locations();
+	if ( ! empty( $locations['primary'] ) ) {
+		$items = (array) wp_get_nav_menu_items( $locations['primary'] );
+		$pos   = 0;
+		foreach ( $items as $item ) {
+			if ( (int) $item->object_id === (int) $page_id && 'page' === $item->object ) {
+				return;
+			}
+			if ( false !== stripos( $item->title, 'services' ) ) {
+				$pos = (int) $item->menu_order + 1;
+			}
+		}
+		if ( $pos ) {
+			foreach ( $items as $item ) {
+				if ( (int) $item->menu_order >= $pos ) {
+					wp_update_post(
+						array(
+							'ID'         => $item->ID,
+							'menu_order' => (int) $item->menu_order + 1,
+						)
+					);
+				}
+			}
+		}
+		wp_update_nav_menu_item(
+			$locations['primary'],
+			0,
+			array(
+				'menu-item-object-id' => $page_id,
+				'menu-item-object'    => 'page',
+				'menu-item-type'      => 'post_type',
+				'menu-item-title'     => __( 'The Brains', 'exfiles' ),
+				'menu-item-status'    => 'publish',
+				'menu-item-position'  => $pos ? $pos : count( $items ) + 1,
+			)
+		);
+	}
 }
 
 // Ex Files → Settings: button to create the pages, and a notice while any are missing.

@@ -1748,6 +1748,218 @@
                     ],
                     "min": "",
                     "max": ""
+                },
+                "layout_exf_profile": {
+                    "key": "layout_exf_profile",
+                    "name": "profile",
+                    "label": "Profile (photo + about)",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_exf_sec_profile_tab_content",
+                            "label": "Content",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_profile_photo",
+                            "label": "Photo",
+                            "name": "photo",
+                            "aria-label": "",
+                            "type": "image",
+                            "instructions": "A portrait (head and shoulders) works best. It is shown in a rounded frame.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "return_format": "array",
+                            "preview_size": "medium",
+                            "library": "all",
+                            "mime_types": "jpg,jpeg,png,webp"
+                        },
+                        {
+                            "key": "field_exf_sec_profile_eyebrow",
+                            "label": "Small heading above the name",
+                            "name": "eyebrow",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": "The Brains"
+                        },
+                        {
+                            "key": "field_exf_sec_profile_name",
+                            "label": "Name",
+                            "name": "name",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_profile_role",
+                            "label": "Role",
+                            "name": "role",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_profile_bio",
+                            "label": "About",
+                            "name": "bio",
+                            "aria-label": "",
+                            "type": "wysiwyg",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "tabs": "visual",
+                            "toolbar": "basic",
+                            "media_upload": 0,
+                            "delay": 0,
+                            "default_value": ""
+                        },
+                        {
+                            "key": "field_exf_sec_profile_button",
+                            "label": "Button",
+                            "name": "button",
+                            "aria-label": "",
+                            "type": "link",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "return_format": "array"
+                        },
+                        {
+                            "key": "field_exf_sec_profile_tab_settings",
+                            "label": "Settings",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_profile_section_id",
+                            "label": "Section ID (anchor)",
+                            "name": "section_id",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Used for menu links, e.g. \"services\" makes the link #services. Letters, numbers and dashes only.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_profile_hide_section",
+                            "label": "Hide this section",
+                            "name": "hide_section",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Keep the content but don't show it on the site.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 0,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_profile_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
                 }
             },
             "min": "",
@@ -1796,5 +2008,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1792597860
+    "modified": 1792597861
 }
