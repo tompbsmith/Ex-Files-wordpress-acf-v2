@@ -425,3 +425,23 @@ add_action(
 	},
 	30
 );
+
+/*
+ * One-off (1.7.39): the Wix footer shows the copyright and legal links, so switch
+ * them on (unless already customised) and use the Wix copyright wording.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_wix_footer_2026_10' ) || ! function_exists( 'update_field' ) || ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+		update_option( 'exf_wix_footer_2026_10', time(), false );
+		update_field( 'show_footer_bottom', 1, 'option' );
+		$copy = (string) get_field( 'copyright', 'option', false );
+		if ( '' === $copy || '© {year} The Ex Files.' === $copy ) {
+			update_field( 'copyright', '© {year} The Ex Files. All rights reserved.', 'option' );
+		}
+	},
+	40
+);

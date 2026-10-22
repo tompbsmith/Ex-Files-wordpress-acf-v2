@@ -164,8 +164,8 @@ function exf_default_options() {
 		'instagram_url'      => 'https://www.instagram.com/theexfiles.co.uk',
 		'linkedin_url'       => 'https://www.linkedin.com/company/the-ex-files/',
 		'facebook_url'       => 'https://www.facebook.com/share/1DfwbRHsop/',
-		'show_footer_bottom' => 0,
-		'copyright'          => '© {year} The Ex Files.',
+		'show_footer_bottom' => 1,
+		'copyright'          => '© {year} The Ex Files. All rights reserved.',
 		'meta_description'   => 'The Ex Files — matrimonial finance specialists. Making separation less alien with expert, fixed-fee guidance on dividing financial assets.',
 	);
 }

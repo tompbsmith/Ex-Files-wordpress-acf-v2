@@ -27,7 +27,7 @@ $exf_socials = array_filter(
 			<p class="tagline"><?php echo esc_html( $exf_tagline ); ?></p>
 		<?php endif; ?>
 		<?php if ( $exf_email ) : ?>
-			<p class="tagline"><a href="mailto:<?php echo esc_attr( antispambot( $exf_email ) ); ?>"><?php echo esc_html( antispambot( $exf_email ) ); ?></a></p>
+			<p class="email"><a href="mailto:<?php echo esc_attr( antispambot( $exf_email ) ); ?>"><?php echo esc_html( antispambot( $exf_email ) ); ?></a></p>
 		<?php endif; ?>
 
 		<?php if ( $exf_socials ) : ?>
@@ -38,22 +38,32 @@ $exf_socials = array_filter(
 			</div>
 		<?php endif; ?>
 
-		<?php if ( exf_option( 'show_footer_bottom' ) ) : ?>
+		<?php if ( exf_option( 'show_footer_bottom', 1 ) ) : ?>
 			<div class="foot-bottom">
-				<span><?php echo esc_html( str_replace( '{year}', gmdate( 'Y' ), exf_option( 'copyright', '© {year} The Ex Files.' ) ) ); ?></span>
-				<?php $exf_legal = exf_option( 'legal_links', array() ); ?>
-				<?php if ( $exf_legal ) : ?>
-					<span>
-						<?php
-						$exf_out = array();
-						foreach ( $exf_legal as $exf_row ) {
-							if ( ! empty( $exf_row['link']['url'] ) ) {
-								$exf_out[] = sprintf( '<a href="%s"%s>%s</a>', esc_url( $exf_row['link']['url'] ), ! empty( $exf_row['link']['target'] ) ? ' target="_blank" rel="noopener"' : '', esc_html( $exf_row['link']['title'] ) );
-							}
+				<span><?php echo esc_html( str_replace( '{year}', gmdate( 'Y' ), exf_option( 'copyright', '© {year} The Ex Files. All rights reserved.' ) ) ); ?></span>
+				<?php
+				$exf_out = array();
+				foreach ( (array) exf_option( 'legal_links', array() ) as $exf_row ) {
+					if ( ! empty( $exf_row['link']['url'] ) ) {
+						$exf_out[] = sprintf( '<a href="%s"%s>%s</a>', esc_url( $exf_row['link']['url'] ), ! empty( $exf_row['link']['target'] ) ? ' target="_blank" rel="noopener"' : '', esc_html( $exf_row['link']['title'] ) );
+					}
+				}
+				// No links set: the privacy policy and terms pages, once they're published.
+				if ( ! $exf_out ) {
+					if ( get_privacy_policy_url() ) {
+						$exf_out[] = sprintf( '<a href="%s">%s</a>', esc_url( get_privacy_policy_url() ), esc_html__( 'Privacy Policy', 'exfiles' ) );
+					}
+					foreach ( array( 'terms-and-conditions', 'terms', 'terms-of-business' ) as $exf_slug ) {
+						$exf_terms = get_page_by_path( $exf_slug );
+						if ( $exf_terms && 'publish' === $exf_terms->post_status ) {
+							$exf_out[] = sprintf( '<a href="%s">%s</a>', esc_url( get_permalink( $exf_terms ) ), esc_html__( 'Terms & Conditions', 'exfiles' ) );
+							break;
 						}
-						echo implode( ' | ', $exf_out ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						?>
-					</span>
+					}
+				}
+				?>
+				<?php if ( $exf_out ) : ?>
+					<span class="foot-legal"><?php echo implode( ' | ', $exf_out ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 				<?php endif; ?>
 			</div>
 		<?php endif; ?>
