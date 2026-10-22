@@ -89,7 +89,7 @@ function exf_q_generate_pdf( $q ) {
  * The declaration the client confirms.
  */
 function exf_q_declaration_text() {
-	return (string) exf_get_option_field( 'q_declaration', EXF_PORTAL_ID, __( 'I confirm that the information I have given is true and complete to the best of my knowledge. Where I have estimated a figure or said I don’t know, I have said so. I understand The Ex Files will rely on this information, and that it has not yet been checked.', 'exfiles' ) );
+	return (string) exf_get_option_field( 'q_declaration', EXF_PORTAL_ID, __( 'I confirm that the information I have given is true and complete to the best of my knowledge. Where I have estimated a figure or said I don’t know, I have said so. I understand The Ex Files will rely on this information, and that it has not yet been checked. I understand that I am responsible for ensuring that the information supplied is accurate and that I should not enter into any agreement without having been content that you are in possession of full financial disclosure. I accept that I should satisfy myself that any disclosure provided by my ex-partner/spouse is accurate and I am aware that I am entitled to request documentary evidence in support of any financial information I receive before entering into any agreement. The Ex Files and its employees cannot be held responsible for any adverse consequences arising from the sharing of inaccurate or false information.', 'exfiles' ) );
 }
 
 /* -------------------------------------------------------------------------

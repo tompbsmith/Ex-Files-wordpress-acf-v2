@@ -20,7 +20,59 @@ $exf_new      = isset( $_GET['new_separation'] ) || isset( $exf_errors['values']
 $exf_chosen   = isset( $_POST['ex_file'] ) ? absint( $_POST['ex_file'] ) : ( isset( $_GET['ex_file'] ) ? absint( $_GET['ex_file'] ) : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 $exf_slot     = isset( $_POST['slot'] ) ? absint( $_POST['slot'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 $exf_blocker  = exf_buy_blocker( $exf_uid );
+$exf_consult  = isset( $_GET['consult'] ) ? absint( $_GET['consult'] ) : ( isset( $_POST['consult'] ) ? absint( $_POST['consult'] ) : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 // phpcs:enable
+
+/**
+ * The appointment time picker.
+ *
+ * @param array $slots   From exf_available_slots().
+ * @param int   $minutes Length.
+ */
+$exf_slot_picker = function ( $slots, $minutes ) use ( $exf_slot, $exf_ferrors ) {
+	?>
+				<fieldset class="buy-step slot-picker" data-slot-picker>
+					<legend class="gq-label">
+						<?php
+						/* translators: %d: minutes */
+						echo esc_html( sprintf( __( 'Choose a time (%d minutes)', 'exfiles' ), $minutes ) );
+						?>
+					</legend>
+					<?php if ( ! $slots ) : ?>
+						<p><?php esc_html_e( 'Sorry, there are no times available online at the moment. Please contact us and we’ll find a time.', 'exfiles' ); ?></p>
+					<?php else : ?>
+						<div class="slot-days">
+							<?php $exf_n = 0; ?>
+							<?php foreach ( $slots as $exf_day => $exf_times ) : ?>
+								<details class="slot-day" <?php echo ( 0 === $exf_n || in_array( $exf_slot, $exf_times, true ) ) ? 'open' : ''; ?>>
+									<summary><?php echo esc_html( wp_date( 'l j F', $exf_times[0] ) ); ?> <span class="slot-count">
+										<?php
+										/* translators: %d: number of times */
+										echo esc_html( sprintf( _n( '%d time', '%d times', count( $exf_times ), 'exfiles' ), count( $exf_times ) ) );
+										?>
+									</span></summary>
+									<div class="slot-times">
+										<?php foreach ( $exf_times as $exf_t ) : ?>
+											<label class="slot"><input type="radio" name="slot" value="<?php echo (int) $exf_t; ?>" <?php checked( $exf_slot, $exf_t ); ?>><span><?php echo esc_html( wp_date( 'g:ia', $exf_t ) ); ?></span></label>
+										<?php endforeach; ?>
+									</div>
+								</details>
+								<?php ++$exf_n; ?>
+							<?php endforeach; ?>
+						</div>
+						<p class="field-note">
+							<?php
+							/* translators: %d: hours */
+							echo esc_html( sprintf( __( 'Times are UK time. Appointments need at least %d hours’ notice.', 'exfiles' ), exf_booking_settings()['notice_hours'] ) );
+							?>
+						</p>
+					<?php endif; ?>
+					<?php if ( isset( $exf_ferrors['slot'] ) ) : ?>
+						<p class="field-error"><?php echo esc_html( $exf_ferrors['slot'] ); ?></p>
+					<?php endif; ?>
+				</fieldset>
+	<?php
+};
 
 get_header();
 ?>
@@ -51,7 +103,13 @@ get_header();
 				<p><strong><?php esc_html_e( 'Appointment:', 'exfiles' ); ?></strong> <?php echo esc_html( exf_booking_label( $exf_start, (int) get_post_meta( $exf_order, 'booking_end', true ) ) ); ?></p>
 			<?php endif; ?>
 			<p><strong><?php esc_html_e( 'Ex File:', 'exfiles' ); ?></strong> <?php echo esc_html( trim( implode( ' ', array_slice( exf_ex_details( (int) get_post_meta( $exf_order, 'ex_file_id', true ) ), 0, 2 ) ) ) ); ?></p>
-			<?php if ( exf_order_is_live( $exf_order ) && $exf_osvc && $exf_osvc['questionnaire'] ) : ?>
+			<?php if ( get_post_meta( $exf_order, 'addon_name', true ) ) : ?>
+				<p><strong><?php esc_html_e( 'Add-on:', 'exfiles' ); ?></strong> <?php echo esc_html( (string) get_post_meta( $exf_order, 'addon_name', true ) ); ?></p>
+			<?php endif; ?>
+			<?php if ( $exf_start && exf_order_is_live( $exf_order ) && exf_meeting_link() ) : ?>
+				<p><strong><?php esc_html_e( 'Meeting link:', 'exfiles' ); ?></strong> <?php esc_html_e( "it's in your confirmation email and calendar invite.", 'exfiles' ); ?></p>
+			<?php endif; ?>
+			<?php if ( exf_order_is_live( $exf_order ) && $exf_osvc && $exf_osvc['questionnaire'] && ! get_post_meta( $exf_order, 'parent_order', true ) ) : ?>
 				<?php
 				$exf_oq   = (int) get_post_meta( $exf_order, 'questionnaire_id', true );
 				$exf_qsub = $exf_oq && 'submitted' === get_post_meta( $exf_oq, 'q_status', true );
@@ -83,6 +141,60 @@ get_header();
 			<p class="lead"><?php echo esc_html( $exf_blocker ); ?></p>
 			<p style="margin-top:24px"><a class="btn outline" href="<?php echo esc_url( exf_page_url( 'account' ) ); ?>"><?php esc_html_e( 'Go to My Ex File', 'exfiles' ); ?></a></p>
 		</header>
+
+	<?php elseif ( $exf_consult ) : ?>
+		<?php
+		$exf_offers  = exf_consult_offers( $exf_uid );
+		$exf_csvc    = $exf_offers[ $exf_consult ] ?? null;
+		$exf_prepaid = $exf_csvc && exf_consult_prepaid( $exf_consult );
+		?>
+		<header class="guide-form-head">
+			<p class="eyebrow"><?php echo esc_html( $exf_csvc ? $exf_csvc['name'] : __( 'Consultation', 'exfiles' ) ); ?></p>
+			<h1><?php esc_html_e( 'Book your consultation', 'exfiles' ); ?></h1>
+			<?php if ( $exf_csvc ) : ?>
+				<p class="lead">
+					<?php
+					echo esc_html(
+						$exf_prepaid
+							/* translators: %s: add-on */
+							? sprintf( __( 'You paid for your %s with your order, so there’s nothing more to pay. Choose a time below.', 'exfiles' ), lcfirst( $exf_csvc['addon']['name'] ) )
+							/* translators: 1: add-on, 2: price */
+							: sprintf( __( 'Talk your report through with us: a %1$s costs %2$s.', 'exfiles' ), lcfirst( $exf_csvc['addon']['name'] ), exf_money( $exf_csvc['addon']['pence'] ) )
+					);
+					?>
+				</p>
+			<?php endif; ?>
+		</header>
+		<?php if ( isset( $exf_ferrors['_form'] ) ) : ?>
+			<div class="notice-box notice-box--error" role="alert"><p><?php echo esc_html( $exf_ferrors['_form'] ); ?></p></div>
+		<?php endif; ?>
+		<?php if ( ! $exf_csvc ) : ?>
+			<div class="guide-card account-card">
+				<p><?php esc_html_e( "There's no consultation to book here. If you think there should be, please contact us.", 'exfiles' ); ?></p>
+				<p style="margin-top:22px"><a class="btn outline" href="<?php echo esc_url( exf_page_url( 'account' ) ); ?>"><?php esc_html_e( 'Go to My Ex File', 'exfiles' ); ?></a></p>
+			</div>
+		<?php else : ?>
+			<?php $exf_cslots = exf_available_slots( $exf_csvc['addon']['minutes'] ); ?>
+			<form class="guide-form buy-form" method="post" novalidate>
+				<?php wp_nonce_field( 'exf_consult' ); ?>
+				<input type="hidden" name="exf_consult" value="1">
+				<input type="hidden" name="consult" value="<?php echo (int) $exf_consult; ?>">
+				<?php $exf_slot_picker( $exf_cslots, $exf_csvc['addon']['minutes'] ); ?>
+				<div class="buy-summary">
+					<?php if ( ! $exf_prepaid ) : ?>
+						<p><strong><?php echo esc_html( $exf_csvc['addon']['name'] ); ?></strong> — <?php echo esc_html( exf_money( $exf_csvc['addon']['pence'] ) ); ?></p>
+						<p class="field-note"><?php echo esc_html( exf_vat_note() ); ?></p>
+						<p class="field-note"><?php echo esc_html( exf_cancellation_text() ); ?></p>
+						<p class="field-note"><?php esc_html_e( "You'll pay securely with Stripe. Your appointment is held for 30 minutes while you pay.", 'exfiles' ); ?></p>
+					<?php else : ?>
+						<p class="field-note"><?php echo esc_html( exf_cancellation_text() ); ?></p>
+					<?php endif; ?>
+				</div>
+				<div class="guide-nav">
+					<button type="submit" class="btn" <?php disabled( ! $exf_cslots ); ?>><?php echo esc_html( $exf_prepaid ? __( 'Confirm booking', 'exfiles' ) : __( 'Continue to payment', 'exfiles' ) ); ?></button>
+				</div>
+			</form>
+		<?php endif; ?>
 
 	<?php elseif ( $exf_new ) : ?>
 		<header class="guide-form-head">
@@ -151,6 +263,7 @@ get_header();
 				</div>
 			<?php endforeach; ?>
 		</div>
+		<p class="field-note" style="margin-top:18px"><?php echo esc_html( exf_vat_note() ); ?></p>
 
 	<?php else : ?>
 		<?php
@@ -225,55 +338,74 @@ get_header();
 				<?php endif; ?>
 			</fieldset>
 
-			<?php if ( $exf_service['booking'] ) : ?>
-				<fieldset class="buy-step slot-picker" data-slot-picker>
-					<legend class="gq-label">
-						<?php
-						/* translators: %d: minutes */
-						echo esc_html( sprintf( __( 'Choose a time (%d minutes)', 'exfiles' ), $exf_service['minutes'] ) );
-						?>
-					</legend>
-					<?php if ( ! $exf_slots ) : ?>
-						<p><?php esc_html_e( 'Sorry, there are no times available online at the moment. Please contact us and we’ll find a time.', 'exfiles' ); ?></p>
-					<?php else : ?>
-						<div class="slot-days">
-							<?php $exf_n = 0; ?>
-							<?php foreach ( $exf_slots as $exf_day => $exf_times ) : ?>
-								<details class="slot-day" <?php echo ( 0 === $exf_n || in_array( $exf_slot, $exf_times, true ) ) ? 'open' : ''; ?>>
-									<summary><?php echo esc_html( wp_date( 'l j F', $exf_times[0] ) ); ?> <span class="slot-count">
-										<?php
-										/* translators: %d: number of times */
-										echo esc_html( sprintf( _n( '%d time', '%d times', count( $exf_times ), 'exfiles' ), count( $exf_times ) ) );
-										?>
-									</span></summary>
-									<div class="slot-times">
-										<?php foreach ( $exf_times as $exf_t ) : ?>
-											<label class="slot"><input type="radio" name="slot" value="<?php echo (int) $exf_t; ?>" <?php checked( $exf_slot, $exf_t ); ?>><span><?php echo esc_html( wp_date( 'g:ia', $exf_t ) ); ?></span></label>
-										<?php endforeach; ?>
-									</div>
-								</details>
-								<?php ++$exf_n; ?>
-							<?php endforeach; ?>
-						</div>
-						<p class="field-note">
+			<?php
+			if ( $exf_service['booking'] ) {
+				$exf_slot_picker( $exf_slots, $exf_service['minutes'] );
+			}
+			?>
+
+			<?php $exf_addon = $exf_service['addon']; ?>
+			<?php if ( $exf_addon ) : ?>
+				<fieldset class="gq-services buy-step">
+					<legend class="gq-label"><?php esc_html_e( 'Optional add-on', 'exfiles' ); ?></legend>
+					<label class="gq-option gq-option--check">
+						<input type="checkbox" name="addon" value="1" data-addon-pence="<?php echo (int) $exf_addon['pence']; ?>" <?php checked( ! empty( $_POST['addon'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing ?>>
+						<span>
 							<?php
-							/* translators: %d: hours */
-							echo esc_html( sprintf( __( 'Times are UK time. Appointments need at least %d hours’ notice.', 'exfiles' ), exf_booking_settings()['notice_hours'] ) );
+							/* translators: 1: add-on, 2: price */
+							echo esc_html( sprintf( __( 'Add a %1$s (+%2$s)', 'exfiles' ), lcfirst( $exf_addon['name'] ), exf_money( $exf_addon['pence'] ) ) );
 							?>
-						</p>
-					<?php endif; ?>
-					<?php if ( isset( $exf_ferrors['slot'] ) ) : ?>
-						<p class="field-error"><?php echo esc_html( $exf_ferrors['slot'] ); ?></p>
+							<?php if ( $exf_addon['description'] ) : ?>
+								<br><small><?php echo esc_html( $exf_addon['description'] ); ?></small>
+							<?php elseif ( 'consultation' === $exf_addon['type'] ) : ?>
+								<br><small><?php esc_html_e( "Once your report is ready, we'll email you a link to book a time.", 'exfiles' ); ?></small>
+							<?php else : ?>
+								<br><small><?php esc_html_e( "We'll email it to you and add it to your Ex File.", 'exfiles' ); ?></small>
+							<?php endif; ?>
+						</span>
+					</label>
+				</fieldset>
+			<?php endif; ?>
+
+			<?php if ( ! $exf_service['free'] ) : ?>
+				<fieldset class="gq-services buy-step buy-terms">
+					<legend class="gq-label"><?php esc_html_e( 'Cancellations', 'exfiles' ); ?></legend>
+					<p class="field-note"><?php echo esc_html( exf_cancellation_text( $exf_service ) ); ?></p>
+					<?php if ( $exf_service['immediate'] ) : ?>
+						<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="immediate_consent" value="1" required <?php checked( ! empty( $_POST['immediate_consent'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing ?>><span><?php echo esc_html( exf_portal_copy( 'immediate_consent' ) ); ?></span></label>
+						<?php if ( isset( $exf_ferrors['immediate_consent'] ) ) : ?>
+							<p class="field-error"><?php echo esc_html( $exf_ferrors['immediate_consent'] ); ?></p>
+						<?php endif; ?>
 					<?php endif; ?>
 				</fieldset>
 			<?php endif; ?>
 
-			<div class="buy-summary">
+			<div class="buy-summary" data-buy-summary data-base-pence="<?php echo (int) $exf_service['pence']; ?>">
 				<p><strong><?php echo esc_html( $exf_service['name'] ); ?></strong> — <?php echo esc_html( exf_service_price_label( $exf_service ) ); ?></p>
+				<?php if ( $exf_addon ) : ?>
+					<p data-addon-line hidden><?php echo esc_html( $exf_addon['name'] ); ?> — <?php echo esc_html( exf_money( $exf_addon['pence'] ) ); ?></p>
+					<p data-total-line hidden><strong><?php esc_html_e( 'Total', 'exfiles' ); ?></strong> — <span data-total><?php echo esc_html( exf_money( $exf_service['pence'] + $exf_addon['pence'] ) ); ?></span></p>
+				<?php endif; ?>
 				<?php if ( ! $exf_service['free'] ) : ?>
-					<p class="field-note"><?php esc_html_e( "You'll pay securely with Stripe. Your appointment is held for 30 minutes while you pay.", 'exfiles' ); ?></p>
+					<p class="field-note"><?php echo esc_html( exf_vat_note() ); ?></p>
+					<p class="field-note"><?php echo esc_html( $exf_service['booking'] ? __( "You'll pay securely with Stripe. Your appointment is held for 30 minutes while you pay.", 'exfiles' ) : __( "You'll pay securely with Stripe.", 'exfiles' ) ); ?></p>
 				<?php endif; ?>
 			</div>
+			<?php if ( $exf_addon ) : ?>
+				<script>
+				( function () {
+					var box = document.querySelector( '[name="addon"]' );
+					var sum = document.querySelector( '[data-buy-summary]' );
+					if ( ! box || ! sum ) { return; }
+					function update() {
+						sum.querySelector( '[data-addon-line]' ).hidden = ! box.checked;
+						sum.querySelector( '[data-total-line]' ).hidden = ! box.checked;
+					}
+					box.addEventListener( 'change', update );
+					update();
+				}() );
+				</script>
+			<?php endif; ?>
 			<div class="guide-nav">
 				<button type="submit" class="btn" <?php disabled( ! $exf_clear || ( $exf_service['booking'] && ! $exf_slots ) ); ?>>
 					<?php echo esc_html( $exf_service['free'] ? __( 'Confirm booking', 'exfiles' ) : __( 'Continue to payment', 'exfiles' ) ); ?>

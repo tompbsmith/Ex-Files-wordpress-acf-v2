@@ -100,6 +100,44 @@ function exf_stripe_request( $method, $path, array $params = array() ) {
 }
 
 /**
+ * Checkout lines for an order: the service, and any add-on as its own line.
+ *
+ * @param int    $order_id Order.
+ * @param string $name     Service name.
+ * @param int    $start    Appointment start, or 0.
+ */
+function exf_stripe_line_items( $order_id, $name, $start ) {
+	$total = (int) get_post_meta( $order_id, 'amount_pence', true );
+	$addon = (int) get_post_meta( $order_id, 'addon_pence', true );
+	$lines = array(
+		array(
+			'quantity'   => 1,
+			'price_data' => array(
+				'currency'     => 'gbp',
+				'unit_amount'  => $total - $addon,
+				'product_data' => array(
+					'name'        => $name,
+					'description' => $start ? exf_booking_label( $start ) : get_the_title( (int) get_post_meta( $order_id, 'ex_file_id', true ) ),
+				),
+			),
+		),
+	);
+	if ( $addon > 0 ) {
+		$lines[] = array(
+			'quantity'   => 1,
+			'price_data' => array(
+				'currency'     => 'gbp',
+				'unit_amount'  => $addon,
+				'product_data' => array(
+					'name' => (string) get_post_meta( $order_id, 'addon_name', true ),
+				),
+			),
+		);
+	}
+	return $lines;
+}
+
+/**
  * Create a Checkout Session for an order.
  *
  * @param int $order_id Order.
@@ -115,19 +153,7 @@ function exf_stripe_create_session( $order_id ) {
 		'mode'                 => 'payment',
 		'client_reference_id'  => (string) $order_id,
 		'customer_email'       => $client ? $client->user_email : '',
-		'line_items'           => array(
-			array(
-				'quantity'   => 1,
-				'price_data' => array(
-					'currency'     => 'gbp',
-					'unit_amount'  => (int) get_post_meta( $order_id, 'amount_pence', true ),
-					'product_data' => array(
-						'name'        => $name,
-						'description' => $start ? exf_booking_label( $start ) : get_the_title( (int) get_post_meta( $order_id, 'ex_file_id', true ) ),
-					),
-				),
-			),
-		),
+		'line_items'           => exf_stripe_line_items( $order_id, $name, $start ),
 		'metadata'             => array( 'order_id' => (string) $order_id ),
 		'payment_intent_data'  => array(
 			'metadata'      => array( 'order_id' => (string) $order_id ),

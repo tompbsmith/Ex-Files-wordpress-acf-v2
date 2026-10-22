@@ -55,6 +55,14 @@ function exf_setting( $name, $default = '' ) {
 }
 
 /**
+ * Whether the "email me about your services" tick-boxes are shown. Hidden by
+ * default until marketing emails are actually sent.
+ */
+function exf_marketing_optin() {
+	return 'on' === exf_setting( 'marketing_optin', 'off' );
+}
+
+/**
  * Read a field from one of the Ex Files options pages.
  *
  * @param string $name    Field name.

@@ -32,6 +32,7 @@ add_action(
 				'badEmail'      => __( 'Please enter a valid email address so we can send you the guide.', 'exfiles' ),
 				'sending'       => __( 'Creating your guide…', 'exfiles' ),
 				'progressLabel' => __( 'Question', 'exfiles' ),
+				'routes'        => exf_guide_route_keys(),
 			)
 		);
 	}

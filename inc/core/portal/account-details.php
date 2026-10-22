@@ -50,8 +50,10 @@ function exf_handle_details_update( $user_id, array $post ) {
 		'billing_address_2' => sanitize_text_field( $post['address_2'] ?? '' ),
 		'billing_city'      => sanitize_text_field( $post['city'] ?? '' ),
 		'billing_postcode'  => $postcode,
-		'exf_marketing'     => empty( $post['marketing'] ) ? 0 : 1,
 	);
+	if ( exf_marketing_optin() ) {
+		$fields['exf_marketing'] = empty( $post['marketing'] ) ? 0 : 1;
+	}
 	$changed = array();
 	foreach ( $fields as $k => $v ) {
 		if ( (string) get_user_meta( $user_id, $k, true ) !== (string) $v ) {

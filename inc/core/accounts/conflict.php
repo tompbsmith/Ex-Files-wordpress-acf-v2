@@ -24,12 +24,12 @@ defined( 'ABSPATH' ) || exit;
 const EXF_CONFLICT_BLOCK  = 100;
 
 /**
- * Whether strong matches are turned away automatically. Off by default: an instant
- * rejection straight after someone names their ex could let them infer that the
- * ex is a client, so strong matches go to manual review and are declined later.
+ * Whether strong matches are turned away automatically. On by default (the client's
+ * choice): the refusal uses the general message, which never says why. Setting it
+ * to off holds strong matches for manual review instead.
  */
 function exf_conflict_auto_block() {
-	return 'on' === exf_setting( 'conflict_auto_block', 'off' );
+	return 'on' === exf_setting( 'conflict_auto_block', 'on' );
 }
 const EXF_CONFLICT_REVIEW = 30;
 
@@ -276,7 +276,8 @@ function exf_conflict_pool_clients( $exclude_user ) {
 			'type'   => 'client',
 			'id'     => (int) $uid,
 			'label'  => trim( $d['first_name'] . ' ' . $d['last_name'] ),
-			'role'   => 'client',
+			// Someone who signed up but hasn't bought a service isn't a client yet.
+			'role'   => exf_client_has_service( $uid ) ? 'client' : 'prospect',
 			'person' => exf_conflict_person( $d ),
 			'raw'    => $d,
 		);
@@ -315,7 +316,7 @@ function exf_conflict_pool_exes( $exclude_user ) {
 			'type'   => 'ex_file',
 			'id'     => (int) $id,
 			'label'  => trim( $d['first_name'] . ' ' . $d['last_name'] ),
-			'role'   => 'ex',
+			'role'   => exf_client_has_service( $owner ) ? 'ex' : 'prospect',
 			'person' => exf_conflict_person( $d ),
 			'raw'    => $d,
 		);
@@ -391,7 +392,9 @@ function exf_conflict_evaluate( $ex_file_id ) {
 	foreach ( exf_conflict_pool_clients( $client_id ) as $row ) {
 		$r = exf_conflict_compare( $ex, $row['person'] );
 		if ( $r['score'] > 0 ) {
-			$score     = 'other' === $row['role'] ? min( $r['score'], EXF_CONFLICT_REVERSE_CAP ) : $r['score'];
+			// People who haven't bought a service (and "other" register entries) can only
+			// send a sign-up for review, never turn it away automatically.
+			$score     = in_array( $row['role'], array( 'other', 'prospect' ), true ) ? min( $r['score'], EXF_CONFLICT_REVERSE_CAP ) : $r['score'];
 			$matches[] = array(
 				'direction' => 'ex',
 				'score'     => $score,
@@ -432,6 +435,85 @@ function exf_conflict_evaluate( $ex_file_id ) {
 		'score'   => $score,
 		'outcome' => $outcome,
 		'matches' => $matches,
+	);
+}
+
+/**
+ * Whether a client has bought (or been booked into) any service.
+ *
+ * @param int $user_id User.
+ */
+function exf_client_has_service( $user_id ) {
+	// Cached for one request, until any post changes (e.g. an order is paid).
+	static $cache = array(), $stamp = null;
+	$changed = wp_cache_get_last_changed( 'posts' );
+	if ( $stamp !== $changed ) {
+		$cache = array();
+		$stamp = $changed;
+	}
+	$user_id = (int) $user_id;
+	if ( ! isset( $cache[ $user_id ] ) ) {
+		$cache[ $user_id ] = (bool) array_filter(
+			exf_client_orders( $user_id ),
+			function ( $o ) {
+				return in_array( exf_order_status( $o ), array( 'paid', 'confirmed', 'refunded' ), true );
+			}
+		);
+	}
+	return $cache[ $user_id ];
+}
+
+/**
+ * Before the first purchase on an Ex File, run the check again: someone named in it
+ * may have become a client since sign-up (sign-ups by people who hadn't bought
+ * anything can only be held for review, so this is where a later conflict is caught).
+ * Ex Files the solicitor has reviewed by hand aren't re-checked.
+ *
+ * @param int $ex_file Ex File.
+ * @return string Message for the client, or '' to go ahead.
+ */
+function exf_conflict_recheck_before_purchase( $ex_file ) {
+	$client = (int) get_post_field( 'post_author', $ex_file );
+	if ( get_post_meta( $ex_file, 'conflict_reviewed_at', true ) || exf_client_orders_live( $client, $ex_file ) ) {
+		return '';
+	}
+	$result = exf_conflict_evaluate( $ex_file );
+	if ( 'clear' === $result['outcome'] ) {
+		return '';
+	}
+	exf_ex_file_log( $ex_file, 'Checked again before the first purchase' );
+	$outcome = exf_conflict_run( $ex_file, false );
+	$vars    = exf_ex_file_email_vars( $ex_file );
+	if ( 'blocked' === $outcome ) {
+		$user = get_userdata( $client );
+		if ( $user ) {
+			exf_send_email( 'unable', $user->user_email, $vars );
+		}
+		exf_send_email( 'admin_blocked', exf_notify_emails(), $vars );
+		return __( "Thank you for your interest in The Ex Files. Unfortunately we're unable to take on your matter. We can't give details, as it can be for a number of reasons. We're sorry we can't help on this occasion. You haven't been charged.", 'exfiles' );
+	}
+	if ( 'review' === $outcome ) {
+		exf_send_email( 'admin_review', exf_notify_emails(), $vars );
+		return __( "We're just checking a few details on this Ex File before you can go ahead. This is done within one working day, and we'll email you as soon as it's finished. You haven't been charged.", 'exfiles' );
+	}
+	return '';
+}
+
+/**
+ * A client's live (paid or confirmed) orders on one Ex File.
+ *
+ * @param int $client  Client.
+ * @param int $ex_file Ex File.
+ * @return int[]
+ */
+function exf_client_orders_live( $client, $ex_file ) {
+	return array_values(
+		array_filter(
+			exf_client_orders( $client, $ex_file ),
+			function ( $o ) {
+				return in_array( exf_order_status( $o ), array( 'paid', 'confirmed', 'refunded' ), true );
+			}
+		)
 	);
 }
 

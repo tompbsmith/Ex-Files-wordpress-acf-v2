@@ -33,14 +33,59 @@ function exf_booking_settings() {
 			);
 		}
 	}
+	$last = trim( (string) exf_setting( 'booking_last_start', '16:00' ) );
 	return array(
 		'availability' => $availability,
 		'notice_hours' => max( 0, (int) exf_setting( 'min_booking_notice_hours', 24 ) ),
 		'days_ahead'   => max( 1, (int) exf_setting( 'booking_days_ahead', 30 ) ),
-		'buffer'       => max( 0, (int) exf_setting( 'booking_buffer_minutes', 0 ) ),
+		'buffer'       => max( 0, (int) exf_setting( 'booking_buffer_minutes', 30 ) ),
+		'interval'     => max( 5, (int) exf_setting( 'booking_interval_minutes', 30 ) ),
+		'last_start'   => preg_match( '/^\d{1,2}:\d{2}$/', $last ) ? $last : '',
 		'blocked'      => (string) exf_setting( 'blocked_dates', '' ),
-		'ical_url'     => trim( (string) exf_setting( 'calendar_ical_url', '' ) ),
+		'ical_urls'    => exf_calendar_urls( (string) exf_setting( 'calendar_ical_url', '' ) ),
 	);
+}
+
+/**
+ * Calendar addresses from the setting: one per line. Apple Calendar's public
+ * "webcal://" links are read over https.
+ *
+ * @param string $text Setting text.
+ * @return string[]
+ */
+function exf_calendar_urls( $text ) {
+	$out = array();
+	foreach ( preg_split( '/[\s,]+/', trim( $text ) ) as $url ) {
+		$url = preg_replace( '#^webcals?://#i', 'https://', trim( $url ) );
+		if ( preg_match( '#^https?://#i', $url ) ) {
+			$out[] = esc_url_raw( $url );
+		}
+	}
+	return array_values( array_unique( array_filter( $out ) ) );
+}
+
+/**
+ * How appointments work, for confirmations, reminders and calendar invites: the
+ * "Appointment details" text, then the meeting link on its own line.
+ */
+function exf_meeting_details() {
+	$text = trim( (string) exf_setting( 'meeting_details', '' ) );
+	if ( '' === $text ) {
+		$text = __( 'Your appointment will take place by video call on Microsoft Teams. Please note that meetings may be recorded.', 'exfiles' );
+	}
+	$link = exf_meeting_link();
+	if ( $link ) {
+		$text .= "\n\n" . __( 'Join the meeting at your appointment time:', 'exfiles' ) . "\n" . $link;
+	}
+	return $text;
+}
+
+/**
+ * The video meeting link sent with every booking, or ''.
+ */
+function exf_meeting_link() {
+	$link = trim( (string) exf_setting( 'meeting_link', '' ) );
+	return preg_match( '#^https://#i', $link ) ? esc_url_raw( $link ) : '';
 }
 
 /**
@@ -87,6 +132,7 @@ function exf_available_slots( $minutes, $now = null, $ignore_order = 0 ) {
 	$latest   = $now + $s['days_ahead'] * DAY_IN_SECONDS;
 	$busy     = exf_busy_periods( $now, $latest + DAY_IN_SECONDS, $ignore_order );
 	$buffer   = $s['buffer'] * MINUTE_IN_SECONDS;
+	$step     = $s['interval'] * MINUTE_IN_SECONDS;
 
 	$by_day = array();
 	foreach ( (array) $s['availability'] as $row ) {
@@ -110,7 +156,16 @@ function exf_available_slots( $minutes, $now = null, $ignore_order = 0 ) {
 				list( $eh, $em ) = array_map( 'intval', explode( ':', $window[1] ) );
 				$start = $date->setTime( $wh, $wm )->getTimestamp();
 				$stop  = $date->setTime( $eh, $em )->getTimestamp();
-				for ( $t = $start; $t + $minutes * MINUTE_IN_SECONDS <= $stop; $t += $minutes * MINUTE_IN_SECONDS + $buffer ) {
+				if ( $s['last_start'] ) {
+					list( $lh, $lm ) = array_map( 'intval', explode( ':', $s['last_start'] ) );
+					$last_start      = $date->setTime( $lh, $lm )->getTimestamp();
+				} else {
+					$last_start = $stop;
+				}
+				// Start times on a regular grid (every 30 minutes by default). The gap
+				// between appointments is kept by treating each booking as busy for the
+				// gap either side, so times next to a booking drop out.
+				for ( $t = $start; $t + $minutes * MINUTE_IN_SECONDS <= $stop && $t <= $last_start; $t += $step ) {
 					if ( $t < $earliest || $t > $latest ) {
 						continue;
 					}
@@ -194,7 +249,7 @@ function exf_busy_periods( $from, $to, $ignore = 0 ) {
 }
 
 /**
- * Busy periods from the solicitor's calendar (private iCal address), cached for 10 minutes.
+ * Busy periods from the solicitor's calendars (private or public iCal addresses).
  *
  * Transparent ("free") events and cancelled events are ignored; recurring events
  * are expanded. If the calendar can't be read, the last good copy is used, and
@@ -205,32 +260,43 @@ function exf_busy_periods( $from, $to, $ignore = 0 ) {
  * @return int[][]
  */
 function exf_calendar_busy( $from, $to ) {
-	$url = exf_booking_settings()['ical_url'];
-	if ( ! $url ) {
-		return array();
+	$busy = array();
+	foreach ( exf_booking_settings()['ical_urls'] as $url ) {
+		$busy = array_merge( $busy, exf_parse_ical_busy( exf_calendar_fetch( $url ), $from, $to ) );
 	}
+	return $busy;
+}
+
+/**
+ * One calendar's iCal text, cached for 10 minutes. Falls back to the last good copy.
+ *
+ * @param string $url Calendar address.
+ */
+function exf_calendar_fetch( $url ) {
 	$cache_key = 'exf_ical_' . md5( $url );
 	$ics       = get_transient( $cache_key );
-
-	if ( false === $ics ) {
-		$res = wp_remote_get(
-			$url,
-			array(
-				'timeout'     => 10,
-				'redirection' => 3,
-			)
-		);
-		if ( ! is_wp_error( $res ) && 200 === wp_remote_retrieve_response_code( $res ) && false !== strpos( wp_remote_retrieve_body( $res ), 'BEGIN:VCALENDAR' ) ) {
-			$ics = wp_remote_retrieve_body( $res );
-			update_option( 'exf_ical_last_good', $ics, false );
-			delete_option( 'exf_ical_error' );
-		} else {
-			$ics = (string) get_option( 'exf_ical_last_good', '' );
-			update_option( 'exf_ical_error', time(), false );
-		}
-		set_transient( $cache_key, $ics, 10 * MINUTE_IN_SECONDS );
+	if ( false !== $ics ) {
+		return (string) $ics;
 	}
-	return exf_parse_ical_busy( (string) $ics, $from, $to );
+	$good = (array) get_option( 'exf_ical_last_good_by_url', array() );
+	$res  = wp_remote_get(
+		$url,
+		array(
+			'timeout'     => 10,
+			'redirection' => 3,
+		)
+	);
+	if ( ! is_wp_error( $res ) && 200 === wp_remote_retrieve_response_code( $res ) && false !== strpos( wp_remote_retrieve_body( $res ), 'BEGIN:VCALENDAR' ) ) {
+		$ics                       = wp_remote_retrieve_body( $res );
+		$good[ md5( $url ) ]       = $ics;
+		update_option( 'exf_ical_last_good_by_url', $good, false );
+		delete_option( 'exf_ical_error' );
+	} else {
+		$ics = (string) ( $good[ md5( $url ) ] ?? ( 1 === count( exf_booking_settings()['ical_urls'] ) ? get_option( 'exf_ical_last_good', '' ) : '' ) );
+		update_option( 'exf_ical_error', time(), false );
+	}
+	set_transient( $cache_key, $ics, 10 * MINUTE_IN_SECONDS );
+	return (string) $ics;
 }
 
 /**
@@ -332,7 +398,8 @@ function exf_booking_ics( $order_id ) {
 	$client  = get_userdata( (int) get_post_meta( $order_id, 'client_id', true ) );
 	$service = (string) get_post_meta( $order_id, 'service_name', true );
 	$org     = exf_notify_emails()[0];
-	$details = (string) exf_setting( 'meeting_details', '' );
+	$details = exf_meeting_details();
+	$link    = exf_meeting_link();
 	$host    = (string) wp_parse_url( home_url(), PHP_URL_HOST );
 	$fmt     = function ( $ts ) {
 		return gmdate( 'Ymd\THis\Z', $ts );
@@ -355,6 +422,10 @@ function exf_booking_ics( $order_id ) {
 		'DESCRIPTION:' . $esc( trim( $service . "\n\n" . $details ) ),
 		'ORGANIZER;CN=' . $esc( exf_site_name() ) . ':mailto:' . $org,
 	);
+	if ( $link ) {
+		$lines[] = 'LOCATION:' . $esc( $link );
+		$lines[] = 'URL:' . $link;
+	}
 	if ( $client ) {
 		$lines[] = 'ATTENDEE;CN=' . $esc( $who ) . ';ROLE=REQ-PARTICIPANT;RSVP=TRUE:mailto:' . $client->user_email;
 	}
@@ -398,6 +469,6 @@ add_action(
 		if ( ! $screen || false === strpos( (string) $screen->id, 'exf-' ) && 'dashboard' !== $screen->id ) {
 			return;
 		}
-		echo '<div class="notice notice-warning"><p>' . esc_html__( "The booking calendar couldn't read your Google Calendar recently, so busy times may be out of date. Check the calendar address in Ex Files → Settings → Bookings.", 'exfiles' ) . '</p></div>';
+		echo '<div class="notice notice-warning"><p>' . esc_html__( "The booking calendar couldn't read your calendar recently, so busy times may be out of date. Check the calendar addresses in Ex Files → Settings → Bookings.", 'exfiles' ) . '</p></div>';
 	}
 );

@@ -100,6 +100,32 @@
             "placeholder": "Including VAT"
         },
         {
+            "key": "field_exf_svc_starts_immediately",
+            "label": "Work starts straight away",
+            "name": "starts_immediately",
+            "aria-label": "",
+            "type": "true_false",
+            "instructions": "Buying this service is an instruction to start work before the 14-day cancellation period ends. Checkout shows the cancellation wording for this and asks the client to confirm.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "ui": 1,
+            "default_value": 0,
+            "message": ""
+        },
+        {
             "key": "field_exf_svc_requires_booking",
             "label": "Book an appointment",
             "name": "requires_booking",
@@ -238,6 +264,159 @@
                 "id": ""
             },
             "placeholder": "Book now / Get started"
+        },
+        {
+            "key": "field_exf_svc_addon_name",
+            "label": "Optional add-on",
+            "name": "addon_name",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "E.g. “Written report” or “Virtual consultation”. Leave empty for no add-on.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_svc_addon_price",
+            "label": "Add-on price",
+            "name": "addon_price",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_exf_svc_addon_name",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "min": 0,
+            "step": "0.01",
+            "prepend": "£"
+        },
+        {
+            "key": "field_exf_svc_addon_type",
+            "label": "How the add-on is delivered",
+            "name": "addon_type",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "A consultation is booked by the client once you share a document of type “Report” with them (or when you open booking from the order).",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_exf_svc_addon_name",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "report": "A document you share with the client",
+                "consultation": "A consultation booked after the report"
+            },
+            "default_value": "report",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_svc_addon_minutes",
+            "label": "Consultation length",
+            "name": "addon_minutes",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_exf_svc_addon_type",
+                        "operator": "==",
+                        "value": "consultation"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 60,
+            "min": 5,
+            "max": 480,
+            "step": 5,
+            "append": "minutes"
+        },
+        {
+            "key": "field_exf_svc_addon_description",
+            "label": "Add-on description (optional)",
+            "name": "addon_description",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "One line shown next to the tick-box at checkout.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_exf_svc_addon_name",
+                        "operator": "!=empty"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "Report within 5 working days of your questionnaire"
         }
     ],
     "location": [

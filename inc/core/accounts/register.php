@@ -269,7 +269,7 @@ function exf_create_client( array $v ) {
 		'billing_postcode'     => strtoupper( $v['postcode'] ),
 		'billing_country'      => 'GB',
 		'exf_terms_at'         => time(),
-		'exf_marketing'        => $v['marketing'],
+		'exf_marketing'        => exf_marketing_optin() ? $v['marketing'] : 0,
 		'exf_intended_service' => $v['service'],
 	);
 	foreach ( $meta as $k => $value ) {

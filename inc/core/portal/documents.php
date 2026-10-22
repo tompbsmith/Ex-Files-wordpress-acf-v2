@@ -375,27 +375,55 @@ function exf_handle_client_delete_document( $doc_id ) {
 }
 
 /**
- * Tell a client a document is ready (a link to their portal only, never the file).
+ * Tell a client a document is ready: a link to their portal and, if asked, the file
+ * attached (files over 10 MB are never attached; the link still works).
  *
- * @param int $doc_id Document.
+ * @param int  $doc_id Document.
+ * @param bool $attach Attach the file to the email.
  */
-function exf_document_notify_client( $doc_id ) {
+function exf_document_notify_client( $doc_id, $attach = false ) {
 	$ex_file = (int) get_post_meta( $doc_id, 'ex_file_id', true );
 	$user    = get_userdata( (int) get_post_meta( $doc_id, 'client_id', true ) );
 	if ( ! $user || ! $ex_file ) {
 		return false;
 	}
+	$path = $attach ? exf_private_path( (string) get_post_meta( $doc_id, 'file', true ) ) : '';
+	$copy = '';
+	if ( $path && is_readable( $path ) && filesize( $path ) <= 10 * MB_IN_BYTES ) {
+		// Attach under its original file name.
+		$dir = trailingslashit( get_temp_dir() ) . 'exf-' . wp_generate_password( 12, false, false );
+		wp_mkdir_p( $dir );
+		$copy = $dir . '/' . sanitize_file_name( (string) get_post_meta( $doc_id, 'file_name', true ) ?: 'document' );
+		if ( ! copy( $path, $copy ) ) {
+			$copy = '';
+		}
+	}
+	$add = function ( $args ) use ( $copy ) {
+		$args['attachments'] = array_merge( (array) $args['attachments'], array( $copy ) );
+		return $args;
+	};
+	if ( $copy ) {
+		add_filter( 'wp_mail', $add );
+	}
 	$sent = exf_send_email(
 		'document_ready',
 		$user->user_email,
 		exf_ex_file_email_vars( $ex_file ) + array(
-			'document' => get_the_title( $doc_id ),
-			'link'     => exf_portal_url( 'documents' ),
+			'document'        => get_the_title( $doc_id ),
+			'attachment_note' => $copy
+				? __( 'A copy is attached to this email. You can also view it at any time in your Ex File:', 'exfiles' )
+				: __( "For your privacy we don't attach documents to emails. Please log in to view it:", 'exfiles' ),
+			'link'            => exf_portal_url( 'documents' ),
 		)
 	);
+	if ( $copy ) {
+		remove_filter( 'wp_mail', $add );
+		wp_delete_file( $copy );
+		rmdir( dirname( $copy ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+	}
 	if ( $sent ) {
 		update_post_meta( $doc_id, 'notified_at', time() );
-		exf_ex_file_log( $ex_file, 'Client emailed that a document is ready: ' . get_the_title( $doc_id ) );
+		exf_ex_file_log( $ex_file, 'Client emailed that a document is ready' . ( $copy ? ' (file attached)' : '' ) . ': ' . get_the_title( $doc_id ) );
 	}
 	return $sent;
 }
@@ -528,7 +556,11 @@ function exf_document_box( $post ) {
 						echo '<p>' . esc_html__( 'Not opened yet', 'exfiles' ) . '</p>';
 					}
 					?>
-					<label><input type="checkbox" name="exf_doc_notify" value="1" <?php checked( ! $notified ); ?>> <?php esc_html_e( 'Email the client that it’s ready (the email has a link to their portal, not the file)', 'exfiles' ); ?></label>
+					<label><input type="checkbox" name="exf_doc_notify" value="1" <?php checked( ! $notified ); ?>> <?php esc_html_e( 'Email the client that it’s ready, with a link to their Ex File', 'exfiles' ); ?></label><br>
+					<label style="margin-left:24px"><input type="checkbox" name="exf_doc_attach" value="1" <?php checked( ! $notified ); ?>> <?php esc_html_e( 'Attach the file to that email (files up to 10 MB)', 'exfiles' ); ?></label>
+					<?php if ( exf_document_consult_order( $ex_file ) ) : ?>
+						<p class="description"><?php esc_html_e( 'This client has paid for a consultation add-on. Sharing a document of type “Report” opens their consultation booking and emails them a link to book.', 'exfiles' ); ?></p>
+					<?php endif; ?>
 				</td>
 			</tr>
 		<?php endif; ?>
@@ -582,7 +614,14 @@ add_action(
 		}
 
 		if ( 'publish' === $post->post_status && ! empty( $_POST['exf_doc_notify'] ) && get_post_meta( $post_id, 'file', true ) ) {
-			exf_document_notify_client( $post_id );
+			exf_document_notify_client( $post_id, ! empty( $_POST['exf_doc_attach'] ) );
+		}
+		// A report opens booking for a consultation add-on on this Ex File.
+		if ( 'publish' === $post->post_status && 'report' === get_post_meta( $post_id, 'doc_type', true ) && get_post_meta( $post_id, 'file', true ) ) {
+			$order = exf_document_consult_order( $ex_file );
+			if ( $order ) {
+				exf_consult_open( $order, 'Report shared: ' . $post->post_title );
+			}
 		}
 	},
 	10,

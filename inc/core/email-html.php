@@ -69,6 +69,7 @@ function exf_email_footer_text() {
  */
 function exf_email_button_label( $url ) {
 	$rules = array(
+		'consult='             => __( 'Book your consultation', 'exfiles' ),
 		'verify='              => __( 'Confirm my email', 'exfiles' ),
 		'confirm_email='       => __( 'Confirm my new email', 'exfiles' ),
 		'action=rp'            => __( 'Choose a new password', 'exfiles' ),
@@ -81,6 +82,8 @@ function exf_email_button_label( $url ) {
 		'exf_guide_download'   => __( 'Download your guide', 'exfiles' ),
 		'/wp-admin/'           => __( 'Open in the admin', 'exfiles' ),
 		'confirmaction'        => __( 'Confirm request', 'exfiles' ),
+		'teams.microsoft.com'  => __( 'Join on Microsoft Teams', 'exfiles' ),
+		'teams.live.com'       => __( 'Join on Microsoft Teams', 'exfiles' ),
 	);
 	foreach ( $rules as $needle => $label ) {
 		if ( false !== strpos( $url, $needle ) ) {

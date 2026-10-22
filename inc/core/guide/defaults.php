@@ -49,6 +49,7 @@ function exf_guide_questions() {
 			),
 			'help'    => true, // Shows the jurisdiction routes and tooltips.
 		),
+	) + exf_guide_route_questions() + array(
 		'q4'  => array(
 			'label'   => __( 'Have you started divorce proceedings?', 'exfiles' ),
 			'options' => array(
@@ -88,6 +89,45 @@ function exf_guide_questions() {
 }
 
 /**
+ * The eligibility questions shown to anyone who answers "I am not sure" to Q3: one
+ * Yes/No question per jurisdiction route (the sheet's second tab, editable in
+ * Ex Files → Divorce Guide Content). Keys r1, r2, … in route order.
+ *
+ * Yes to any route except the last means they're eligible. The last route ("Is either
+ * of you domiciled in England & Wales?") doesn't confirm eligibility on its own: Yes
+ * shows the "cannot confirm" screen and the guide carries on; No to everything is
+ * treated like answering No to Q3.
+ */
+function exf_guide_route_questions() {
+	$routes = function_exists( 'exf_guide_routes' ) ? exf_guide_routes() : array();
+	$out    = array();
+	foreach ( array_values( $routes ) as $i => $route ) {
+		if ( '' === trim( $route['question'] ) ) {
+			continue;
+		}
+		$out[ 'r' . ( $i + 1 ) ] = array(
+			'label'   => $route['question'],
+			'note'    => $route['explanation'],
+			'options' => array(
+				'yes' => __( 'Yes', 'exfiles' ),
+				'no'  => __( 'No', 'exfiles' ),
+			),
+			'route'   => true,
+		);
+	}
+	return $out;
+}
+
+/**
+ * Keys of the eligibility route questions, in order.
+ *
+ * @return string[]
+ */
+function exf_guide_route_keys() {
+	return array_keys( exf_guide_route_questions() );
+}
+
+/**
  * Services offered at the end of the guide (Q7). Keys are stored.
  */
 function exf_guide_services() {
@@ -103,8 +143,8 @@ function exf_guide_services() {
  */
 function exf_guide_default_mapping() {
 	return array(
-		'DIVORCE_ELIGIBILITY'      => array( __( 'Married + eligible', 'exfiles' ), array( 'P01', 'P02' ) ),
-		'NOT_EW'                   => array( __( 'Married + not eligible / unsure', 'exfiles' ), array( 'P03' ) ),
+		'DIVORCE_ELIGIBILITY'      => array( __( 'Married (every eligibility answer)', 'exfiles' ), array( 'P01', 'P02' ) ),
+		'NOT_EW'                   => array( __( 'Married + eligibility not confirmed', 'exfiles' ), array( 'P03' ) ),
 		'DIVORCE_OPTIONS'          => array( __( 'Not started divorce', 'exfiles' ), array( 'P04', 'P05', 'P06' ) ),
 		'STAGE_ISSUED_NO_RESPONSE' => array( __( 'Sole issued + no response', 'exfiles' ), array( 'P07' ) ),
 		'STAGE_SOLE_20W'           => array( __( 'Sole + response + 20-week period', 'exfiles' ), array( 'P08', 'P10', 'P11' ) ),
@@ -237,7 +277,10 @@ function exf_guide_default_routes() {
 function exf_guide_default_copy() {
 	return array(
 		'exit_message'       => 'The Ex Files’ divorce guide is designed for people going through, or contemplating, separation/divorce.',
-		'q3a_text'           => '<p>Based on your answer, we cannot confirm that you are eligible to apply for a divorce in England &amp; Wales.</p><p>If you are not eligible to divorce here, a lawyer qualified in the country you are connected with can advise you on divorcing there. Your guide will still explain this, and we may be able to help you understand your financial position.</p>',
+		// Q7 of the eligibility questions answered Yes (none of 1–6): the guide carries on.
+		'q3a_text'           => '<p>The Ex Files’ Divorce Guide is intended for people who are eligible to apply for a divorce in England &amp; Wales. Based on your answer, we cannot confirm that you are eligible to apply for a divorce in England &amp; Wales.</p><p>If you are not eligible to divorce here, a lawyer qualified in the country you are connected with can advise you on divorcing there. Your guide will still explain this, and we may be able to help you understand your position.</p>',
+		// Answered No to eligibility (or No to all the eligibility questions): the guide ends here.
+		'q3n_text'           => '<p>The Ex Files’ Divorce Guide is intended for people who are eligible to apply for a divorce in England &amp; Wales. If you are not eligible to apply here, but may be eligible to divorce in another jurisdiction, you should seek advice from a lawyer qualified in that jurisdiction.</p>',
 		'pdf_title'          => 'Your guide to divorce',
 		'pdf_point'          => 'To explain the divorce process and the financial steps relevant to the answers provided in the online questionnaire. You can find the answers you provided to the questionnaire at Annex A.',
 		'pdf_important'      => 'This guide gives general information based on the answers supplied. It does not constitute legal advice and should be treated as guidance rather than a substitute. The Ex Files has not reviewed financial disclosure or independently verified the answers.',

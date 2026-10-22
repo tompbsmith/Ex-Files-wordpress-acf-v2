@@ -121,6 +121,86 @@
             "new_lines": ""
         },
         {
+            "key": "field_exf_pc_vat_note",
+            "label": "Prices: VAT note",
+            "name": "vat_note",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown next to prices on service pages and at checkout. Leave empty to use the default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "No VAT is payable: The Ex Files is not VAT registered.",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_cancel_policy",
+            "label": "Cancellations: general policy",
+            "name": "cancel_policy",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown at checkout and in every order confirmation. Leave empty to use the default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "You have the right to cancel within 14 days, unless you ask us to begin work before that period ends. If you don't attend your appointment, you won't be eligible for a refund.",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_cancel_immediate",
+            "label": "Cancellations: services that start straight away",
+            "name": "cancel_immediate",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Added for services with “Work starts straight away” ticked. {service} is replaced with the service name. Leave empty to use the default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "{service} is an instruction for us to begin work straight away, before the 14-day cancellation period ends. If you wish to cancel, please let us know as soon as possible: we may charge a reasonable amount for any work already undertaken.",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_immediate_consent",
+            "label": "Cancellations: tick-box for services that start straight away",
+            "name": "immediate_consent",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "The client must tick this to buy a service that starts straight away. Leave empty to use the default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "I ask The Ex Files to begin work straight away, and I understand how this affects my right to cancel.",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
             "key": "field_exf_pc_locked_details",
             "label": "Account details: name and date of birth",
             "name": "locked_details",
@@ -206,7 +286,7 @@
             "name": "q_declaration",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "The statement the client ticks before submitting.",
+            "instructions": "The statement the client ticks before submitting the questionnaire, also printed on their PDF copy. Leave empty to use the default (your wording from October 2026).",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {

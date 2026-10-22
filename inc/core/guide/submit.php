@@ -32,7 +32,7 @@ function exf_guide_handle_submit() {
 	$email     = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 	$services  = isset( $_POST['services'] ) && is_array( $_POST['services'] ) ? array_map( 'sanitize_key', wp_unslash( $_POST['services'] ) ) : array();
 	$services  = array_values( array_intersect( $services, array_keys( exf_guide_services() ) ) );
-	$marketing = ! empty( $_POST['marketing'] );
+	$marketing = exf_marketing_optin() && ! empty( $_POST['marketing'] );
 	// phpcs:enable
 
 	if ( 'final' !== $walk['outcome'] ) {

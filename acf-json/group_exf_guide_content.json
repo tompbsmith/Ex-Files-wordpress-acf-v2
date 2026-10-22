@@ -189,7 +189,7 @@
                     },
                     "choices": {
                         "DIVORCE_ELIGIBILITY": "Married + eligible (DIVORCE_ELIGIBILITY)",
-                        "NOT_EW": "Married + not eligible / unsure (NOT_EW)",
+                        "NOT_EW": "Married + eligibility not confirmed (NOT_EW)",
                         "DIVORCE_OPTIONS": "Not started divorce (DIVORCE_OPTIONS)",
                         "STAGE_ISSUED_NO_RESPONSE": "Sole issued + no response (STAGE_ISSUED_NO_RESPONSE)",
                         "STAGE_SOLE_20W": "Sole + response + 20-week period (STAGE_SOLE_20W)",
@@ -269,11 +269,30 @@
         },
         {
             "key": "field_exf_g_q3a_text",
-            "label": "Eligibility not confirmed screen (Q3A)",
+            "label": "Eligibility not confirmed screen",
             "name": "q3a_text",
             "aria-label": "",
             "type": "wysiwyg",
-            "instructions": "Shown when they answer No or I am not sure to “Are you eligible to apply for a divorce in England & Wales?”",
+            "instructions": "Shown when they answer “I am not sure”, then No to the first six eligibility questions but Yes to the last. The guide carries on after this screen.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "tabs": "visual",
+            "toolbar": "basic",
+            "media_upload": 0,
+            "delay": 1
+        },
+        {
+            "key": "field_exf_g_q3n_text",
+            "label": "Not eligible screen",
+            "name": "q3n_text",
+            "aria-label": "",
+            "type": "wysiwyg",
+            "instructions": "Shown when they answer No to “Are you eligible to apply for a divorce in England & Wales?” (or No to every eligibility question). The guide ends after this screen.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -346,11 +365,11 @@
         },
         {
             "key": "field_exf_guide_routes",
-            "label": "Jurisdiction routes (shown under the eligibility question)",
+            "label": "Eligibility questions (asked one at a time after “I am not sure”)",
             "name": "guide_routes",
             "aria-label": "",
             "type": "repeater",
-            "instructions": "Confirm these against the current official divorce application guidance before launch.",
+            "instructions": "Each row is asked as a Yes/No question. Yes to any row except the last confirms eligibility. The last row (either of you domiciled here) doesn’t confirm it on its own: Yes shows the “not confirmed” screen and the guide carries on.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {

@@ -29,6 +29,9 @@ get_header();
 					<?php if ( $exf_service['price_note'] ) : ?>
 						<p class="field-note"><?php echo esc_html( $exf_service['price_note'] ); ?></p>
 					<?php endif; ?>
+					<?php if ( ! $exf_service['free'] && exf_vat_note() ) : ?>
+						<p class="field-note"><?php echo esc_html( exf_vat_note() ); ?></p>
+					<?php endif; ?>
 				<?php endif; ?>
 				<ul class="service-facts">
 					<?php if ( $exf_service['booking'] ) : ?>
@@ -44,6 +47,14 @@ get_header();
 					<?php endif; ?>
 					<?php if ( $exf_service['questionnaire'] ) : ?>
 						<li><?php esc_html_e( 'Includes our online financial questionnaire', 'exfiles' ); ?></li>
+					<?php endif; ?>
+					<?php if ( $exf_service['addon'] ) : ?>
+						<li>
+							<?php
+							/* translators: 1: add-on, 2: price */
+							echo esc_html( sprintf( __( 'Optional: %1$s, +%2$s', 'exfiles' ), lcfirst( $exf_service['addon']['name'] ), exf_money( $exf_service['addon']['pence'] ) ) );
+							?>
+						</li>
 					<?php endif; ?>
 				</ul>
 				<?php if ( $exf_service['sellable'] ) : ?>

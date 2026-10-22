@@ -48,7 +48,7 @@ function exf_email_defaults() {
 		),
 		'review'         => array(
 			"We're just checking a few details",
-			"Hello {first_name},\n\nThank you for confirming your email. Before we can act for you, we need to complete a routine check, which we do by hand for some new clients. We'll email you as soon as it's finished.\n\nYou can log in to your Ex File in the meantime:\n\n{link}\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nThank you for confirming your email. Before we can act for you, we need to complete a routine check, which we do by hand for some new clients. This is done within one working day, and we'll email you as soon as it's finished.\n\nYou can log in to your Ex File in the meantime:\n\n{link}\n\nBest wishes,\nThe Ex Files",
 		),
 		'info_requested' => array(
 			'We need a little more information',
@@ -68,7 +68,7 @@ function exf_email_defaults() {
 		),
 		'order_confirmed'  => array(
 			'Confirmed: {service}',
-			"Hello {first_name},\n\nThank you. Here are the details:\n\nService: {service}\nAmount: {amount}\nAppointment: {appointment}\n\n{meeting_details}\n\n{next_steps}\n\nYou can see everything in your Ex File:\n{link}\n\nStripe will email you a separate receipt for any payment.\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nThank you. Here are the details:\n\nService: {order_items}\nAmount: {amount}\nAppointment: {appointment}\n\n{meeting_details}\n\n{next_steps}\n\nYou can see everything in your Ex File:\n{link}\n\nStripe will email you a separate receipt for any payment.\n\n{cancellation}\n\nBest wishes,\nThe Ex Files",
 		),
 		'booking_reminder' => array(
 			'Reminder: your appointment tomorrow',
@@ -76,7 +76,11 @@ function exf_email_defaults() {
 		),
 		'document_ready'   => array(
 			'A new document is ready in your Ex File',
-			"Hello {first_name},\n\nWe've added a new document to your Ex File: {document}.\n\nFor your privacy we don't attach documents to emails. Please log in to view it:\n{link}\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nWe've added a new document to your Ex File: {document}.\n\n{attachment_note}\n{link}\n\nBest wishes,\nThe Ex Files",
+		),
+		'consultation_open' => array(
+			'Book your consultation',
+			"Hello {first_name},\n\nYour report for {service} is ready in your Ex File, so you can now book the {addon} you added to your order. Please choose a time here:\n\n{link}\n\nBest wishes,\nThe Ex Files",
 		),
 		'email_change'     => array(
 			'Confirm your new email address',
@@ -116,7 +120,7 @@ function exf_email_defaults() {
 		),
 		'admin_order'      => array(
 			'New order: {service} for {client_name}',
-			"{client_name} has ordered {service} ({amount}).\n\nEx File: {client_name} / {ex_name}\nAppointment: {appointment}\n\nOrder details:\n{admin_link}",
+			"{client_name} has ordered {order_items} (total {total}).\n\nEx File: {client_name} / {ex_name}\nAppointment: {appointment}\n\nOrder details:\n{admin_link}",
 		),
 		'admin_info'     => array(
 			'More information received: {client_name}',

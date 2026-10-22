@@ -497,7 +497,7 @@
             "name": "order_confirmed_body",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "",
+            "instructions": "Merge tags: {first_name}, {service}, {order_items} (service plus any add-on), {amount}, {appointment}, {meeting_details} (how the appointment works and the meeting link), {next_steps}, {cancellation}, {link}",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -597,7 +597,7 @@
             "name": "admin_order_body",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "",
+            "instructions": "Merge tags: {client_name}, {ex_name}, {service}, {order_items}, {total}, {amount}, {appointment}, {admin_link}",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -647,7 +647,57 @@
             "name": "document_ready_body",
             "aria-label": "",
             "type": "textarea",
+            "instructions": "Merge tags: {first_name}, {document}, {attachment_note} (says whether the file is attached), {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_consultation_open",
+            "label": "Consultation ready to book",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_consultation_open_subject",
+            "label": "Subject",
+            "name": "consultation_open_subject",
+            "aria-label": "",
+            "type": "text",
             "instructions": "Merge tags: {first_name}, {client_name}, {document}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_consultation_open_body",
+            "label": "Message",
+            "name": "consultation_open_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Sent when you share a report with a client who paid for a consultation add-on. Merge tags: {first_name}, {service}, {addon}, {link}",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {

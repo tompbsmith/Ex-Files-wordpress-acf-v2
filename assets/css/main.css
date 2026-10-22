@@ -332,6 +332,8 @@ section[id]{scroll-margin-top:70px;}
 .gq-option:has(input:checked){border-color:var(--brown-dark); background:#e9dfd1;}
 .gq-option:has(input:focus-visible){outline:2px solid var(--brown-mid); outline-offset:2px;}
 .gq-help{margin:-8px 0 20px; font-size:15px;}
+.gq-intro{margin:-6px 0 14px; font-size:15px; color:var(--brown-mid);}
+.gq > .field-note{margin:0 0 16px;}
 .gq-help summary{cursor:pointer; text-decoration:underline; color:var(--brown-mid);}
 .gq-help-body{margin-top:12px; padding:18px 20px; background:var(--cream-dark); border-radius:8px;}
 .gq-help-body p, .gq-help-body li{font-size:15px;}
@@ -428,6 +430,7 @@ section[id]{scroll-margin-top:70px;}
 .slot input:checked + span{background:var(--brown-btn); border-color:var(--brown-btn); color:var(--white);}
 .slot input:focus-visible + span{outline:2px solid var(--brown-mid); outline-offset:2px;}
 .buy-summary{border-top:1px solid rgba(49,25,15,.15); padding-top:20px;}
+.buy-terms .field-note{margin-bottom:14px;}
 .account-orders{margin:16px 0 0; padding-left:18px; font-size:15px;}
 .account-orders li{margin-bottom:6px;}
 .account-new-sep{margin-top:24px; font-size:15px;}

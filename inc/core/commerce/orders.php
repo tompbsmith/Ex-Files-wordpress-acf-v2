@@ -117,9 +117,25 @@ function exf_order_set_status( $order_id, $status, $note = '' ) {
  * @param int   $ex_file_id Ex File.
  * @param array $service    From exf_service().
  * @param int   $start      Appointment start, or 0.
+ * @param array $args {
+ *     Optional.
+ *     @type bool $addon   Include the service's add-on.
+ *     @type int  $consult For a consultation add-on booked later: the original order.
+ * }
  * @return int Order ID.
  */
-function exf_order_create( $client_id, $ex_file_id, array $service, $start = 0 ) {
+function exf_order_create( $client_id, $ex_file_id, array $service, $start = 0, array $args = array() ) {
+	$parent  = (int) ( $args['consult'] ?? 0 );
+	$addon   = ! $parent && ! empty( $args['addon'] ) ? $service['addon'] : null;
+	$minutes = $service['minutes'];
+	$pence   = $service['pence'] + ( $addon ? $addon['pence'] : 0 );
+	if ( $parent ) {
+		// A consultation add-on: free if it was paid for with the original order.
+		/* translators: 1: add-on, 2: service */
+		$service['name'] = sprintf( __( '%1$s (%2$s)', 'exfiles' ), $service['addon']['name'], $service['name'] );
+		$minutes         = $service['addon']['minutes'];
+		$pence           = get_post_meta( $parent, 'addon_pence', true ) ? 0 : $service['addon']['pence'];
+	}
 	$id = wp_insert_post(
 		array(
 			'post_type'   => 'exf_order',
@@ -145,18 +161,30 @@ function exf_order_create( $client_id, $ex_file_id, array $service, $start = 0 )
 		'service_id'   => $service['id'],
 		'service_name' => $service['name'],
 		'service_type' => $service['type'],
-		'amount_pence' => $service['pence'],
+		'amount_pence' => $pence,
+		'base_pence'   => $parent ? $pence : $service['pence'],
 		'attempt'      => 1,
 	);
+	if ( $addon ) {
+		$meta['addon_name']  = $addon['name'];
+		$meta['addon_pence'] = $addon['pence'];
+		$meta['addon_type']  = $addon['type'];
+	}
+	if ( $parent ) {
+		$meta['parent_order'] = $parent;
+	}
+	if ( ! empty( $args['consent'] ) ) {
+		$meta['immediate_consent'] = time();
+	}
 	if ( $start ) {
 		$meta['booking_start'] = (int) $start;
-		$meta['booking_end']   = (int) $start + $service['minutes'] * MINUTE_IN_SECONDS;
+		$meta['booking_end']   = (int) $start + $minutes * MINUTE_IN_SECONDS;
 		$meta['hold_expires']  = time() + EXF_HOLD_MINUTES * MINUTE_IN_SECONDS;
 	}
 	foreach ( $meta as $k => $v ) {
 		update_post_meta( $id, $k, $v );
 	}
-	exf_order_log( $id, sprintf( 'Created for %s%s', $service['name'], $start ? ', appointment ' . exf_booking_label( $start ) : '' ) );
+	exf_order_log( $id, sprintf( 'Created for %s%s%s%s', $service['name'], $addon ? ' with ' . $addon['name'] . ' (' . exf_money( $addon['pence'] ) . ')' : '', $start ? ', appointment ' . exf_booking_label( $start ) : '', ! empty( $args['consent'] ) ? '; client asked for work to start straight away' : '' ) );
 	return (int) $id;
 }
 
@@ -238,7 +266,14 @@ function exf_order_fulfil( $order_id ) {
 	// One financial questionnaire per Ex File: a later service uses the one the
 	// client already has (submitted or not) rather than starting another. If their
 	// circumstances change, it can be reopened from the admin.
-	if ( $service && $service['questionnaire'] ) {
+	$parent = (int) get_post_meta( $order_id, 'parent_order', true );
+	if ( $parent ) {
+		update_post_meta( $parent, 'consult_status', 'booked' );
+		update_post_meta( $parent, 'consult_order', $order_id );
+		exf_order_log( $parent, sprintf( 'Consultation booked: order %d', $order_id ) );
+	}
+
+	if ( $service && $service['questionnaire'] && ! $parent ) {
 		$existing = $ex_file && function_exists( 'exf_client_questionnaires' ) ? exf_client_questionnaires( $client_id, $ex_file ) : array();
 		if ( $existing ) {
 			$q = $existing[0];
@@ -304,8 +339,10 @@ function exf_order_email_vars( $order_id ) {
 	$pence   = (int) get_post_meta( $order_id, 'amount_pence', true );
 	$service = exf_service( (int) get_post_meta( $order_id, 'service_id', true ) );
 
-	$next = '';
-	if ( $service && $service['questionnaire'] ) {
+	$parent = (int) get_post_meta( $order_id, 'parent_order', true );
+	$addon  = (string) get_post_meta( $order_id, 'addon_name', true );
+	$next   = '';
+	if ( $service && $service['questionnaire'] && ! $parent ) {
 		$q = (int) get_post_meta( $order_id, 'questionnaire_id', true );
 		if ( $q && 'submitted' === get_post_meta( $q, 'q_status', true ) ) {
 			$next = __( "We'll use the financial questionnaire you've already completed, so there's nothing more to fill in. If anything has changed since, please let us know and we'll reopen it for you.", 'exfiles' );
@@ -317,16 +354,38 @@ function exf_order_email_vars( $order_id ) {
 		}
 	}
 
+	if ( $addon && 'consultation' === get_post_meta( $order_id, 'addon_type', true ) ) {
+		$next .= ( $next ? "\n\n" : '' ) . __( "Your consultation: once we've added your report to your Ex File, we'll email you a link to book it.", 'exfiles' );
+	} elseif ( $addon ) {
+		/* translators: %s: add-on */
+		$next .= ( $next ? "\n\n" : '' ) . sprintf( __( "Your %s: we'll email it to you and add it to your Ex File once it's ready.", 'exfiles' ), lcfirst( $addon ) );
+	}
+
+	$name  = (string) get_post_meta( $order_id, 'service_name', true );
+	$items = $addon
+		/* translators: 1: service, 2: add-on, 3: add-on price */
+		? sprintf( __( '%1$s, with %2$s (%3$s)', 'exfiles' ), $name, lcfirst( $addon ), exf_money( (int) get_post_meta( $order_id, 'addon_pence', true ) ) )
+		: $name;
+	if ( $parent && ! $pence ) {
+		/* translators: %s: original service */
+		$amount = sprintf( __( 'Already paid with your %s order', 'exfiles' ), (string) get_post_meta( $parent, 'service_name', true ) );
+	} else {
+		$amount = $pence ? exf_money( $pence ) . ( exf_vat_note() ? ' (' . lcfirst( rtrim( exf_vat_note(), '.' ) ) . ')' : '' ) : __( 'Free', 'exfiles' );
+	}
+
 	return array_merge( ( $ex_file ? exf_ex_file_email_vars( $ex_file ) : array() ), array(
 		'order_id'        => $order_id,
-		'service'         => (string) get_post_meta( $order_id, 'service_name', true ),
-		'amount'          => $pence ? '£' . number_format( $pence / 100, 2 ) : __( 'Free', 'exfiles' ),
+		'service'         => $name,
+		'order_items'     => $items,
+		'amount'          => $amount,
+		'total'           => $pence ? exf_money( $pence ) : __( 'Free', 'exfiles' ),
+		'cancellation'    => ( $service && $service['free'] ) ? '' : exf_cancellation_text( $parent ? null : $service ),
 		'appointment'     => ! $start ? __( 'No appointment needed', 'exfiles' ) : ( get_post_meta( $order_id, 'needs_reschedule', true )
 			/* translators: %s: the time they chose */
 			? sprintf( __( 'To be rearranged. The time you chose (%s) was booked by someone else while you were paying, so we’ll contact you to arrange a new time.', 'exfiles' ), exf_booking_label( $start, $end ) )
 			: exf_booking_label( $start, $end ) ),
 		// How the appointment works: only relevant when there is one.
-		'meeting_details' => $start ? (string) exf_setting( 'meeting_details', '' ) : '',
+		'meeting_details' => $start ? exf_meeting_details() : '',
 		'next_steps'      => $next,
 		'link'            => exf_page_url( 'account' ),
 		'admin_link'      => admin_url( 'post.php?post=' . $order_id . '&action=edit' ),
@@ -592,6 +651,44 @@ function exf_order_box( $post ) {
 				<?php if ( exf_order_is_live( $id ) && $start > time() ) : ?>
 					&nbsp; <a href="<?php echo esc_url( $cancel ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Cancel this appointment and free the slot? This does not refund the payment or email the client.', 'exfiles' ) ); ?>')" style="color:#b32d2e"><?php esc_html_e( 'Cancel appointment', 'exfiles' ); ?></a>
 				<?php endif; ?>
+			</td></tr>
+		<?php endif; ?>
+		<?php $addon = (string) get_post_meta( $id, 'addon_name', true ); ?>
+		<?php if ( $addon ) : ?>
+			<tr><th><?php esc_html_e( 'Add-on', 'exfiles' ); ?></th><td><?php echo esc_html( $addon . ' (' . exf_money( (int) get_post_meta( $id, 'addon_pence', true ) ) . ')' ); ?>
+				<?php if ( 'report' === get_post_meta( $id, 'addon_type', true ) ) : ?>
+					<br><span class="description"><?php esc_html_e( 'Share it from Ex Files → Documents (type “Report”); tick “Attach the file” to email it too.', 'exfiles' ); ?></span>
+				<?php endif; ?>
+			</td></tr>
+		<?php endif; ?>
+		<?php if ( function_exists( 'exf_consult_service' ) && exf_consult_service( $id ) ) : ?>
+			<?php
+			$cstat = (string) get_post_meta( $id, 'consult_status', true );
+			$copen = wp_nonce_url( admin_url( 'admin-post.php?action=exf_consult_open&order=' . $id ), 'exf_consult_open_' . $id );
+			$clabs = array(
+				''       => exf_consult_prepaid( $id ) ? __( 'Paid for. Booking opens when you share a document of type “Report” on this Ex File.', 'exfiles' ) : __( 'Not bought. Offered to the client once you share their report.', 'exfiles' ),
+				'open'   => __( 'Open: the client has been emailed a link to book.', 'exfiles' ),
+				'offer'  => __( 'Offered: the client can add it from their Ex File.', 'exfiles' ),
+				'booked' => __( 'Booked.', 'exfiles' ),
+			);
+			?>
+			<tr><th><?php esc_html_e( 'Consultation', 'exfiles' ); ?></th><td><?php echo esc_html( $clabs[ $cstat ] ?? $cstat ); ?>
+				<?php if ( 'booked' === $cstat && get_post_meta( $id, 'consult_order', true ) ) : ?>
+					<a href="<?php echo esc_url( get_edit_post_link( (int) get_post_meta( $id, 'consult_order', true ) ) ); ?>"><?php esc_html_e( 'View the booking', 'exfiles' ); ?></a>
+				<?php elseif ( '' === $cstat ) : ?>
+					<br><a class="button" href="<?php echo esc_url( $copen ); ?>"><?php esc_html_e( 'Open booking now', 'exfiles' ); ?></a>
+				<?php endif; ?>
+			</td></tr>
+		<?php endif; ?>
+		<?php if ( get_post_meta( $id, 'parent_order', true ) ) : ?>
+			<tr><th><?php esc_html_e( 'Booked for', 'exfiles' ); ?></th><td><a href="<?php echo esc_url( get_edit_post_link( (int) get_post_meta( $id, 'parent_order', true ) ) ); ?>"><?php echo esc_html( get_the_title( (int) get_post_meta( $id, 'parent_order', true ) ) ); ?></a></td></tr>
+		<?php endif; ?>
+		<?php if ( get_post_meta( $id, 'immediate_consent', true ) ) : ?>
+			<tr><th><?php esc_html_e( 'Cancellation', 'exfiles' ); ?></th><td>
+				<?php
+				/* translators: %s: date and time */
+				echo esc_html( sprintf( __( 'The client asked for work to start straight away (%s).', 'exfiles' ), wp_date( 'j M Y H:i', (int) get_post_meta( $id, 'immediate_consent', true ) ) ) );
+				?>
 			</td></tr>
 		<?php endif; ?>
 		<?php if ( $q ) : ?>

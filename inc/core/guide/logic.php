@@ -15,17 +15,31 @@ defined( 'ABSPATH' ) || exit;
 /**
  * The step after a question, given its answer.
  *
- * Returns a question key, "q3a" (information screen), "final" (email + services)
- * or "exit" (the guide isn't for this visitor).
+ * Returns a question key, an information screen ("q3a" or "q3n"), "final"
+ * (email + services) or "exit" (the guide isn't for this visitor).
  *
- * Open question 1 in the build plan: after Q3A the guide finishes (P03 + P19) rather
- * than going on to the finances question. Change the "q3a" line to return 'q6' if
- * the client decides otherwise. The JavaScript in assets/js/guide.js mirrors this.
+ * Eligibility (Q3), as the client set out in October 2026:
+ *   Yes       → carries on to Q4.
+ *   No        → "q3n" screen, then the guide ends (P01–P03 + P19).
+ *   Not sure  → the route questions r1, r2, … one at a time:
+ *               Yes to any but the last → eligible, carries on to Q4;
+ *               Yes to only the last    → "q3a" screen (can't confirm), then Q4;
+ *               No to all               → treated as No ("q3n").
+ * The JavaScript in assets/js/guide.js mirrors this.
  *
  * @param string $step   Current step.
  * @param string $answer Its answer.
  */
 function exf_guide_next_step( $step, $answer ) {
+	$routes = exf_guide_route_keys();
+	$pos    = array_search( $step, $routes, true );
+	if ( false !== $pos ) {
+		$last = count( $routes ) - 1 === $pos;
+		if ( 'yes' === $answer ) {
+			return $last ? 'q3a' : 'q4';
+		}
+		return $last ? 'q3n' : $routes[ $pos + 1 ];
+	}
 	switch ( $step ) {
 		case 'q1':
 			return 'yes' === $answer ? 'q2' : 'exit';
@@ -34,8 +48,13 @@ function exf_guide_next_step( $step, $answer ) {
 		case 'q2a':
 			return 'yes' === $answer ? 'final' : 'exit';
 		case 'q3':
-			return 'yes' === $answer ? 'q4' : 'q3a';
+			if ( 'yes' === $answer ) {
+				return 'q4';
+			}
+			return 'unsure' === $answer && $routes ? $routes[0] : 'q3n';
 		case 'q3a':
+			return 'q4';
+		case 'q3n':
 			return 'final';
 		case 'q4':
 			return 'yes' === $answer ? 'q5' : 'q5a';
@@ -49,13 +68,20 @@ function exf_guide_next_step( $step, $answer ) {
 }
 
 /**
+ * Information screens: steps with no answer.
+ */
+function exf_guide_info_steps() {
+	return array( 'q3a', 'q3n' );
+}
+
+/**
  * Walk the answers from Q1 and work out where the visitor ends up.
  *
  * @param array $answers Raw answers keyed by question.
  * @return array {
  *     @type string $outcome "final", "exit" or "incomplete".
  *     @type array  $answers Valid answers on the path, in order.
- *     @type string[] $path  Steps visited, including "q3a".
+ *     @type string[] $path  Steps visited, including information screens.
  * }
  */
 function exf_guide_walk( array $answers ) {
@@ -74,8 +100,8 @@ function exf_guide_walk( array $answers ) {
 		}
 		$path[] = $step;
 
-		if ( 'q3a' === $step ) {
-			$step = exf_guide_next_step( 'q3a', '' );
+		if ( in_array( $step, exf_guide_info_steps(), true ) ) {
+			$step = exf_guide_next_step( $step, '' );
 			continue;
 		}
 
@@ -110,10 +136,10 @@ function exf_guide_tags( array $answers ) {
 		$tags[] = 'UNMARRIED_FINANCES';
 	}
 
-	if ( 'yes' === $a( 'q2' ) ) {
-		if ( 'yes' === $a( 'q3' ) ) {
-			$tags[] = 'DIVORCE_ELIGIBILITY';
-		} elseif ( in_array( $a( 'q3' ), array( 'no', 'unsure' ), true ) ) {
+	if ( 'yes' === $a( 'q2' ) && '' !== $a( 'q3' ) ) {
+		// Everyone married gets P01–P02; anyone not confirmed as eligible also gets P03.
+		$tags[] = 'DIVORCE_ELIGIBILITY';
+		if ( ! exf_guide_eligible( $answers ) ) {
 			$tags[] = 'NOT_EW';
 		}
 	}
@@ -146,6 +172,26 @@ function exf_guide_tags( array $answers ) {
 
 	$tags[] = 'CTA';
 	return $tags;
+}
+
+/**
+ * Whether the answers confirm eligibility to divorce in England & Wales: Yes to Q3,
+ * or Yes to any route question except the last.
+ *
+ * @param array $answers Valid answers.
+ */
+function exf_guide_eligible( array $answers ) {
+	if ( 'yes' === ( $answers['q3'] ?? '' ) ) {
+		return true;
+	}
+	$routes = exf_guide_route_keys();
+	array_pop( $routes );
+	foreach ( $routes as $r ) {
+		if ( 'yes' === ( $answers[ $r ] ?? '' ) ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -199,11 +245,16 @@ function exf_guide_route_label( array $answers ) {
 	if ( ( $answers['q2'] ?? '' ) === 'no' ) {
 		return __( 'Unmarried, financial guidance', 'exfiles' );
 	}
-	if ( in_array( $answers['q3'] ?? '', array( 'no', 'unsure' ), true ) ) {
-		return __( 'Married, eligibility not confirmed', 'exfiles' );
-	}
 	$questions = exf_guide_questions();
 	$parts     = array();
+	if ( isset( $answers['q3'] ) && ! exf_guide_eligible( $answers ) ) {
+		if ( ! isset( $answers['q4'] ) ) {
+			return __( 'Married, not eligible in England & Wales', 'exfiles' );
+		}
+		$parts[] = __( 'Eligibility not confirmed', 'exfiles' );
+	} elseif ( 'unsure' === ( $answers['q3'] ?? '' ) ) {
+		$parts[] = __( 'Eligible (after the eligibility questions)', 'exfiles' );
+	}
 	if ( isset( $answers['q5'] ) ) {
 		$parts[] = $questions['q5']['options'][ $answers['q5'] ];
 	} elseif ( isset( $answers['q5a'] ) ) {

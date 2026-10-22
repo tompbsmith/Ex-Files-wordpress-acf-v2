@@ -236,6 +236,16 @@ function exf_privacy_erase( $email, $page = 1 ) {
 	}
 
 	$user = get_user_by( 'email', $email );
+	// Someone who never bought a service: delete everything, ex included, and keep
+	// nothing on the Conflict Register (the client's decision, October 2026).
+	if ( $user && function_exists( 'exf_delete_prospect' ) && exf_delete_prospect( $user->ID, 'erasure request' ) ) {
+		return array(
+			'items_removed'  => true,
+			'items_retained' => false,
+			'messages'       => array(),
+			'done'           => true,
+		);
+	}
 	if ( $user && ! user_can( $user, EXF_CAP ) ) {
 		$uid   = $user->ID;
 		$files = exf_client_ex_files( $uid );
@@ -286,7 +296,7 @@ add_action(
 			wp_add_privacy_policy_content(
 				__( 'The Ex Files', 'exfiles' ),
 				wp_kses_post(
-					'<p>' . __( 'Suggested text: When you open an Ex File we keep the details you give us about you and your ex, the services you buy, your appointments, the documents you and we share, and your financial questionnaire. We use the details of you and your ex to check that we can act for you (a conflict check). We keep this as a legal record for six years after the last activity on your matter, then delete it, keeping only the names and contact details needed for future conflict checks. Free Divorce Guide requests are kept for 24 months. Payments are handled by Stripe; we do not see or store card details.', 'exfiles' ) . '</p>'
+					'<p>' . __( 'Suggested text: When you open an Ex File we keep the details you give us about you and your ex, the services you buy, your appointments, the documents you and we share, and your financial questionnaire. We use the details of you and your ex to check that we can act for you (a conflict check). We keep this as a legal record for six years after the last activity on your matter, then delete it, keeping only the names and contact details needed for future conflict checks. If you open an Ex File but don’t buy a service, we delete your details and your ex’s after 30 days without activity, or sooner if you ask. Free Divorce Guide requests are kept for 24 months. Payments are handled by Stripe; we do not see or store card details.', 'exfiles' ) . '</p>'
 				)
 			);
 		}

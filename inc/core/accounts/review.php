@@ -322,10 +322,14 @@ function exf_person_summary( array $p, array $signals ) {
  */
 function exf_match_kind( array $m ) {
 	if ( 'client' === $m['type'] ) {
-		return __( 'An existing client', 'exfiles' );
+		return 'prospect' === ( $m['role'] ?? '' )
+			? __( "Someone who has signed up but hasn't bought a service", 'exfiles' )
+			: __( 'An existing client', 'exfiles' );
 	}
 	if ( 'ex_file' === $m['type'] ) {
-		return __( "Named as the ex in another client's Ex File", 'exfiles' );
+		return 'prospect' === ( $m['role'] ?? '' )
+			? __( "Named as the ex by someone who hasn't bought a service", 'exfiles' )
+			: __( "Named as the ex in another client's Ex File", 'exfiles' );
 	}
 	$roles = exf_conflict_record_roles();
 	/* translators: %s: role */

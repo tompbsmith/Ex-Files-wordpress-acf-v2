@@ -4,6 +4,7 @@
  *
  *   ?service=ID                 choose the Ex File (and a slot), then pay
  *   ?new_separation=1           add a new separation (runs the conflict check)
+ *   ?consult=ORDER              book a consultation add-on (see consult.php)
  *   ?order=ID&session_id=…      back from Stripe: confirm the payment
  *   ?order=ID&cancelled=1       back from Stripe without paying: release the slot
  *   ?order=ID&done=1            free booking confirmed
@@ -68,12 +69,22 @@ function exf_buy_route() {
 		return;
 	}
 
+	if ( isset( $_POST['exf_consult'] ) ) {
+		check_admin_referer( 'exf_consult' );
+		$GLOBALS['exf_buy_errors'] = exf_handle_consult( absint( $_POST['consult'] ?? 0 ), absint( $_POST['slot'] ?? 0 ) );
+		return;
+	}
+
 	if ( isset( $_POST['exf_buy'] ) ) {
 		check_admin_referer( 'exf_buy' );
 		$errors = exf_handle_buy(
 			absint( $_POST['service'] ?? 0 ),
 			absint( $_POST['ex_file'] ?? 0 ),
-			absint( $_POST['slot'] ?? 0 )
+			absint( $_POST['slot'] ?? 0 ),
+			array(
+				'addon'   => ! empty( $_POST['addon'] ),
+				'consent' => ! empty( $_POST['immediate_consent'] ),
+			)
 		);
 		$GLOBALS['exf_buy_errors'] = $errors;
 	}
@@ -92,7 +103,7 @@ function exf_buy_blocker( $user_id ) {
 	}
 	$status = exf_user_status( $user_id );
 	if ( EXF_STATUS_REVIEW === $status ) {
-		return __( "We're still checking a few details on your Ex File. You'll be able to choose a service as soon as that's done, and we'll email you.", 'exfiles' );
+		return __( "We're still checking a few details on your Ex File. You'll be able to choose a service as soon as that's done (within one working day), and we'll email you.", 'exfiles' );
 	}
 	if ( EXF_STATUS_ACTIVE !== $status ) {
 		return __( "We're unable to take a booking for you at the moment. Please contact us.", 'exfiles' );
@@ -105,10 +116,11 @@ function exf_buy_blocker( $user_id ) {
  *
  * @param int $service_id Service page.
  * @param int $ex_file    Ex File.
- * @param int $slot       Appointment start.
+ * @param int   $slot       Appointment start.
+ * @param array $opts       addon (bool), consent (bool: asked for work to start straight away).
  * @return array Errors (redirects on success).
  */
-function exf_handle_buy( $service_id, $ex_file, $slot ) {
+function exf_handle_buy( $service_id, $ex_file, $slot, array $opts = array() ) {
 	$user_id = get_current_user_id();
 	$service = exf_service( $service_id );
 	$errors  = array();
@@ -127,11 +139,21 @@ function exf_handle_buy( $service_id, $ex_file, $slot ) {
 	if ( $service['booking'] && ! $slot ) {
 		$errors['slot'] = __( 'Please choose a time for your appointment.', 'exfiles' );
 	}
+	if ( $service['immediate'] && empty( $opts['consent'] ) ) {
+		$errors['immediate_consent'] = __( 'Please tick to confirm, so we can start work straight away.', 'exfiles' );
+	}
 	if ( ! $service['free'] && ! exf_stripe_ready() ) {
 		$errors['_form'] = __( "Online payment isn't set up yet. Please contact us to book.", 'exfiles' );
 	}
 	if ( $errors ) {
 		return $errors;
+	}
+
+	// Check again before the first purchase on an Ex File: someone named in it may
+	// have become a client since it was checked at sign-up.
+	$recheck = exf_conflict_recheck_before_purchase( $ex_file );
+	if ( $recheck ) {
+		return array( '_form' => $recheck );
 	}
 
 	// Lock, re-check the slot, and create the order so the slot is held while they pay.
@@ -142,7 +164,16 @@ function exf_handle_buy( $service_id, $ex_file, $slot ) {
 		exf_unlock( 'booking' );
 		return array( 'slot' => __( 'Sorry, that time has just been taken. Please choose another.', 'exfiles' ) );
 	}
-	$order = exf_order_create( $user_id, $ex_file, $service, $service['booking'] ? $slot : 0 );
+	$order = exf_order_create(
+		$user_id,
+		$ex_file,
+		$service,
+		$service['booking'] ? $slot : 0,
+		array(
+			'addon'   => $service['addon'] && ! empty( $opts['addon'] ),
+			'consent' => $service['immediate'] && ! empty( $opts['consent'] ),
+		)
+	);
 	if ( $service['booking'] ) {
 		exf_unlock( 'booking' );
 	}

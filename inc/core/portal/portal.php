@@ -88,13 +88,17 @@ function exf_portal_url( $section = 'overview', $value = '' ) {
 function exf_portal_copy( $key ) {
 	$defaults = array(
 		'active_text'     => __( 'Choose a service whenever you’re ready. Everything you book, and anything we send you, will appear here.', 'exfiles' ),
-		'review_text'     => __( "Before we can act for you, we complete a routine check, which we do by hand for some new clients. We'll email you as soon as it's finished.", 'exfiles' ),
+		'review_text'     => __( "Before we can act for you, we complete a routine check, which we do by hand for some new clients. This is done within one working day, and we'll email you as soon as it's finished.", 'exfiles' ),
 		'documents_intro' => __( "Reports and documents we prepare for you appear here. You can also send us documents, such as bank statements or pension letters. Only you and The Ex Files can see them.", 'exfiles' ),
 		'upload_help'     => __( 'PDF, Word, Excel or photos, up to 15 MB each.', 'exfiles' ),
 		'change_policy'   => __( "Appointments can't be changed online. If you need to move or cancel one, send us a request below and we'll be in touch.", 'exfiles' ),
 		'q_intro'         => __( "This tells us about your finances and your family, so we can give you advice that fits your situation. It helps to have recent bank, mortgage and pension statements to hand, but if you don't know something, just say so: please don't guess.", 'exfiles' ),
 		'q_review'        => __( "Please check everything before you submit. Answers you've estimated are highlighted in yellow, and answers you don't know in red. Use Edit to change a section.", 'exfiles' ),
 		'q_submitted'     => __( "Thank you. We've received your answers and will be in touch. Receiving them doesn't mean we have checked your financial disclosure yet.", 'exfiles' ),
+		'vat_note'        => __( 'No VAT is payable: The Ex Files is not VAT registered.', 'exfiles' ),
+		'cancel_policy'   => __( "You have the right to cancel within 14 days, unless you ask us to begin work before that period ends. If you don't attend your appointment, you won't be eligible for a refund.", 'exfiles' ),
+		'cancel_immediate' => __( '{service} is an instruction for us to begin work straight away, before the 14-day cancellation period ends. If you wish to cancel, please let us know as soon as possible: we may charge a reasonable amount for any work already undertaken.', 'exfiles' ),
+		'immediate_consent' => __( 'I ask The Ex Files to begin work straight away, and I understand how this affects my right to cancel.', 'exfiles' ),
 		'locked_details'  => __( 'Your name and date of birth are part of the checks we carry out before acting for you, so please contact us if they need changing.', 'exfiles' ),
 	);
 	return (string) exf_get_option_field( $key, EXF_PORTAL_ID, $defaults[ $key ] ?? '' );
@@ -162,6 +166,19 @@ function exf_portal_next_steps( $user_id ) {
 				'label' => 'in_progress' === $status ? __( 'Continue', 'exfiles' ) : __( 'Start', 'exfiles' ),
 			);
 		}
+	}
+
+	foreach ( exf_consult_offers( $user_id ) as $o => $svc ) {
+		$prepaid = exf_consult_prepaid( $o );
+		$steps[] = array(
+			'text'  => $prepaid
+				/* translators: %s: service */
+				? sprintf( __( 'Your report for %s is ready, so you can now book your consultation.', 'exfiles' ), $svc['name'] )
+				/* translators: 1: add-on, 2: price */
+				: sprintf( __( 'Would you like to talk your report through? You can add a %1$s for %2$s.', 'exfiles' ), lcfirst( $svc['addon']['name'] ), exf_money( $svc['addon']['pence'] ) ),
+			'url'   => exf_consult_url( $o ),
+			'label' => $prepaid ? __( 'Book a time', 'exfiles' ) : __( 'Add and book', 'exfiles' ),
+		);
 	}
 
 	$next = exf_client_appointments( $user_id, 'upcoming' );

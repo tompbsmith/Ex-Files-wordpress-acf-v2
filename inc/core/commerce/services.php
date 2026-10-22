@@ -41,6 +41,23 @@ function exf_service( $page_id ) {
 	$price   = $free ? 0.0 : (float) $get( 'price', 0 );
 	$minutes = (int) $get( 'appointment_minutes', 60 );
 
+	// Optional add-on, e.g. a written report or a follow-up consultation.
+	$addon       = null;
+	$addon_price = (float) $get( 'addon_price', 0 );
+	$addon_name  = trim( (string) $get( 'addon_name', '' ) );
+	if ( ! $free && '' !== $addon_name && $addon_price > 0 ) {
+		$addon_type = 'consultation' === $get( 'addon_type', 'report' ) ? 'consultation' : 'report';
+		$addon_mins = (int) $get( 'addon_minutes', 60 );
+		$addon      = array(
+			'name'        => $addon_name,
+			'price'       => $addon_price,
+			'pence'       => (int) round( $addon_price * 100 ),
+			'type'        => $addon_type,
+			'minutes'     => $addon_mins > 0 ? $addon_mins : 60,
+			'description' => (string) $get( 'addon_description', '' ),
+		);
+	}
+
 	return array(
 		'id'            => $page_id,
 		'name'          => get_the_title( $page_id ),
@@ -57,6 +74,8 @@ function exf_service( $page_id ) {
 		'intro'         => (string) $get( 'intro', '' ),
 		'buy_label'     => (string) $get( 'buy_label', '' ),
 		'sellable'      => $free || $price > 0,
+		'immediate'     => ! $free && (bool) $get( 'starts_immediately', 0 ),
+		'addon'         => $addon,
 	);
 }
 
@@ -95,6 +114,36 @@ function exf_service_price_label( array $service ) {
 	}
 	$decimals = floor( $service['price'] ) === $service['price'] ? 0 : 2;
 	return '£' . number_format( $service['price'], $decimals );
+}
+
+/**
+ * An amount in pence as "£125" or "£125.50".
+ *
+ * @param int $pence Pence.
+ */
+function exf_money( $pence ) {
+	$pence = (int) $pence;
+	return '£' . number_format( $pence / 100, 0 === $pence % 100 ? 0 : 2 );
+}
+
+/**
+ * The VAT line shown with prices.
+ */
+function exf_vat_note() {
+	return exf_portal_copy( 'vat_note' );
+}
+
+/**
+ * Cancellation wording for a service, as shown at checkout and in the confirmation.
+ *
+ * @param array|null $service Service, or null for the general policy only.
+ */
+function exf_cancellation_text( $service = null ) {
+	$text = exf_portal_copy( 'cancel_policy' );
+	if ( $service && ! empty( $service['immediate'] ) ) {
+		$text .= ' ' . str_replace( '{service}', $service['name'], exf_portal_copy( 'cancel_immediate' ) );
+	}
+	return trim( $text );
 }
 
 /**
@@ -186,6 +235,10 @@ function exf_default_services() {
 				'appointment_minutes'    => 60,
 				'requires_questionnaire' => 1,
 				'deliverable'            => 'appointment',
+				'price'                  => 275,
+				'addon_name'             => __( 'Written report of the advice', 'exfiles' ),
+				'addon_price'            => 125,
+				'addon_type'             => 'report',
 				'intro'                  => __( 'Gain clarity on your financial claims with a 1-hour virtual consultation and the option to receive a written advisory report.', 'exfiles' ),
 			),
 		),
@@ -197,6 +250,12 @@ function exf_default_services() {
 				'requires_booking'       => 0,
 				'requires_questionnaire' => 1,
 				'deliverable'            => 'report',
+				'price'                  => 300,
+				'starts_immediately'     => 1,
+				'addon_name'             => __( 'Virtual consultation after your report', 'exfiles' ),
+				'addon_price'            => 200,
+				'addon_type'             => 'consultation',
+				'addon_minutes'          => 60,
 				'intro'                  => __( 'Review your existing agreement to ensure it is a fair and legally sound resolution for your specific circumstances.', 'exfiles' ),
 			),
 		),
@@ -208,6 +267,8 @@ function exf_default_services() {
 				'requires_booking'       => 0,
 				'requires_questionnaire' => 1,
 				'deliverable'            => 'document',
+				'price'                  => 900,
+				'starts_immediately'     => 1,
 				'intro'                  => __( 'Transform your agreement into a legally binding financial consent order.', 'exfiles' ),
 			),
 		),
@@ -235,5 +296,51 @@ add_action(
 			);
 		}
 		delete_option( 'exf_page_svc_free' );
+	}
+);
+
+/*
+ * One-off (1.7.32): the client's prices, add-ons and cancellation settings (October
+ * 2026), applied once to the existing service pages. Prices are set to her figures;
+ * other settings are only filled where empty.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_service_prices_2026_10c' ) || ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+		update_option( 'exf_service_prices_2026_10c', time(), false );
+		$by_type = array();
+		foreach ( exf_default_services() as $def ) {
+			$by_type[ $def[2]['service_type'] ] = $def[2];
+		}
+		foreach ( exf_services() as $s ) {
+			$def = $by_type[ $s['type'] ] ?? null;
+			if ( ! $def || $s['free'] ) {
+				continue;
+			}
+			$set = array();
+			foreach ( array( 'price', 'starts_immediately', 'addon_name', 'addon_price', 'addon_type', 'addon_minutes' ) as $k ) {
+				// The prices are the client's own figures, so they replace any placeholder
+				// test prices; the rest only fills gaps.
+				if ( ! isset( $def[ $k ] ) ) {
+					continue;
+				}
+				$fill = 'price' === $k || 'addon_price' === $k ? (string) get_post_meta( $s['id'], $k, true ) !== (string) $def[ $k ] : in_array( get_post_meta( $s['id'], $k, true ), array( '', null, false, '0', 0 ), true );
+				if ( $fill ) {
+					update_post_meta( $s['id'], $k, $def[ $k ] );
+					$set[] = $k;
+				}
+			}
+			// A note such as "Including VAT" would contradict the not-VAT-registered line.
+			if ( false !== stripos( (string) get_post_meta( $s['id'], 'price_note', true ), 'VAT' ) ) {
+				update_post_meta( $s['id'], 'price_note', '' );
+				$set[] = 'price_note (cleared)';
+			}
+			if ( $set ) {
+				exf_audit( 'service_settings', sprintf( 'Filled in %s for %s (prices and add-ons agreed October 2026).', implode( ', ', $set ), $s['name'] ), 'post', $s['id'] );
+			}
+		}
 	}
 );

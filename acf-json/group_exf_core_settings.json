@@ -41,7 +41,7 @@
             "name": "conflict_auto_block",
             "aria-label": "",
             "type": "select",
-            "instructions": "Turning people away the moment they name their ex can let them work out that their ex is your client. Holding strong matches for review means you decline later, with the same general message whatever the reason.",
+            "instructions": "Strong matches are turned away straight away with the general message, which never says why. Unclear matches are always held for your review.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -50,8 +50,34 @@
                 "id": ""
             },
             "choices": {
-                "off": "Hold for my review (recommended)",
-                "on": "Turn away automatically"
+                "on": "Turn away automatically",
+                "off": "Hold for my review"
+            },
+            "default_value": "on",
+            "return_format": "value",
+            "multiple": 0,
+            "allow_null": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_set_marketing_optin",
+            "label": "Marketing tick-boxes",
+            "name": "marketing_optin",
+            "aria-label": "",
+            "type": "select",
+            "instructions": "Shows the \"email me about your services\" tick-box on sign-up, the Free Divorce Guide form and the client's account details. Leave hidden until you send marketing emails.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "off": "Hidden",
+                "on": "Shown"
             },
             "default_value": "off",
             "return_format": "value",
@@ -114,6 +140,26 @@
                 "id": ""
             },
             "default_value": 7,
+            "min": 0,
+            "max": 365,
+            "step": 1,
+            "append": "days"
+        },
+        {
+            "key": "field_exf_set_prospect_retention",
+            "label": "Delete sign-ups who don't buy a service after (days)",
+            "name": "prospect_retention_days",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "People who open an Ex File but never buy a service are deleted, with their ex's details, after this many days without activity, so their ex isn't turned away later. They aren't added to the Conflict Register. Sign-ups you're still checking or have turned away are left for you. Set 0 to keep them.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 30,
             "min": 0,
             "max": 365,
             "step": 1,
@@ -293,7 +339,7 @@
             "name": "booking_buffer_minutes",
             "aria-label": "",
             "type": "number",
-            "instructions": "",
+            "instructions": "Kept free before and after every appointment (and around busy times in your calendar).",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -301,11 +347,51 @@
                 "class": "",
                 "id": ""
             },
-            "default_value": 0,
+            "default_value": 30,
             "min": 0,
             "max": 120,
             "step": 5,
             "append": "minutes"
+        },
+        {
+            "key": "field_exf_set_interval",
+            "label": "Offer start times every",
+            "name": "booking_interval_minutes",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "E.g. every 30 minutes: 9:30, 10:00, 10:30… Times too close to another booking are left out automatically.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 30,
+            "min": 5,
+            "max": 120,
+            "step": 5,
+            "append": "minutes"
+        },
+        {
+            "key": "field_exf_set_last_start",
+            "label": "Latest start time",
+            "name": "booking_last_start",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "The last time an appointment can start, as hh:mm in 24-hour time (e.g. 16:00 for 4pm). Leave empty to allow any start that finishes within your hours.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "16:00",
+            "maxlength": 5,
+            "placeholder": "16:00",
+            "prepend": "",
+            "append": ""
         },
         {
             "key": "field_exf_set_blocked",
@@ -326,18 +412,22 @@
         },
         {
             "key": "field_exf_set_ical",
-            "label": "Your Google Calendar's secret address (iCal)",
+            "label": "Your calendar addresses (iCal)",
             "name": "calendar_ical_url",
             "aria-label": "",
-            "type": "url",
-            "instructions": "So clients can't book times you're busy. In Google Calendar: Settings → your calendar → Integrate calendar → Secret address in iCal format. Keep it private. Events marked “Free” are ignored.",
+            "type": "textarea",
+            "instructions": "So clients can't book times you're busy. One address per line; add more than one if your appointments are spread across calendars. Apple Calendar (iCloud): on a Mac, Calendar → right-click the calendar → Share Calendar → tick Public Calendar → copy the webcal:// address. Google Calendar: Settings → the calendar → Integrate calendar → Secret address in iCal format. Keep these addresses private. Events marked “Free” are ignored.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
                 "width": "",
                 "class": "",
                 "id": ""
-            }
+            },
+            "rows": 3,
+            "new_lines": "",
+            "placeholder": "webcal://… or https://…",
+            "maxlength": ""
         },
         {
             "key": "field_exf_set_meeting",
@@ -345,7 +435,7 @@
             "name": "meeting_details",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "Included in booking confirmations and reminders, e.g. how the video call works or your office address.",
+            "instructions": "Included in booking confirmations, reminders and the calendar invite. Leave empty to use: “Your appointment will take place by video call on Microsoft Teams. Please note that meetings may be recorded.”",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -355,6 +445,23 @@
             },
             "rows": 3,
             "new_lines": ""
+        },
+        {
+            "key": "field_exf_set_meeting_link",
+            "label": "Meeting link",
+            "name": "meeting_link",
+            "aria-label": "",
+            "type": "url",
+            "instructions": "Your Teams meeting link (https://teams.microsoft.com/…). Sent with every booking confirmation and reminder, and added to the calendar invite. Use a meeting with the lobby turned on, so you admit each client yourself.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "https://teams.microsoft.com/…"
         },
         {
             "key": "field_exf_set_tab_pages",
@@ -873,5 +980,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792497327
+    "modified": 1792497328
 }

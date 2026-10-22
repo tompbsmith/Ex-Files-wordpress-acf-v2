@@ -208,7 +208,9 @@ get_header();
 				<?php if ( isset( $exf_errors['terms'] ) ) : ?>
 					<p class="field-error"><?php echo esc_html( $exf_errors['terms'] ); ?></p>
 				<?php endif; ?>
-				<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="marketing" value="1" <?php checked( ! empty( $exf_values['marketing'] ) ); ?>><span><?php esc_html_e( 'I’d like The Ex Files to email me about their services. You can change this at any time in your Ex File.', 'exfiles' ); ?></span></label>
+				<?php if ( exf_marketing_optin() ) : ?>
+					<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="marketing" value="1" <?php checked( ! empty( $exf_values['marketing'] ) ); ?>><span><?php esc_html_e( 'I’d like The Ex Files to email me about their services. You can change this at any time in your Ex File.', 'exfiles' ); ?></span></label>
+				<?php endif; ?>
 			</fieldset>
 
 			<div class="hp-field" aria-hidden="true">

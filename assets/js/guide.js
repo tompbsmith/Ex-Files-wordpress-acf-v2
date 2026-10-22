@@ -10,13 +10,26 @@
 
   var cfg = window.exfGuide || {};
 
+  // Eligibility route questions (r1, r2, …) shown after "I am not sure" to Q3.
+  var routes = Array.isArray(cfg.routes) ? cfg.routes : [];
+  var info = ['q3a', 'q3n'];
+
   function next(step, answer) {
+    var pos = routes.indexOf(step);
+    if (pos !== -1) {
+      var last = pos === routes.length - 1;
+      if (answer === 'yes') { return last ? 'q3a' : 'q4'; }
+      return last ? 'q3n' : routes[pos + 1];
+    }
     switch (step) {
       case 'q1': return answer === 'yes' ? 'q2' : 'exit';
       case 'q2': return answer === 'yes' ? 'q3' : 'q2a';
       case 'q2a': return answer === 'yes' ? 'final' : 'exit';
-      case 'q3': return answer === 'yes' ? 'q4' : 'q3a';
-      case 'q3a': return 'final';
+      case 'q3':
+        if (answer === 'yes') { return 'q4'; }
+        return answer === 'unsure' && routes.length ? routes[0] : 'q3n';
+      case 'q3a': return 'q4';
+      case 'q3n': return 'final';
       case 'q4': return answer === 'yes' ? 'q5' : 'q5a';
       case 'q5':
       case 'q5a': return 'q6';
@@ -26,7 +39,8 @@
   }
 
   // Rough number of steps still to come, for the progress bar.
-  var remaining = { q1: 5, q2: 4, q2a: 1, q3: 4, q3a: 1, q4: 3, q5: 2, q5a: 2, q6: 1, final: 0, exit: 0 };
+  var remaining = { q1: 5, q2: 4, q2a: 1, q3: 4, q3a: 3, q3n: 1, q4: 3, q5: 2, q5a: 2, q6: 1, final: 0, exit: 0 };
+  routes.forEach(function (r, i) { remaining[r] = Math.max(routes.length - i, 1) + 3; });
 
   var steps = {};
   form.querySelectorAll('[data-step]').forEach(function (el) { steps[el.dataset.step] = el; });
@@ -64,7 +78,7 @@
     current = step;
     setError('');
 
-    var isQuestion = /^q\d+a?$/.test(step) && step !== 'q3a';
+    var isQuestion = info.indexOf(step) === -1 && step !== 'final' && step !== 'exit';
     btnBack.hidden = history.length === 0;
     btnNext.hidden = step === 'final' || step === 'exit';
     btnSubmit.hidden = step !== 'final';
@@ -87,7 +101,7 @@
 
   btnNext.addEventListener('click', function () {
     var answer = '';
-    if (current !== 'q3a') {
+    if (info.indexOf(current) === -1) {
       answer = answerOf(current);
       if (!answer) { setError(cfg.chooseAnswer || 'Please choose an answer.'); return; }
     }

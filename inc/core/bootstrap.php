@@ -52,6 +52,7 @@ require EXF_CORE_DIR . '/commerce/booking.php';
 require EXF_CORE_DIR . '/commerce/stripe.php';
 require EXF_CORE_DIR . '/commerce/orders.php';
 require EXF_CORE_DIR . '/commerce/buy.php';
+require EXF_CORE_DIR . '/commerce/consult.php';
 
 require EXF_CORE_DIR . '/portal/portal.php';
 require EXF_CORE_DIR . '/portal/documents.php';
@@ -70,6 +71,7 @@ require EXF_CORE_DIR . '/questionnaire/gdrive.php';
 
 require EXF_CORE_DIR . '/admin/audit.php';
 require EXF_CORE_DIR . '/admin/retention.php';
+require EXF_CORE_DIR . '/admin/prospects.php';
 require EXF_CORE_DIR . '/admin/privacy.php';
 require EXF_CORE_DIR . '/admin/work.php';
 require EXF_CORE_DIR . '/admin/mail.php';

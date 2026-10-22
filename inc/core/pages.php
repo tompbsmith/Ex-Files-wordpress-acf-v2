@@ -155,8 +155,8 @@ function exf_create_missing_pages() {
 }
 
 /**
- * Fill a new service page's Service settings. Prices are left empty on purpose:
- * the client sets them, and the Buy button stays hidden until they do.
+ * Fill a new service page's Service settings, including the prices and add-ons
+ * the client set in October 2026 (she can change them in the page's Service settings).
  *
  * @param int   $page_id  Page.
  * @param array $settings Field name => value.

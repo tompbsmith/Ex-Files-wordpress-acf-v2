@@ -10,6 +10,8 @@
  */
 
 $exf_questions = exf_guide_questions();
+$exf_routes    = exf_guide_route_keys();
+$exf_after_q3  = $exf_routes ? end( $exf_routes ) : 'q3'; // The eligibility screens follow the last eligibility question.
 $exf_heading   = get_field( 'intro_heading' ) ? get_field( 'intro_heading' ) : __( 'Your free divorce guide', 'exfiles' );
 $exf_intro     = get_field( 'intro_text' ) ? get_field( 'intro_text' ) : __( "Answer a few anonymous questions and we'll email you a guide written around your answers.", 'exfiles' );
 $exf_next      = get_field( 'next_label' ) ? get_field( 'next_label' ) : __( 'Next', 'exfiles' );
@@ -85,13 +87,43 @@ get_header();
 						</details>
 					<?php endif; ?>
 
+					<?php if ( ! empty( $exf_q['route'] ) ) : ?>
+						<?php if ( 'r1' === $exf_key ) : ?>
+							<p class="gq-intro"><?php esc_html_e( 'A few questions to help work out whether you can apply for a divorce in England & Wales.', 'exfiles' ); ?></p>
+						<?php endif; ?>
+						<?php if ( '' !== $exf_q['note'] ) : ?>
+							<p class="field-note"><?php echo esc_html( $exf_q['note'] ); ?></p>
+						<?php endif; ?>
+						<?php
+						foreach ( exf_guide_tooltips() as $exf_tip ) :
+							$exf_word = strtolower( strtok( $exf_tip['heading'], ' ' ) );
+							if ( '' === $exf_word || false === strpos( strtolower( $exf_q['label'] ), $exf_word ) ) {
+								continue;
+							}
+							?>
+							<details class="gq-help">
+								<summary>
+									<?php
+									/* translators: %s: term, e.g. "Habitual residence" */
+									echo esc_html( sprintf( __( 'What does “%s” mean?', 'exfiles' ), strtolower( $exf_tip['heading'] ) ) );
+									?>
+								</summary>
+								<div class="gq-help-body"><p><?php echo esc_html( $exf_tip['text'] ); ?></p></div>
+							</details>
+						<?php endforeach; ?>
+					<?php endif; ?>
+
 					<div class="gq-options"><?php $exf_options( $exf_key, $exf_q ); ?></div>
 				</fieldset>
 
-				<?php if ( 'q3' === $exf_key ) : ?>
+				<?php if ( $exf_key === $exf_after_q3 ) : ?>
 					<div class="gq gq-info" data-step="q3a">
 						<div class="gq-label" tabindex="-1"><?php esc_html_e( 'Eligibility', 'exfiles' ); ?></div>
 						<div class="gq-text"><?php echo wp_kses_post( exf_guide_copy( 'q3a_text' ) ); ?></div>
+					</div>
+					<div class="gq gq-info" data-step="q3n">
+						<div class="gq-label" tabindex="-1"><?php esc_html_e( 'Eligibility', 'exfiles' ); ?></div>
+						<div class="gq-text"><?php echo wp_kses_post( exf_guide_copy( 'q3n_text' ) ); ?></div>
 					</div>
 				<?php endif; ?>
 			<?php endforeach; ?>
@@ -112,7 +144,9 @@ get_header();
 					<?php endforeach; ?>
 				</fieldset>
 
-				<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="marketing" value="1"><span><?php echo esc_html( exf_guide_copy( 'marketing_label' ) ); ?></span></label>
+				<?php if ( exf_marketing_optin() ) : ?>
+					<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="marketing" value="1"><span><?php echo esc_html( exf_guide_copy( 'marketing_label' ) ); ?></span></label>
+				<?php endif; ?>
 
 				<div class="hp-field" aria-hidden="true">
 					<label for="exf-guide-company">Company</label>

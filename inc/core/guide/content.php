@@ -213,3 +213,25 @@ function exf_guide_load_defaults() {
 
 	return $filled;
 }
+
+/*
+ * One-off (1.7.32): the eligibility screen's wording changed at the client's request.
+ * Replace the saved copy only if it's still the old default, so edits are kept.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_guide_q3a_2026_10' ) || ! function_exists( 'get_field' ) || ! current_user_can( EXF_CAP ) ) {
+			return;
+		}
+		update_option( 'exf_guide_q3a_2026_10', time(), false );
+		$old   = '<p>Based on your answer, we cannot confirm that you are eligible to apply for a divorce in England &amp; Wales.</p><p>If you are not eligible to divorce here, a lawyer qualified in the country you are connected with can advise you on divorcing there. Your guide will still explain this, and we may be able to help you understand your financial position.</p>';
+		$saved = (string) get_field( 'q3a_text', EXF_GUIDE_ID, false );
+		$norm  = function ( $html ) {
+			return preg_replace( '/\s+/', ' ', trim( wp_strip_all_tags( html_entity_decode( $html ) ) ) );
+		};
+		if ( '' !== $saved && $norm( $saved ) === $norm( $old ) ) {
+			update_field( 'field_exf_g_q3a_text', exf_guide_default_copy()['q3a_text'], EXF_GUIDE_ID );
+		}
+	}
+);
