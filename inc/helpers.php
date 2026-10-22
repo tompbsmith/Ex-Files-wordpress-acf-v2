@@ -193,6 +193,10 @@ function exf_nav_links() {
 		if ( ! empty( $item->menu_item_parent ) ) {
 			continue;
 		}
+		// Logged-in visitors already have an Ex File: hide "Open Your Ex File".
+		if ( is_user_logged_in() && exf_is_register_link( $item ) ) {
+			continue;
+		}
 		$classes = (array) $item->classes;
 		$active  = in_array( 'current-menu-item', $classes, true ) || ( '#top' === $item->url && is_front_page() );
 		printf(
@@ -204,6 +208,25 @@ function exf_nav_links() {
 		);
 	}
 	do_action( 'exf_after_nav_links' );
+}
+
+/**
+ * Whether a menu item goes to an "Open your Ex File" page (either layout).
+ *
+ * @param object $item Menu item.
+ */
+function exf_is_register_link( $item ) {
+	if ( isset( $item->object, $item->object_id ) && 'page' === $item->object && in_array( get_page_template_slug( (int) $item->object_id ), array( 'page-register.php', 'page-register-panels.php' ), true ) ) {
+		return true;
+	}
+	$path = untrailingslashit( (string) wp_parse_url( (string) $item->url, PHP_URL_PATH ) );
+	foreach ( array( 'register', 'register_alt' ) as $key ) {
+		$page = function_exists( 'exf_page_id' ) ? exf_page_id( $key ) : 0;
+		if ( $page && '' !== $path && untrailingslashit( (string) wp_parse_url( get_permalink( $page ), PHP_URL_PATH ) ) === $path ) {
+			return true;
+		}
+	}
+	return '/open-your-ex-file' === $path;
 }
 
 /**
