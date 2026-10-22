@@ -114,3 +114,26 @@ document.addEventListener('input', function (e) {
   if (!nav || nav.scrollWidth <= nav.clientWidth) { return; }
   nav.scrollLeft = Math.max(0, active.offsetLeft - nav.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2);
 })();
+
+// Services list: "Show more" for text that's been shortened.
+(function () {
+  'use strict';
+  function check() {
+    document.querySelectorAll('[data-clamp]').forEach(function (box) {
+      var btn = box.parentNode.querySelector('.service-list-more');
+      if (!btn || box.classList.contains('is-open')) { return; }
+      btn.hidden = box.scrollHeight <= box.clientHeight + 2;
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.service-list-more');
+    if (!btn) { return; }
+    var box = document.getElementById(btn.getAttribute('aria-controls'));
+    var open = box.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = open ? btn.dataset.less : btn.dataset.more;
+  });
+  window.addEventListener('load', check);
+  window.addEventListener('resize', check);
+  check();
+})();

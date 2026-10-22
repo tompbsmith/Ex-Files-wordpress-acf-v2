@@ -45,7 +45,64 @@ function exf_register_fields() {
 		'password2'       => array( __( 'Confirm your password', 'exfiles' ), true, 4 ),
 		'terms'           => array( __( 'Terms and privacy', 'exfiles' ), true, 4 ),
 		'marketing'       => array( __( 'Marketing', 'exfiles' ), false, 4 ),
+		// Only on the "panels" layout (page-register-panels.php).
+		'middle_names'    => array( __( 'Middle name(s)', 'exfiles' ), false, 1 ),
+		'ex_middle_names' => array( __( 'Their middle name(s)', 'exfiles' ), false, 2 ),
+		'ex_address'      => array( __( 'Their address', 'exfiles' ), false, 2 ),
 	);
+}
+
+/**
+ * The registration page templates: the step-by-step form, and the alternative
+ * "panels" layout (from the Wix design) for comparison.
+ */
+function exf_register_templates() {
+	return array( 'page-register.php', 'page-register-panels.php' );
+}
+
+/**
+ * Split "address and postcode" typed in one box into the address and a UK postcode.
+ *
+ * @param string $text Typed address.
+ * @return array [ address, postcode ] (postcode '' if none found).
+ */
+function exf_split_address_postcode( $text ) {
+	$text = trim( preg_replace( '/\s+/', ' ', (string) $text ) );
+	if ( preg_match( '/^(.*?)[,\s]*\b([A-Z]{1,2}[0-9][A-Z0-9]?\s*[0-9][A-Z]{2})$/i', $text, $m ) ) {
+		$pc = strtoupper( preg_replace( '/\s+/', '', $m[2] ) );
+		return array( trim( $m[1], " ,\t" ), substr( $pc, 0, -3 ) . ' ' . substr( $pc, -3 ) );
+	}
+	return array( trim( $text, " ,\t" ), '' );
+}
+
+/**
+ * The "panels" layout asks for some things differently: address and postcode in one
+ * box, and a blank ex date of birth means "don't know". Map them onto the usual fields.
+ *
+ * @param array $post Unslashed $_POST.
+ * @return array [ $post, errors ]
+ */
+function exf_register_panels_map( array $post ) {
+	$e = array();
+	list( $address, $postcode ) = exf_split_address_postcode( $post['address_full'] ?? '' );
+	$post['address_1'] = $address;
+	$post['postcode']  = $postcode;
+	$post['city']      = '';
+	if ( '' === trim( (string) ( $post['address_full'] ?? '' ) ) ) {
+		$e['address_full'] = __( 'Please enter your address and postcode.', 'exfiles' );
+	} elseif ( '' === $postcode ) {
+		$e['address_full'] = __( 'Please include your postcode at the end of your address.', 'exfiles' );
+	} elseif ( '' === $address ) {
+		$e['address_full'] = __( 'Please enter your address as well as your postcode.', 'exfiles' );
+	}
+	list( $ex_address, $ex_postcode ) = exf_split_address_postcode( $post['ex_address_full'] ?? '' );
+	$post['ex_address']  = trim( (string) ( $post['ex_address_full'] ?? '' ) );
+	$post['ex_postcode'] = $ex_postcode;
+	if ( '' === trim( (string) ( $post['ex_dob'] ?? '' ) ) ) {
+		$post['ex_dob_unknown'] = 1;
+	}
+	unset( $ex_address );
+	return array( $post, $e );
 }
 
 /**
@@ -73,7 +130,7 @@ add_action( 'template_redirect', 'exf_register_route', 5 );
  * Route registration-page requests.
  */
 function exf_register_route() {
-	if ( ! is_page_template( 'page-register.php' ) ) {
+	if ( ! is_page_template( exf_register_templates() ) ) {
 		return;
 	}
 	nocache_headers();
@@ -121,6 +178,12 @@ function exf_handle_register( array $post ) {
 		exit; // Bot.
 	}
 
+	$panels = isset( $post['layout'] ) && 'panels' === $post['layout'];
+	$pre_e  = array();
+	if ( $panels ) {
+		list( $post, $pre_e ) = exf_register_panels_map( $post );
+	}
+
 	$v = array();
 	foreach ( exf_register_fields() as $name => $f ) {
 		$raw = $post[ $name ] ?? '';
@@ -136,8 +199,11 @@ function exf_handle_register( array $post ) {
 	}
 	$v['service'] = sanitize_key( $post['service'] ?? '' );
 
-	$e = array();
+	$e = $pre_e;
 	foreach ( exf_register_fields() as $name => $f ) {
+		if ( $panels && in_array( $name, array( 'address_1', 'city', 'postcode' ), true ) ) {
+			continue; // Checked as one "address and postcode" box above.
+		}
 		if ( $f[1] && empty( $v[ $name ] ) ) {
 			if ( 'terms' === $name ) {
 				$e[ $name ] = __( 'Please accept the terms and privacy notice.', 'exfiles' );
@@ -205,6 +271,11 @@ function exf_handle_register( array $post ) {
 
 	if ( $e ) {
 		unset( $v['password'], $v['password2'] );
+		if ( $panels ) {
+			$v['address_full']    = sanitize_text_field( (string) ( $post['address_full'] ?? '' ) );
+			$v['ex_address_full'] = sanitize_text_field( (string) ( $post['ex_address_full'] ?? '' ) );
+			$v['ex_dob']          = isset( $e['ex_dob'] ) ? $v['ex_dob'] : ( $v['ex_dob_unknown'] ? '' : $v['ex_dob'] );
+		}
 		return array(
 			'errors' => $e,
 			'values' => $v,
@@ -258,6 +329,7 @@ function exf_create_client( array $v ) {
 		'exf_status'           => EXF_STATUS_PENDING,
 		'exf_title'            => $v['title'],
 		'exf_prev_names'       => $v['prev_names'],
+		'exf_middle_names'     => $v['middle_names'] ?? '',
 		'exf_dob'              => $v['dob'],
 		'billing_first_name'   => $v['first_name'],
 		'billing_last_name'    => $v['last_name'],
@@ -300,7 +372,7 @@ function exf_create_ex_file( $user_id, array $v ) {
 	if ( ! $id || is_wp_error( $id ) ) {
 		return 0;
 	}
-	foreach ( array( 'ex_first_name', 'ex_last_name', 'ex_prev_names', 'ex_dob', 'ex_dob_unknown', 'ex_email', 'ex_phone', 'ex_postcode', 'relationship', 'marriage_date', 'separation_date' ) as $k ) {
+	foreach ( array( 'ex_first_name', 'ex_middle_names', 'ex_last_name', 'ex_prev_names', 'ex_address', 'ex_dob', 'ex_dob_unknown', 'ex_email', 'ex_phone', 'ex_postcode', 'relationship', 'marriage_date', 'separation_date' ) as $k ) {
 		$value = $v[ $k ] ?? '';
 		if ( 'ex_postcode' === $k ) {
 			$value = strtoupper( $value );

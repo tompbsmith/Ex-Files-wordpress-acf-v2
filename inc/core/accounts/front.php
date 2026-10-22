@@ -33,8 +33,8 @@ add_action(
 add_filter(
 	'wp_robots',
 	function ( $robots ) {
-		if ( is_page_template( array( 'page-register.php', 'page-account.php' ) ) ) {
-			$robots['noindex'] = is_page_template( 'page-account.php' ) || ! empty( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( is_page_template( array( 'page-register.php', 'page-register-panels.php', 'page-account.php' ) ) ) {
+			$robots['noindex'] = is_page_template( array( 'page-account.php', 'page-register-panels.php' ) ) || ! empty( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		}
 		return $robots;
 	}

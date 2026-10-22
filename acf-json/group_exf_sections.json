@@ -1749,14 +1749,14 @@
                     "min": "",
                     "max": ""
                 },
-                "layout_exf_profile": {
-                    "key": "layout_exf_profile",
-                    "name": "profile",
-                    "label": "Profile (photo + about)",
+                "layout_exf_split": {
+                    "key": "layout_exf_split",
+                    "name": "split",
+                    "label": "Image and text",
                     "display": "block",
                     "sub_fields": [
                         {
-                            "key": "field_exf_sec_profile_tab_content",
+                            "key": "field_exf_sec_split_tab_content",
                             "label": "Content",
                             "name": "",
                             "aria-label": "",
@@ -1774,12 +1774,12 @@
                             "selected": 0
                         },
                         {
-                            "key": "field_exf_sec_profile_photo",
-                            "label": "Photo",
-                            "name": "photo",
+                            "key": "field_exf_sec_split_image",
+                            "label": "Image",
+                            "name": "image",
                             "aria-label": "",
                             "type": "image",
-                            "instructions": "A portrait (head and shoulders) works best. It is shown in a rounded frame.",
+                            "instructions": "Shown beside the text, with rounded corners.",
                             "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
@@ -1790,46 +1790,116 @@
                             "return_format": "array",
                             "preview_size": "medium",
                             "library": "all",
+                            "min_width": "",
+                            "min_height": "",
+                            "min_size": "",
+                            "max_width": "",
+                            "max_height": "",
+                            "max_size": "",
                             "mime_types": "jpg,jpeg,png,webp"
                         },
                         {
-                            "key": "field_exf_sec_profile_eyebrow",
-                            "label": "Small heading above the name",
-                            "name": "eyebrow",
+                            "key": "field_exf_sec_split_image_side",
+                            "label": "Image on the",
+                            "name": "image_side",
                             "aria-label": "",
-                            "type": "text",
+                            "type": "select",
                             "instructions": "",
                             "required": 0,
                             "conditional_logic": 0,
                             "wrapper": {
-                                "width": "",
+                                "width": "33",
                                 "class": "",
                                 "id": ""
                             },
-                            "default_value": "",
-                            "placeholder": "The Brains"
-                        },
-                        {
-                            "key": "field_exf_sec_profile_name",
-                            "label": "Name",
-                            "name": "name",
-                            "aria-label": "",
-                            "type": "text",
-                            "instructions": "",
-                            "required": 0,
-                            "conditional_logic": 0,
-                            "wrapper": {
-                                "width": "",
-                                "class": "",
-                                "id": ""
+                            "choices": {
+                                "left": "Left",
+                                "right": "Right"
                             },
-                            "default_value": "",
+                            "default_value": "left",
+                            "return_format": "value",
+                            "multiple": 0,
+                            "allow_null": 0,
+                            "ui": 0,
+                            "ajax": 0,
                             "placeholder": ""
                         },
                         {
-                            "key": "field_exf_sec_profile_role",
-                            "label": "Role",
-                            "name": "role",
+                            "key": "field_exf_sec_split_background",
+                            "label": "Background",
+                            "name": "background",
+                            "aria-label": "",
+                            "type": "select",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "33",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "cream": "Cream",
+                                "sand": "Sand"
+                            },
+                            "default_value": "cream",
+                            "return_format": "value",
+                            "multiple": 0,
+                            "allow_null": 0,
+                            "ui": 0,
+                            "ajax": 0,
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_split_heading_tag",
+                            "label": "Heading type",
+                            "name": "heading_tag",
+                            "aria-label": "",
+                            "type": "select",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "33",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "h2": "Section heading (h2)",
+                                "h1": "Page title (h1): use once, at the top"
+                            },
+                            "default_value": "h2",
+                            "return_format": "value",
+                            "multiple": 0,
+                            "allow_null": 0,
+                            "ui": 0,
+                            "ajax": 0,
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_split_heading",
+                            "label": "Heading",
+                            "name": "heading",
+                            "aria-label": "",
+                            "type": "textarea",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "rows": 2,
+                            "new_lines": "",
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_split_subheading",
+                            "label": "Subheading",
+                            "name": "subheading",
                             "aria-label": "",
                             "type": "text",
                             "instructions": "",
@@ -1841,12 +1911,15 @@
                                 "id": ""
                             },
                             "default_value": "",
-                            "placeholder": ""
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
                         },
                         {
-                            "key": "field_exf_sec_profile_bio",
-                            "label": "About",
-                            "name": "bio",
+                            "key": "field_exf_sec_split_text",
+                            "label": "Text",
+                            "name": "text",
                             "aria-label": "",
                             "type": "wysiwyg",
                             "instructions": "",
@@ -1864,8 +1937,8 @@
                             "default_value": ""
                         },
                         {
-                            "key": "field_exf_sec_profile_button",
-                            "label": "Button",
+                            "key": "field_exf_sec_split_button",
+                            "label": "Button (optional)",
                             "name": "button",
                             "aria-label": "",
                             "type": "link",
@@ -1880,7 +1953,7 @@
                             "return_format": "array"
                         },
                         {
-                            "key": "field_exf_sec_profile_tab_settings",
+                            "key": "field_exf_sec_split_tab_settings",
                             "label": "Settings",
                             "name": "",
                             "aria-label": "",
@@ -1898,7 +1971,7 @@
                             "selected": 0
                         },
                         {
-                            "key": "field_exf_sec_profile_section_id",
+                            "key": "field_exf_sec_split_section_id",
                             "label": "Section ID (anchor)",
                             "name": "section_id",
                             "aria-label": "",
@@ -1918,7 +1991,7 @@
                             "append": ""
                         },
                         {
-                            "key": "field_exf_sec_profile_hide_section",
+                            "key": "field_exf_sec_split_hide_section",
                             "label": "Hide this section",
                             "name": "hide_section",
                             "aria-label": "",
@@ -1938,7 +2011,898 @@
                             "ui_off_text": ""
                         },
                         {
-                            "key": "field_exf_sec_profile_motion",
+                            "key": "field_exf_sec_split_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_exf_expertise": {
+                    "key": "layout_exf_expertise",
+                    "name": "expertise",
+                    "label": "Heading and list",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_exf_sec_expertise_tab_content",
+                            "label": "Content",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_expertise_heading",
+                            "label": "Heading",
+                            "name": "heading",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_expertise_intro",
+                            "label": "Intro",
+                            "name": "intro",
+                            "aria-label": "",
+                            "type": "textarea",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "rows": 3,
+                            "new_lines": "",
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_expertise_items",
+                            "label": "Items",
+                            "name": "items",
+                            "aria-label": "",
+                            "type": "repeater",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "layout": "block",
+                            "pagination": 0,
+                            "min": 0,
+                            "max": 0,
+                            "collapsed": "",
+                            "button_label": "Add item",
+                            "rows_per_page": 20,
+                            "sub_fields": [
+                                {
+                                    "key": "field_exf_sec_expertise_item_title",
+                                    "label": "Title",
+                                    "name": "title",
+                                    "aria-label": "",
+                                    "type": "text",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "default_value": "",
+                                    "maxlength": "",
+                                    "placeholder": "",
+                                    "prepend": "",
+                                    "append": "",
+                                    "parent_repeater": "field_exf_sec_expertise_items"
+                                },
+                                {
+                                    "key": "field_exf_sec_expertise_item_text",
+                                    "label": "Text",
+                                    "name": "text",
+                                    "aria-label": "",
+                                    "type": "textarea",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "rows": 2,
+                                    "new_lines": "",
+                                    "default_value": "",
+                                    "maxlength": "",
+                                    "placeholder": "",
+                                    "parent_repeater": "field_exf_sec_expertise_items"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "field_exf_sec_expertise_background",
+                            "label": "Background",
+                            "name": "background",
+                            "aria-label": "",
+                            "type": "select",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "choices": {
+                                "sand": "Sand",
+                                "cream": "Cream"
+                            },
+                            "default_value": "sand",
+                            "return_format": "value",
+                            "multiple": 0,
+                            "allow_null": 0,
+                            "ui": 0,
+                            "ajax": 0,
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_expertise_tab_settings",
+                            "label": "Settings",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_expertise_section_id",
+                            "label": "Section ID (anchor)",
+                            "name": "section_id",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Used for menu links, e.g. \"services\" makes the link #services. Letters, numbers and dashes only.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_expertise_hide_section",
+                            "label": "Hide this section",
+                            "name": "hide_section",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Keep the content but don't show it on the site.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 0,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_expertise_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_exf_testimonials": {
+                    "key": "layout_exf_testimonials",
+                    "name": "testimonials",
+                    "label": "Testimonials",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_exf_sec_testimonials_tab_content",
+                            "label": "Content",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_testimonials_heading",
+                            "label": "Heading",
+                            "name": "heading",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_testimonials_items",
+                            "label": "Testimonials",
+                            "name": "items",
+                            "aria-label": "",
+                            "type": "repeater",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "layout": "block",
+                            "pagination": 0,
+                            "min": 0,
+                            "max": 0,
+                            "collapsed": "",
+                            "button_label": "Add testimonial",
+                            "rows_per_page": 20,
+                            "sub_fields": [
+                                {
+                                    "key": "field_exf_sec_testimonials_item_quote",
+                                    "label": "Quote",
+                                    "name": "quote",
+                                    "aria-label": "",
+                                    "type": "textarea",
+                                    "instructions": "Without quotation marks; they are added automatically.",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "rows": 5,
+                                    "new_lines": "",
+                                    "default_value": "",
+                                    "maxlength": "",
+                                    "placeholder": "",
+                                    "parent_repeater": "field_exf_sec_testimonials_items"
+                                },
+                                {
+                                    "key": "field_exf_sec_testimonials_item_name",
+                                    "label": "Name (optional)",
+                                    "name": "name",
+                                    "aria-label": "",
+                                    "type": "text",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "default_value": "",
+                                    "maxlength": "",
+                                    "placeholder": "",
+                                    "prepend": "",
+                                    "append": "",
+                                    "parent_repeater": "field_exf_sec_testimonials_items"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "field_exf_sec_testimonials_tab_settings",
+                            "label": "Settings",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_testimonials_section_id",
+                            "label": "Section ID (anchor)",
+                            "name": "section_id",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Used for menu links, e.g. \"services\" makes the link #services. Letters, numbers and dashes only.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_testimonials_hide_section",
+                            "label": "Hide this section",
+                            "name": "hide_section",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Keep the content but don't show it on the site.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 0,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_testimonials_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_exf_service_list": {
+                    "key": "layout_exf_service_list",
+                    "name": "service_list",
+                    "label": "Services list (numbered, with images)",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_exf_sec_service_list_tab_content",
+                            "label": "Content",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_service_list_eyebrow",
+                            "label": "Small heading",
+                            "name": "eyebrow",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_service_list_heading",
+                            "label": "Heading",
+                            "name": "heading",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_service_list_cards",
+                            "label": "Services",
+                            "name": "cards",
+                            "aria-label": "",
+                            "type": "repeater",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "layout": "block",
+                            "pagination": 0,
+                            "min": 0,
+                            "max": 0,
+                            "collapsed": "",
+                            "button_label": "Add service",
+                            "rows_per_page": 20,
+                            "sub_fields": [
+                                {
+                                    "key": "field_exf_sec_service_list_card_image",
+                                    "label": "Image",
+                                    "name": "image",
+                                    "aria-label": "",
+                                    "type": "image",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "return_format": "array",
+                                    "preview_size": "medium",
+                                    "library": "all",
+                                    "min_width": "",
+                                    "min_height": "",
+                                    "min_size": "",
+                                    "max_width": "",
+                                    "max_height": "",
+                                    "max_size": "",
+                                    "mime_types": "jpg,jpeg,png,webp",
+                                    "parent_repeater": "field_exf_sec_service_list_cards"
+                                },
+                                {
+                                    "key": "field_exf_sec_service_list_card_title",
+                                    "label": "Title",
+                                    "name": "title",
+                                    "aria-label": "",
+                                    "type": "text",
+                                    "instructions": "",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "default_value": "",
+                                    "maxlength": "",
+                                    "placeholder": "",
+                                    "prepend": "",
+                                    "append": "",
+                                    "parent_repeater": "field_exf_sec_service_list_cards"
+                                },
+                                {
+                                    "key": "field_exf_sec_service_list_card_text",
+                                    "label": "Text",
+                                    "name": "text",
+                                    "aria-label": "",
+                                    "type": "textarea",
+                                    "instructions": "Long text is shortened with a \"Show more\" link.",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "rows": 5,
+                                    "new_lines": "",
+                                    "default_value": "",
+                                    "maxlength": "",
+                                    "placeholder": "",
+                                    "parent_repeater": "field_exf_sec_service_list_cards"
+                                },
+                                {
+                                    "key": "field_exf_sec_service_list_card_link",
+                                    "label": "Link (optional)",
+                                    "name": "link",
+                                    "aria-label": "",
+                                    "type": "link",
+                                    "instructions": "E.g. the service page, shown under the text.",
+                                    "required": 0,
+                                    "conditional_logic": 0,
+                                    "wrapper": {
+                                        "width": "",
+                                        "class": "",
+                                        "id": ""
+                                    },
+                                    "return_format": "array",
+                                    "parent_repeater": "field_exf_sec_service_list_cards"
+                                }
+                            ]
+                        },
+                        {
+                            "key": "field_exf_sec_service_list_tab_settings",
+                            "label": "Settings",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_service_list_section_id",
+                            "label": "Section ID (anchor)",
+                            "name": "section_id",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Used for menu links, e.g. \"services\" makes the link #services. Letters, numbers and dashes only.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_service_list_hide_section",
+                            "label": "Hide this section",
+                            "name": "hide_section",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Keep the content but don't show it on the site.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 0,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_service_list_motion",
+                            "label": "With motion?",
+                            "name": "motion",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Gently animate this section's content in as it appears. Visitors who've turned off motion on their device never see it.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 1,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        }
+                    ],
+                    "min": "",
+                    "max": ""
+                },
+                "layout_exf_inquiry": {
+                    "key": "layout_exf_inquiry",
+                    "name": "inquiry",
+                    "label": "Service enquiry form",
+                    "display": "block",
+                    "sub_fields": [
+                        {
+                            "key": "field_exf_sec_inquiry_tab_content",
+                            "label": "Content",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_heading",
+                            "label": "Heading",
+                            "name": "heading",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_text",
+                            "label": "Text",
+                            "name": "text",
+                            "aria-label": "",
+                            "type": "textarea",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "rows": 3,
+                            "new_lines": "",
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_services",
+                            "label": "Services to choose from",
+                            "name": "services",
+                            "aria-label": "",
+                            "type": "textarea",
+                            "instructions": "One per line. Leave empty to list the service pages.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "rows": 4,
+                            "new_lines": "",
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_button_label",
+                            "label": "Button label",
+                            "name": "button_label",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_success",
+                            "label": "Message after sending",
+                            "name": "success_message",
+                            "aria-label": "",
+                            "type": "textarea",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "rows": 2,
+                            "new_lines": "",
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": ""
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_tab_settings",
+                            "label": "Settings",
+                            "name": "",
+                            "aria-label": "",
+                            "type": "tab",
+                            "instructions": "",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "placement": "top",
+                            "endpoint": 0,
+                            "selected": 0
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_section_id",
+                            "label": "Section ID (anchor)",
+                            "name": "section_id",
+                            "aria-label": "",
+                            "type": "text",
+                            "instructions": "Used for menu links, e.g. \"services\" makes the link #services. Letters, numbers and dashes only.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "default_value": "",
+                            "maxlength": "",
+                            "placeholder": "",
+                            "prepend": "",
+                            "append": ""
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_hide_section",
+                            "label": "Hide this section",
+                            "name": "hide_section",
+                            "aria-label": "",
+                            "type": "true_false",
+                            "instructions": "Keep the content but don't show it on the site.",
+                            "required": 0,
+                            "conditional_logic": 0,
+                            "wrapper": {
+                                "width": "",
+                                "class": "",
+                                "id": ""
+                            },
+                            "ui": 1,
+                            "default_value": 0,
+                            "message": "",
+                            "ui_on_text": "",
+                            "ui_off_text": ""
+                        },
+                        {
+                            "key": "field_exf_sec_inquiry_motion",
                             "label": "With motion?",
                             "name": "motion",
                             "aria-label": "",
@@ -1988,6 +2952,13 @@
                 "operator": "==",
                 "value": "page-service.php"
             }
+        ],
+        [
+            {
+                "param": "page_template",
+                "operator": "==",
+                "value": "page-register-panels.php"
+            }
         ]
     ],
     "menu_order": 0,
@@ -2008,5 +2979,5 @@
     "display_title": "",
     "allow_ai_access": false,
     "ai_description": "",
-    "modified": 1792597861
+    "modified": 1792597863
 }

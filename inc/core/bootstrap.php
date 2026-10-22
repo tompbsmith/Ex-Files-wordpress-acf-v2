@@ -26,6 +26,7 @@ require EXF_CORE_DIR . '/post-types.php';
 require EXF_CORE_DIR . '/storage.php';
 require EXF_CORE_DIR . '/settings.php';
 require EXF_CORE_DIR . '/pages.php';
+require EXF_CORE_DIR . '/site-pages.php';
 require EXF_CORE_DIR . '/pdf.php';
 require EXF_CORE_DIR . '/xlsx.php';
 require EXF_CORE_DIR . '/cron.php';

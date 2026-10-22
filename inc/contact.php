@@ -23,13 +23,25 @@ function exf_handle_contact() {
 		wp_send_json_success(); // Quietly drop bots.
 	}
 
+	$enquiry = isset( $_POST['form'] ) && 'service_enquiry' === $_POST['form']; // The "Service enquiry" section.
 	$name    = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+	if ( '' === $name && ( isset( $_POST['first_name'] ) || isset( $_POST['last_name'] ) ) ) {
+		$name = trim( sanitize_text_field( wp_unslash( $_POST['first_name'] ?? '' ) ) . ' ' . sanitize_text_field( wp_unslash( $_POST['last_name'] ?? '' ) ) );
+	}
+	$service = isset( $_POST['service'] ) ? sanitize_text_field( wp_unslash( $_POST['service'] ) ) : '';
 	$email   = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 	$phone   = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
 	$message = isset( $_POST['message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['message'] ) ) : '';
 	// phpcs:enable
 
-	if ( '' === $name || '' === $message || ! isset( $_POST['email'] ) || '' === trim( wp_unslash( $_POST['email'] ) ) ) { // phpcs:ignore
+	if ( $enquiry ) {
+		if ( empty( $_POST['first_name'] ) || empty( $_POST['last_name'] ) || '' === $phone || ! isset( $_POST['email'] ) || '' === trim( wp_unslash( $_POST['email'] ) ) ) { // phpcs:ignore
+			wp_send_json_error( array( 'error' => __( 'Please fill in your first name, last name, email and phone number.', 'exfiles' ) ), 400 );
+		}
+		if ( '' === $message && '' === $service ) {
+			wp_send_json_error( array( 'error' => __( 'Please choose a service or tell us what you need.', 'exfiles' ) ), 400 );
+		}
+	} elseif ( '' === $name || '' === $message || ! isset( $_POST['email'] ) || '' === trim( wp_unslash( $_POST['email'] ) ) ) { // phpcs:ignore
 		wp_send_json_error( array( 'error' => __( 'Please fill in your name, email and message.', 'exfiles' ) ), 400 );
 	}
 	if ( ! is_email( $email ) ) {
@@ -55,14 +67,20 @@ function exf_handle_contact() {
 	$reply_name = trim( str_replace( array( '"', '<', '>' ), '', $name ) );
 
 	/* translators: 1: sender name, 2: site name */
-	$subject = sprintf( __( 'New enquiry from %1$s — %2$s website', 'exfiles' ), $name, $site_name );
+	$subject = $enquiry
+		/* translators: 1: sender name, 2: site name */
+		? sprintf( __( 'New service enquiry from %1$s — %2$s website', 'exfiles' ), $name, $site_name )
+		: sprintf( __( 'New enquiry from %1$s — %2$s website', 'exfiles' ), $name, $site_name );
 	$lines   = array( 'Name: ' . $name, 'Email: ' . $email );
 	if ( '' !== $phone ) {
 		$lines[] = 'Phone: ' . $phone;
 	}
+	if ( '' !== $service ) {
+		$lines[] = 'Service: ' . $service;
+	}
 	$lines[] = '';
 	$lines[] = 'Message:';
-	$lines[] = $message;
+	$lines[] = '' !== $message ? $message : '(none)';
 
 	$headers = array(
 		'Content-Type: text/plain; charset=UTF-8',

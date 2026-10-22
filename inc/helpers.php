@@ -39,7 +39,7 @@ function exf_is_sections_page( $post_id ) {
 		return false;
 	}
 	return ( 'page' === get_option( 'show_on_front' ) && (int) get_option( 'page_on_front' ) === $post_id )
-		|| 'page-sections.php' === get_page_template_slug( $post_id );
+		|| in_array( get_page_template_slug( $post_id ), array( 'page-sections.php', 'page-register-panels.php' ), true );
 }
 
 /**
@@ -180,8 +180,9 @@ function exf_nav_links() {
 	if ( empty( $items ) ) {
 		$items = array(
 			(object) array( 'title' => __( 'Home', 'exfiles' ), 'url' => '#top', 'target' => '', 'classes' => array(), 'menu_item_parent' => 0 ),
-			(object) array( 'title' => __( 'Our Services', 'exfiles' ), 'url' => '#services', 'target' => '', 'classes' => array(), 'menu_item_parent' => 0 ),
-			(object) array( 'title' => __( 'The Brains', 'exfiles' ), 'url' => '/the-brains/', 'target' => '', 'classes' => is_page( 'the-brains' ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
+			(object) array( 'title' => __( 'The Brand', 'exfiles' ), 'url' => exf_page_url( 'brand' ), 'target' => '', 'classes' => exf_page_id( 'brand' ) && is_page( exf_page_id( 'brand' ) ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
+			(object) array( 'title' => __( 'The Brains', 'exfiles' ), 'url' => exf_page_url( 'brains' ), 'target' => '', 'classes' => exf_page_id( 'brains' ) && is_page( exf_page_id( 'brains' ) ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
+			(object) array( 'title' => __( 'Our Services', 'exfiles' ), 'url' => exf_page_id( 'services' ) ? exf_page_url( 'services' ) : '#services', 'target' => '', 'classes' => exf_page_id( 'services' ) && is_page( exf_page_id( 'services' ) ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
 			(object) array( 'title' => __( 'Open Your Ex File', 'exfiles' ), 'url' => '/open-your-ex-file/', 'target' => '', 'classes' => array(), 'menu_item_parent' => 0 ),
 		);
 	} else {
