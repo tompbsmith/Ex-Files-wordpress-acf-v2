@@ -445,3 +445,90 @@ add_action(
 	},
 	40
 );
+
+/**
+ * Rows for the "Section testing" page: every section type, with sample content,
+ * including the variants (image left/right, sand background, no image).
+ *
+ * @return array[]
+ */
+function exf_section_test_rows() {
+	require_once EXF_DIR . '/inc/importer.php';
+	$media = array(
+		'video_desktop' => exf_import_media( 'assets/defaults/olive-hero-desktop.mp4' ),
+		'video_mobile'  => exf_import_media( 'assets/defaults/olive-hero-mobile.mp4' ),
+	);
+	$home  = exf_default_sections( $media );
+	$brand = exf_page_sections_content( 'brand' );
+	$brain = exf_page_sections_content( 'brains' );
+	$svc   = exf_page_sections_content( 'services' );
+	$open  = exf_page_sections_content( 'register_alt' );
+
+	$split_right_sand               = $brand[1];
+	$split_right_sand['background'] = 'sand';
+	$split_right_sand['subheading'] = 'Subheading (optional)';
+	$split_right_sand['button']     = array(
+		'title'  => 'Optional button',
+		'url'    => home_url( '/' ),
+		'target' => '',
+	);
+	$split_no_image          = $brand[2];
+	$split_no_image['image'] = '';
+	$split_no_image['heading'] = 'Image and text, without an image';
+
+	$by_layout = array();
+	foreach ( $home as $row ) {
+		$row['hide_section']                = 0; // Show every section, including any hidden by default.
+		$by_layout[ $row['acf_fc_layout'] ] = $row;
+	}
+	return array_values(
+		array_filter(
+			array(
+				$by_layout['hero'] ?? null,
+				$by_layout['guide'] ?? null,
+				$by_layout['services'] ?? null,
+				$by_layout['steps'] ?? null,
+				$by_layout['trust'] ?? null,
+				$open[0],            // Image and text: image right, with subheading.
+				$brain[0],           // Image and text: portrait image left.
+				$brand[0],           // Image and text: landscape image left.
+				$split_right_sand,   // Image and text: sand background, button.
+				$split_no_image,     // Image and text: no image.
+				$brain[1],           // Heading and list.
+				$brain[2],           // Testimonials.
+				$svc[0],             // Services list.
+				$svc[1],             // Service enquiry form.
+				$by_layout['contact'] ?? null,
+			)
+		)
+	);
+}
+
+/*
+ * One-off (1.7.41): a private "Section testing" page with every section, for
+ * checking layout and spacing. Private, so only logged-in staff can see it.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_section_test_page' ) || ! function_exists( 'update_field' ) || ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+		$id = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'private',
+				'post_title'  => __( 'Section testing', 'exfiles' ),
+				'post_name'   => 'section-testing',
+			),
+			true
+		);
+		if ( is_wp_error( $id ) ) {
+			return;
+		}
+		update_option( 'exf_section_test_page', $id, false );
+		update_post_meta( $id, '_wp_page_template', 'page-sections.php' );
+		update_field( 'field_exf_sections', exf_section_test_rows(), $id );
+	},
+	50
+);

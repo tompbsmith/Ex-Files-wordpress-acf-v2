@@ -668,9 +668,10 @@ summary.link-button::-webkit-details-marker{display:none;}
 }
 
 /* ----- Image and text ("split") ----- */
-.split{padding:110px 0;}
+.split{padding:100px 0;}
 .split--sand{background:var(--cream-dark);}
-.split--cream + .split--cream{padding-top:0;}
+/* Two cream sections in a row share one gap rather than doubling it. */
+:is(.split--cream, .expertise--cream, .testimonials, .service-list) + :is(.split--cream, .expertise--cream, .testimonials, .service-list){padding-top:0;}
 .split-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:72px; align-items:center;}
 .split--image-right .split-image{order:2;}
 .split--no-image .split-grid{grid-template-columns:minmax(0,760px);}
@@ -701,7 +702,6 @@ summary.link-button::-webkit-details-marker{display:none;}
 .testimonial figcaption{margin-top:16px; font-size:14px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted);}
 
 /* ----- Services list ----- */
-.service-list{padding:70px 0 40px;}
 .service-list-eyebrow{font-family:'Gazpacho','Petrona',serif; font-size:22px; margin-bottom:24px;}
 .service-list-heading{font-size:clamp(34px,3.6vw,42px);}
 .service-list-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px; margin-top:60px;}
@@ -717,7 +717,8 @@ summary.link-button::-webkit-details-marker{display:none;}
 .service-list-link .btn{font-size:17px; padding:11px 22px;}
 
 /* ----- Service enquiry form ----- */
-.inquiry{padding:60px 0 80px;}
+/* Straight after a services list (as on Our Services), the form follows on without a second gap. */
+.service-list + .inquiry{padding-top:0;}
 .inquiry h2{font-size:clamp(32px,3.4vw,40px);}
 .inquiry-text{margin-top:22px; max-width:500px; font-size:16px;}
 .inquiry-form{margin-top:30px; display:flex; flex-direction:column; gap:18px; max-width:980px;}
@@ -736,6 +737,13 @@ summary.link-button::-webkit-details-marker{display:none;}
   .split--image-right .split-image{order:0;}
   .testimonial-grid, .service-list-grid, .inquiry-row{grid-template-columns:1fr;}
   .service-list-grid{gap:48px;}
+}
+@media (max-width:600px){
+  /* A slightly narrower side margin on phones, so text columns aren't cramped. */
+  .wrap{padding:0 24px;}
+  .nav-inner{padding-left:24px; padding-right:24px;}
+  nav.links{padding-left:24px; padding-right:24px;}
+  .testimonial{padding:28px 24px;}
 }
 
 /* ----- "Open your Ex File" panels layout ----- */
