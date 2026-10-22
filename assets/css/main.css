@@ -771,16 +771,6 @@ summary.link-button::-webkit-details-marker{display:none;}
 
 /* ===== Design details from the Wix pages (The Brand, The Brains, Our Services, Open Your Ex File) ===== */
 
-/* Header: menu centred between the logo and the account link, as on Wix. */
-@media (min-width:881px){
-  .nav-inner{position:relative;}
-  nav.links{flex:1; justify-content:center; gap:34px; padding:0 120px;}
-  nav.links a{font-size:15px;}
-  nav.links a.active{border-bottom:0; text-decoration:underline; text-underline-offset:5px; text-decoration-thickness:1px;}
-  nav.links .nav-account{position:absolute; right:32px; top:50%; transform:translateY(-50%); padding:8px 16px; border:1px solid rgba(49,25,15,.35);}
-  nav.links .nav-account.active{text-decoration:none; background:var(--brown-dark); color:var(--cream);}
-}
-
 /* Footer: a thin rule above, the tagline in the display serif, the email in plain case,
    then the copyright and legal links. */
 .site-footer{border-top:1px solid rgba(49,25,15,.18);}
