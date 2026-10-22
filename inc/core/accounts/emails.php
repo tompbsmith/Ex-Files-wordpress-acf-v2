@@ -80,7 +80,7 @@ function exf_email_defaults() {
 		),
 		'consultation_open' => array(
 			'Book your consultation',
-			"Hello {first_name},\n\nYour report for {service} is ready in your Ex File, so you can now book the {addon} you added to your order. Please choose a time here:\n\n{link}\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nYour report for {service} is ready in your Ex File, so you can now book the consultation you added to your order. Please choose a time here:\n\n{link}\n\nBest wishes,\nThe Ex Files",
 		),
 		'email_change'     => array(
 			'Confirm your new email address',

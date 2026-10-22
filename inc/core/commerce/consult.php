@@ -98,9 +98,13 @@ function exf_consult_open( $order_id, $why = '' ) {
 			exf_send_email(
 				'consultation_open',
 				$user->user_email,
-				exf_order_email_vars( $order_id ) + array(
-					'addon' => lcfirst( (string) get_post_meta( $order_id, 'addon_name', true ) ),
-					'link'  => exf_consult_url( $order_id ),
+				// array_merge, not +: the booking link must replace the order's "My Ex File" link.
+				array_merge(
+					exf_order_email_vars( $order_id ),
+					array(
+						'addon' => lcfirst( (string) get_post_meta( $order_id, 'addon_name', true ) ),
+						'link'  => exf_consult_url( $order_id ),
+					)
 				)
 			);
 		}
