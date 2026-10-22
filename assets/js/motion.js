@@ -1,7 +1,8 @@
 /* The Ex Files: subtle motion (GSAP + ScrollTrigger, bundled in assets/js/vendor/gsap).
  *
  * - Homepage / Sections pages: the hero text eases in on load and the other
- *   sections' content fades up as it scrolls into view.
+ *   sections' content fades up as it scrolls into view. "Image and text" images
+ *   glide in from their side; cards, list items and testimonials arrive in turn.
  * - window.exfReveal(el): eases in content that a gate question has just shown
  *   (questionnaire.js) or the next step of the free guide (guide.js).
  *
@@ -56,8 +57,9 @@
 
   // Sections with "With motion?" switched off in the editor carry data-motion="off".
   var ON = ':not([data-motion="off"])';
-  var SECTIONS = ['.services', '.howitworks', '.trust', '.guide', '.contact'].map(function (s) { return s + ON; }).join(', ');
-  var GROUPS = '.cards, .steps, .trust-items';
+  var SECTIONS = ['.services', '.howitworks', '.trust', '.guide', '.contact', '.split', '.expertise', '.testimonials', '.service-list', '.inquiry'].map(function (s) { return s + ON; }).join(', ');
+  // Containers whose children arrive one by one rather than as a block.
+  var GROUPS = '.cards, .steps, .trust-items, .split-text, .expertise-list, .testimonial-grid, .service-list-grid';
 
   // Hero text: a gentle staggered fade on load.
   var hero = document.querySelectorAll('.hero' + ON + ' .wrap > *');
@@ -79,17 +81,24 @@
 
   if (targets.length) {
     gsap.set(targets, { opacity: 0, y: 24 });
+    // "Image and text" images glide in from their own side instead of rising.
+    targets.forEach(function (el) {
+      if (el.classList.contains('split-image')) {
+        var right = !!el.closest('.split--image-right');
+        gsap.set(el, { y: 0, x: right ? 40 : -40, scale: 1.03 });
+      }
+    });
     window.ScrollTrigger.batch(targets, {
       start: 'top 90%',
       once: true,
       onEnter: function (batch) {
-        gsap.to(batch, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', stagger: 0.1, overwrite: true });
+        gsap.to(batch, { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.8, ease: 'power2.out', stagger: 0.1, overwrite: true, clearProps: 'transform' });
       }
     });
     // Anything already scrolled past (a reload part-way down, or a #link) just shows.
     window.ScrollTrigger.refresh();
     targets.forEach(function (el) {
-      if (el.getBoundingClientRect().bottom < 0) { gsap.set(el, { opacity: 1, y: 0 }); }
+      if (el.getBoundingClientRect().bottom < 0) { gsap.set(el, { opacity: 1, x: 0, y: 0, scale: 1 }); }
     });
   }
 

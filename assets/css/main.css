@@ -661,7 +661,9 @@ summary.link-button::-webkit-details-marker{display:none;}
    Sections with "With motion?" switched off carry data-motion="off". */
 .exf-motion .hero:not([data-motion="off"]) .wrap > *,
 .exf-motion :is(.services, .howitworks, .trust, .guide, .contact):not([data-motion="off"]) .wrap > :not(.cards, .steps, .trust-items),
-.exf-motion :is(.services, .howitworks, .trust, .guide, .contact):not([data-motion="off"]) :is(.cards, .steps, .trust-items) > *{
+.exf-motion :is(.services, .howitworks, .trust, .guide, .contact):not([data-motion="off"]) :is(.cards, .steps, .trust-items) > *,
+.exf-motion :is(.split, .expertise, .testimonials, .service-list, .inquiry):not([data-motion="off"]) .wrap > :not(.split-text, .expertise-list, .testimonial-grid, .service-list-grid),
+.exf-motion :is(.split, .expertise, .testimonials, .service-list, .inquiry):not([data-motion="off"]) :is(.split-text, .expertise-list, .testimonial-grid, .service-list-grid) > *{
   opacity:0;
 }
 
