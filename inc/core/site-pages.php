@@ -83,7 +83,7 @@ function exf_page_sections_content( $key ) {
 			return array(
 				array(
 					'acf_fc_layout' => 'split',
-					'image'         => $img( 'brand-about.jpg', __( 'A woman looking out to sea at sunset', 'exfiles' ) ),
+					'image'         => $img( 'brand-about-original.jpg', __( 'A woman looking out to sea at sunset', 'exfiles' ) ),
 					'image_side'    => 'left',
 					'background'    => 'cream',
 					'heading_tag'   => 'h1',
@@ -92,7 +92,7 @@ function exf_page_sections_content( $key ) {
 				),
 				array(
 					'acf_fc_layout' => 'split',
-					'image'         => $img( 'brand-mission.jpg', __( 'A laptop and a cup of tea on a desk', 'exfiles' ) ),
+					'image'         => $img( 'brand-mission-original.jpg', __( 'A laptop and a cup of tea on a desk', 'exfiles' ) ),
 					'image_side'    => 'right',
 					'background'    => 'cream',
 					'heading_tag'   => 'h2',
@@ -106,7 +106,7 @@ function exf_page_sections_content( $key ) {
 				),
 				array(
 					'acf_fc_layout' => 'split',
-					'image'         => $img( 'brand-different.jpg', __( 'An olive tree in a terracotta pot in a bright room', 'exfiles' ) ),
+					'image'         => $img( 'brand-different-original.jpg', __( 'An olive tree in a terracotta pot in a bright room', 'exfiles' ) ),
 					'image_side'    => 'left',
 					'background'    => 'cream',
 					'heading_tag'   => 'h2',
@@ -203,7 +203,7 @@ function exf_page_sections_content( $key ) {
 							'link'  => $link( 'know_your_position' ),
 						),
 						array(
-							'image' => $img( 'service-check-your-deal.jpg', __( 'A magnifying glass on a printed agreement', 'exfiles' ) ),
+							'image' => $img( 'service-check-your-deal-original.jpg', __( 'A magnifying glass on a printed agreement', 'exfiles' ) ),
 							'title' => __( 'Check Your Deal', 'exfiles' ),
 							'text'  => __( "Already agreed? Let's check it. We'll review the financial agreement you've reached with your ex and provide a written report highlighting anything that may need further consideration before you make it legal.", 'exfiles' ),
 							'link'  => $link( 'check_your_deal' ),
@@ -230,7 +230,7 @@ function exf_page_sections_content( $key ) {
 			return array(
 				array(
 					'acf_fc_layout' => 'split',
-					'image'         => $img( 'open-your-ex-file.jpg', __( 'A black document folder labelled The Ex File', 'exfiles' ) ),
+					'image'         => $img( 'open-your-ex-file-original.jpg', __( 'A black document folder labelled The Ex File', 'exfiles' ) ),
 					'image_side'    => 'right',
 					'background'    => 'cream',
 					'heading_tag'   => 'h1',
@@ -372,4 +372,56 @@ add_action(
 		exf_audit( 'site_pages', 'Built The Brand, The Brains, Our Services and the alternative Open your Ex File page from the Wix design.' );
 	},
 	20
+);
+
+/*
+ * One-off (1.7.36): the client's original Wix images replace the copies cut from
+ * screenshots. Swaps the image in any section still using an old copy, so images
+ * she has changed herself are left alone.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_wix_images_2026_10' ) || ! function_exists( 'update_field' ) || ! current_user_can( 'edit_pages' ) || ! get_option( 'exf_wix_pages_2026_10' ) ) {
+			return;
+		}
+		update_option( 'exf_wix_images_2026_10', time(), false );
+		$swap = array(
+			'brand-about.jpg'             => array( 'brand-about-original.jpg', __( 'A woman looking out to sea at sunset', 'exfiles' ) ),
+			'brand-mission.jpg'           => array( 'brand-mission-original.jpg', __( 'A laptop and a cup of tea on a desk', 'exfiles' ) ),
+			'brand-different.jpg'         => array( 'brand-different-original.jpg', __( 'An olive tree in a terracotta pot in a bright room', 'exfiles' ) ),
+			'service-check-your-deal.jpg' => array( 'service-check-your-deal-original.jpg', __( 'A magnifying glass on a printed agreement', 'exfiles' ) ),
+			'open-your-ex-file.jpg'       => array( 'open-your-ex-file-original.jpg', __( 'A black document folder labelled The Ex File', 'exfiles' ) ),
+		);
+		$new_id = function ( $old_id ) use ( $swap ) {
+			$file = (string) get_post_meta( (int) $old_id, '_exf_theme_image', true );
+			return isset( $swap[ $file ] ) ? exf_theme_image_attachment( $swap[ $file ][0], $swap[ $file ][1] ) : 0;
+		};
+		foreach ( array( 'brand', 'services', 'register_alt' ) as $key ) {
+			$page = exf_page_id( $key );
+			$rows = $page ? (array) get_field( 'field_exf_sections', $page, false ) : array();
+			$changed = false;
+			foreach ( $rows as $i => $row ) {
+				foreach ( array( 'field_exf_sec_split_image' ) as $f ) {
+					if ( ! empty( $row[ $f ] ) && ( $n = $new_id( $row[ $f ] ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
+						$rows[ $i ][ $f ] = $n;
+						$changed          = true;
+					}
+				}
+				if ( ! empty( $row['field_exf_sec_service_list_cards'] ) && is_array( $row['field_exf_sec_service_list_cards'] ) ) {
+					foreach ( $row['field_exf_sec_service_list_cards'] as $c => $card ) {
+						$img = $card['field_exf_sec_service_list_card_image'] ?? 0;
+						if ( $img && ( $n = $new_id( $img ) ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
+							$rows[ $i ]['field_exf_sec_service_list_cards'][ $c ]['field_exf_sec_service_list_card_image'] = $n;
+							$changed = true;
+						}
+					}
+				}
+			}
+			if ( $changed ) {
+				update_field( 'field_exf_sections', $rows, $page );
+			}
+		}
+	},
+	30
 );
