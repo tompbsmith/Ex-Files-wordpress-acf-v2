@@ -5,8 +5,14 @@
  */
 (function () {
   'use strict';
-  var form = document.querySelector('[data-questionnaire]');
-  if (!form) { return; }
+  // Usually one form; the staff preview page has one per section.
+  var forms = document.querySelectorAll('[data-questionnaire]');
+  for (var f = 0; f < forms.length; f++) { init(forms[f]); }
+
+  function init(form) {
+  // The staff preview doesn't save: stop it submitting.
+  var preview = form.hasAttribute('data-preview');
+  if (preview) { form.addEventListener('submit', function (e) { e.preventDefault(); }); }
 
   var PER_YEAR = { 'Weekly': 52, 'Fortnightly': 26, 'Four-weekly': 13, 'Monthly': 12, 'Termly': 3, 'Quarterly': 4, 'Annual': 1 };
 
@@ -139,11 +145,12 @@
   var dirty = false;
   form.addEventListener('input', function () { dirty = true; });
   form.addEventListener('submit', function () { dirty = false; });
-  window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+  if (!preview) { window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } }); }
 
   var reps = form.querySelectorAll('.q-repeater');
   for (var i = 0; i < reps.length; i++) { renumber(reps[i]); }
   applyConditions();
   updateMonthly();
   updateTotals();
+  }
 })();

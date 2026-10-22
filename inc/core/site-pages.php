@@ -532,3 +532,31 @@ add_action(
 	},
 	50
 );
+
+/*
+ * One-off (1.7.43): a private "Questionnaire preview" page showing every section of
+ * the questionnaire, in the light or dark (Wix) style. Staff only.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_questionnaire_preview_page' ) || ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+		$id = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'private',
+				'post_title'  => __( 'Questionnaire preview', 'exfiles' ),
+				'post_name'   => 'questionnaire-preview',
+			),
+			true
+		);
+		if ( is_wp_error( $id ) ) {
+			return;
+		}
+		update_option( 'exf_questionnaire_preview_page', $id, false );
+		update_post_meta( $id, '_wp_page_template', 'page-questionnaire-preview.php' );
+	},
+	50
+);

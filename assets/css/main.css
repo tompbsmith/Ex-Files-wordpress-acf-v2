@@ -652,6 +652,8 @@ summary.link-button::-webkit-details-marker{display:none;}
 .q-money-row{row-gap:0;}
 .q-money-row > .field{display:grid; grid-template-rows:subgrid; grid-row:span 3; align-content:start;}
 .q-money-row > .field[hidden]{display:none;}
+/* Anything the questionnaire hides stays hidden, whatever its layout (e.g. the amount row before Known/Estimated is chosen). */
+.q-form [hidden]{display:none !important;}
 .q-money-row > .field > label, .q-money-row > .field > .field-legend{align-self:end;}
 .q-money-row > .field > input, .q-money-row > .field > select, .q-money-row > .field > .q-pound, .q-money-row > .field > .date-parts{align-self:end;}
 .account-locked-note{margin-bottom:18px;}
@@ -799,3 +801,61 @@ summary.link-button::-webkit-details-marker{display:none;}
 /* Headings: the Wix pages set section headings large and close-set. */
 .expertise h2, .testimonials h2, .split-heading{letter-spacing:-0.015em;}
 .service-list-title, .expertise-item dt{letter-spacing:.01em;}
+
+/* ===== Questionnaire preview (staff): light, or dark like the Wix panels ===== */
+.qp{padding:70px 0 100px;}
+.qp--dark{background:var(--cream-dark);}
+.qp-wrap{max-width:900px;}
+.qp-head h1{font-size:clamp(36px,4.5vw,52px);}
+.qp-lead{margin-top:14px; max-width:640px;}
+.qp-switch{display:inline-flex; margin-top:24px; border:1px solid var(--brown-dark);}
+.qp-switch a{padding:10px 18px; font-size:15px;}
+.qp-switch a[aria-current]{background:var(--brown-dark); color:var(--cream);}
+.qp-jump ol{list-style:none; margin:24px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:6px;}
+.qp-jump a{display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; font-size:14px; border:1px solid rgba(49,25,15,.18); background:var(--white);}
+.qp-jump span{display:inline-block; min-width:20px; height:20px; border-radius:10px; background:var(--cream-dark); font-size:12px; line-height:20px; text-align:center;}
+.qp-section{scroll-margin-top:110px;}
+.qp .q-form{margin-top:40px;}
+
+/* Dark: each section is a dark brown panel with cream text and underlined fields. */
+.qp--dark .q-form{--q-ink:#f1e9de; --q-soft:rgba(241,233,222,.72); --q-line:rgba(241,233,222,.35); --q-faint:rgba(241,233,222,.14);}
+.qp--dark .qp-jump a{background:transparent; border-color:rgba(49,25,15,.3);}
+.qp--dark .qp-jump span{background:var(--brown-dark); color:var(--cream);}
+.qp--dark .q-form{background:var(--brown-dark); color:var(--q-ink); border:0; border-radius:0; box-shadow:none; padding:44px 44px 36px;}
+.qp--dark .q-form :is(h2, h3, legend, p, .q-out-cat){color:var(--q-ink);}
+.qp--dark .q-form .eyebrow, .qp--dark .q-form .field-note, .qp--dark .q-form .optional, .qp--dark .q-form .q-intro{color:var(--q-soft);}
+.qp--dark .q-form .field label, .qp--dark .q-form .field-legend, .qp--dark .q-form .date-part, .qp--dark .q-form .q-out-head, .qp--dark .q-form .q-out-label{color:var(--q-soft);}
+.qp--dark .q-form .field label{text-transform:none; letter-spacing:0; font-size:14px; margin-bottom:2px;}
+.qp--dark .q-form .field-legend{text-transform:none; letter-spacing:0; font-size:14px;}
+.qp--dark .q-form .field :is(input, select, textarea),
+.qp--dark .q-form .q-out-row :is(input, select){
+  background:transparent; color:var(--q-ink); border:0; border-bottom:1px solid var(--q-line); border-radius:0; padding:8px 2px;
+}
+.qp--dark .q-form .field textarea{border:1px solid var(--q-line); padding:10px 12px; min-height:90px;}
+.qp--dark .q-form .field :is(input, select, textarea):focus,
+.qp--dark .q-form .q-out-row :is(input, select):focus{outline:none; border-color:var(--q-ink);}
+.qp--dark .q-form .field :is(input, select, textarea):focus-visible{outline:2px solid rgba(241,233,222,.6); outline-offset:3px;}
+.qp--dark .q-form select option{color:var(--brown-dark);}
+.qp--dark .q-form .date-part span{margin-bottom:0;}
+.qp--dark .q-form .date-part input{padding:6px 2px;}
+.qp--dark .q-form ::placeholder{color:rgba(241,233,222,.4);}
+.qp--dark .q-form .q-pound{background:transparent; border:0; border-bottom:1px solid var(--q-line); border-radius:0; padding-left:2px; color:var(--q-soft);}
+.qp--dark .q-form .q-pound input{border:0 !important;}
+.qp--dark .q-form .q-pill span{background:transparent; border-color:var(--q-line); color:var(--q-ink); border-radius:0;}
+.qp--dark .q-form .q-pill input:checked + span{background:var(--cream); border-color:var(--cream); color:var(--brown-dark);}
+.qp--dark .q-form .q-pill input:focus-visible + span{outline-color:var(--cream);}
+.qp--dark .q-form .q-money{background:transparent; border:1px solid var(--q-faint); border-radius:0;}
+.qp--dark .q-form .q-item{background:rgba(241,233,222,.04); border:1px solid var(--q-faint); border-radius:0;}
+.qp--dark .q-form .q-item .q-money{background:transparent;}
+.qp--dark .q-form .q-group{border-top-color:var(--q-faint);}
+.qp--dark .q-form .q-note{background:rgba(241,233,222,.08); border-radius:0;}
+.qp--dark .q-form .q-out-head, .qp--dark .q-form .q-out-row{border-bottom-color:var(--q-faint);}
+.qp--dark .q-form .link-button{color:var(--q-soft);}
+.qp--dark .q-form .btn{background:var(--cream); color:var(--brown-dark); border-color:var(--cream);}
+.qp--dark .q-form .btn:hover{background:#fff;}
+.qp--dark .q-form .btn.outline{background:transparent; color:var(--cream); border:1px solid var(--q-line);}
+.qp--dark .q-form .btn.outline:hover{background:rgba(241,233,222,.1);}
+@media (max-width:700px){
+  .qp--dark .q-form{padding:30px 20px 26px;}
+  .qp--dark .q-form .q-out-label{color:var(--q-soft);}
+}

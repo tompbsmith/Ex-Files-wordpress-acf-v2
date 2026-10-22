@@ -348,7 +348,7 @@ add_action(
 add_action(
 	'wp_enqueue_scripts',
 	function () {
-		if ( is_page_template( 'page-account.php' ) && 'questionnaire' === exf_portal_current()[0] ) {
+		if ( is_page_template( 'page-questionnaire-preview.php' ) || ( is_page_template( 'page-account.php' ) && 'questionnaire' === exf_portal_current()[0] ) ) {
 			wp_enqueue_script( 'exf-questionnaire', get_template_directory_uri() . '/assets/js/questionnaire.js', array(), EXF_VERSION, true );
 		}
 	}
