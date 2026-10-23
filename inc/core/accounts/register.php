@@ -262,10 +262,11 @@ function exf_handle_register( array $post ) {
 		$e['password2'] = __( "The passwords don't match.", 'exfiles' );
 	}
 
-	// 5 registrations per hour per IP.
+	// Sign-ups per hour from one internet connection: enough for an office or a
+	// household (or a demo), low enough to stop automated sign-ups.
 	$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 	$limit = 'exf_reg_' . md5( $ip );
-	if ( ! $e && (int) get_transient( $limit ) >= 5 ) {
+	if ( ! $e && (int) get_transient( $limit ) >= (int) apply_filters( 'exf_register_hourly_limit', 20 ) ) {
 		$e['_form'] = __( 'Too many attempts. Please try again later.', 'exfiles' );
 	}
 
