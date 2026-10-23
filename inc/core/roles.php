@@ -1,6 +1,6 @@
 <?php
 /**
- * Capabilities and the Ex Files Manager role.
+ * Capabilities and the Ex Files Manager role (client work, plus editing the site's pages).
  *
  * Everything client-related (Ex Files, questionnaires, documents, guide requests,
  * the conflict register) is gated by one capability, so the solicitor can work
@@ -12,7 +12,7 @@
 defined( 'ABSPATH' ) || exit;
 
 const EXF_CAP           = 'manage_ex_files';
-const EXF_ROLES_VERSION = 1;
+const EXF_ROLES_VERSION = 2;
 
 add_action( 'init', 'exf_maybe_install_roles', 5 );
 
@@ -34,9 +34,20 @@ function exf_maybe_install_roles() {
 		'ex_files_manager',
 		__( 'Ex Files Manager', 'exfiles' ),
 		array(
-			'read'         => true,
-			'upload_files' => true,
-			EXF_CAP        => true,
+			'read'                   => true,
+			'upload_files'           => true,
+			EXF_CAP                  => true,
+			// Pages: so she can edit the website's pages and their sections.
+			'edit_pages'             => true,
+			'edit_others_pages'      => true,
+			'edit_published_pages'   => true,
+			'edit_private_pages'     => true,
+			'read_private_pages'     => true,
+			'publish_pages'          => true,
+			'delete_pages'           => true,
+			'delete_others_pages'    => true,
+			'delete_published_pages' => true,
+			'delete_private_pages'   => true,
 		)
 	);
 
