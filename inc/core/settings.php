@@ -95,3 +95,41 @@ function exf_site_name() {
 	$name = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 	return $name ? $name : 'The Ex Files';
 }
+
+/*
+ * UK time (client meeting, October 2026: the activity log was an hour out during
+ * BST). Times are stored in UTC and shown in the site's time zone, so a site set to
+ * a fixed offset such as "UTC+0" (WordPress's default) shows UTC all year, which is
+ * an hour behind in summer, for the activity log, emails and booking times alike.
+ * The firm is in England, so a site left on a fixed offset is switched to London
+ * time once. A named time zone someone has chosen is left alone.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_timezone_checked' ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		update_option( 'exf_timezone_checked', time(), false );
+		if ( '' === (string) get_option( 'timezone_string' ) ) {
+			$was = (float) get_option( 'gmt_offset' );
+			update_option( 'timezone_string', 'Europe/London' );
+			update_option( 'exf_timezone_changed_from', $was, false );
+			if ( function_exists( 'exf_audit' ) ) {
+				exf_audit( 'settings', sprintf( 'Set the site time zone to London (was a fixed offset of UTC%+g), so times show in UK time all year.', $was ) );
+			}
+		}
+	}
+);
+
+add_action(
+	'admin_notices',
+	function () {
+		$was = get_option( 'exf_timezone_changed_from', null );
+		if ( null === $was || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		delete_option( 'exf_timezone_changed_from' );
+		echo '<div class="notice notice-info is-dismissible"><p>' . esc_html__( 'The site’s time zone was set to a fixed offset, so times were an hour out during British Summer Time. It’s now set to London (Settings → General → Timezone), so times show in UK time all year.', 'exfiles' ) . '</p></div>';
+	}
+);

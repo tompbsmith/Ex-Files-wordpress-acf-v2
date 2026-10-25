@@ -30,49 +30,16 @@ $exf_consult  = isset( $_GET['consult'] ) ? absint( $_GET['consult'] ) : ( isset
  * @param int   $minutes Length.
  */
 $exf_slot_picker = function ( $slots, $minutes ) use ( $exf_slot, $exf_ferrors ) {
-	?>
-				<fieldset class="buy-step slot-picker" data-slot-picker>
-					<legend class="gq-label">
-						<?php
-						/* translators: %d: minutes */
-						echo esc_html( sprintf( __( 'Choose a time (%d minutes)', 'exfiles' ), $minutes ) );
-						?>
-					</legend>
-					<?php if ( ! $slots ) : ?>
-						<p><?php esc_html_e( 'Sorry, there are no times available online at the moment. Please contact us and we’ll find a time.', 'exfiles' ); ?></p>
-					<?php else : ?>
-						<div class="slot-days">
-							<?php $exf_n = 0; ?>
-							<?php foreach ( $slots as $exf_day => $exf_times ) : ?>
-								<details class="slot-day" <?php echo ( 0 === $exf_n || in_array( $exf_slot, $exf_times, true ) ) ? 'open' : ''; ?>>
-									<summary><?php echo esc_html( wp_date( 'l j F', $exf_times[0] ) ); ?> <span class="slot-count">
-										<?php
-										/* translators: %d: number of times */
-										echo esc_html( sprintf( _n( '%d time', '%d times', count( $exf_times ), 'exfiles' ), count( $exf_times ) ) );
-										?>
-									</span></summary>
-									<div class="slot-times">
-										<?php foreach ( $exf_times as $exf_t ) : ?>
-											<label class="slot"><input type="radio" name="slot" value="<?php echo (int) $exf_t; ?>" <?php checked( $exf_slot, $exf_t ); ?>><span><?php echo esc_html( wp_date( 'g:ia', $exf_t ) ); ?></span></label>
-										<?php endforeach; ?>
-									</div>
-								</details>
-								<?php ++$exf_n; ?>
-							<?php endforeach; ?>
-						</div>
-						<p class="field-note">
-							<?php
-							/* translators: %d: hours */
-							echo esc_html( sprintf( __( 'Times are UK time. Appointments need at least %d hours’ notice.', 'exfiles' ), exf_booking_settings()['notice_hours'] ) );
-							?>
-						</p>
-					<?php endif; ?>
-					<?php if ( isset( $exf_ferrors['slot'] ) ) : ?>
-						<p class="field-error"><?php echo esc_html( $exf_ferrors['slot'] ); ?></p>
-					<?php endif; ?>
-				</fieldset>
-	<?php
+	exf_render_slot_picker( $slots, $minutes, $exf_slot, $exf_ferrors['slot'] ?? '' );
 };
+
+// Visitors who aren't logged in see the basket instead (template-parts/checkout/).
+if ( ! is_user_logged_in() ) {
+	get_header();
+	get_template_part( 'template-parts/checkout/' . ( ! empty( $GLOBALS['exf_guest_order'] ) ? 'order' : 'basket' ) );
+	get_footer();
+	return;
+}
 
 get_header();
 ?>
@@ -159,7 +126,7 @@ get_header();
 							/* translators: %s: add-on */
 							? sprintf( __( 'You paid for your %s with your order, so there’s nothing more to pay. Choose a time below.', 'exfiles' ), lcfirst( $exf_csvc['addon']['name'] ) )
 							/* translators: 1: add-on, 2: price */
-							: sprintf( __( 'Talk your report through with us: a %1$s costs %2$s.', 'exfiles' ), lcfirst( $exf_csvc['addon']['name'] ), exf_money( $exf_csvc['addon']['pence'] ) )
+							: sprintf( __( 'Talk your report through with us: a %1$s costs %2$s.', 'exfiles' ), lcfirst( $exf_csvc['addon']['name'] ), exf_money( exf_consult_price( $exf_csvc ) ) )
 					);
 					?>
 				</p>
@@ -182,7 +149,7 @@ get_header();
 				<?php $exf_slot_picker( $exf_cslots, $exf_csvc['addon']['minutes'] ); ?>
 				<div class="buy-summary">
 					<?php if ( ! $exf_prepaid ) : ?>
-						<p><strong><?php echo esc_html( $exf_csvc['addon']['name'] ); ?></strong> — <?php echo esc_html( exf_money( $exf_csvc['addon']['pence'] ) ); ?></p>
+						<p><strong><?php echo esc_html( $exf_csvc['addon']['name'] ); ?></strong> — <?php echo esc_html( exf_money( exf_consult_price( $exf_csvc ) ) ); ?></p>
 						<p class="field-note"><?php echo esc_html( exf_vat_note() ); ?></p>
 						<p class="field-note"><?php echo esc_html( exf_cancellation_text() ); ?></p>
 						<p class="field-note"><?php esc_html_e( "You'll pay securely with Stripe. Your appointment is held for 30 minutes while you pay.", 'exfiles' ); ?></p>
@@ -200,7 +167,7 @@ get_header();
 		<header class="guide-form-head">
 			<p class="eyebrow"><?php esc_html_e( 'A new separation', 'exfiles' ); ?></p>
 			<h1><?php esc_html_e( 'Tell us about your ex', 'exfiles' ); ?></h1>
-			<p class="lead"><?php esc_html_e( "We'll open a new Ex File for this separation. As before, we'll run a quick check to make sure we haven't already been instructed by them.", 'exfiles' ); ?></p>
+			<p class="lead"><?php esc_html_e( "We'll open a new Ex File for this separation.", 'exfiles' ); ?></p>
 		</header>
 		<?php if ( isset( $exf_ferrors['_form'] ) ) : ?>
 			<div class="notice-box notice-box--error" role="alert"><p><?php echo esc_html( $exf_ferrors['_form'] ); ?></p></div>

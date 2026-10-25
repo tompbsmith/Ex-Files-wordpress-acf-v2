@@ -156,10 +156,21 @@ function exf_portal_next_steps( $user_id ) {
 		if ( in_array( $status, array( 'to_do', 'in_progress' ), true ) ) {
 			$url     = (string) apply_filters( 'exf_questionnaire_url', '', $q );
 			$service = function_exists( 'exf_q_service_name' ) ? exf_q_service_name( $q ) : (string) get_post_meta( (int) get_post_meta( $q, 'order_id', true ), 'service_name', true );
+			// The earliest deadline among the appointments it's for.
+			$by = 0;
+			foreach ( function_exists( 'exf_q_orders' ) ? exf_q_orders( $q ) : array() as $o ) {
+				$d = function_exists( 'exf_order_q_deadline' ) && exf_order_is_live( $o ) ? exf_order_q_deadline( $o ) : 0;
+				if ( $d && $d > time() && ( ! $by || $d < $by ) ) {
+					$by = $d;
+				}
+			}
 			$steps[] = array(
 				'text'  => $url
-					/* translators: %s: service name */
-					? sprintf( __( 'Please complete your financial questionnaire for %s so we can start work.', 'exfiles' ), $service )
+					? ( $by
+						/* translators: 1: service name, 2: date and time */
+						? sprintf( __( 'Please complete your financial questionnaire for %1$s by %2$s, so we can prepare for your appointment.', 'exfiles' ), $service, exf_booking_label( $by ) )
+						/* translators: %s: service name */
+						: sprintf( __( 'Please complete your financial questionnaire for %s so we can start work.', 'exfiles' ), $service ) )
 					/* translators: %s: service name */
 					: sprintf( __( "Your financial questionnaire for %s will be ready here soon. We'll email you when it is.", 'exfiles' ), $service ),
 				'url'   => $url,
@@ -175,7 +186,7 @@ function exf_portal_next_steps( $user_id ) {
 				/* translators: %s: service */
 				? sprintf( __( 'Your report for %s is ready, so you can now book your consultation.', 'exfiles' ), $svc['name'] )
 				/* translators: 1: add-on, 2: price */
-				: sprintf( __( 'Would you like to talk your report through? You can add a %1$s for %2$s.', 'exfiles' ), lcfirst( $svc['addon']['name'] ), exf_money( $svc['addon']['pence'] ) ),
+				: sprintf( __( 'Would you like to talk your report through? You can book a %1$s for %2$s.', 'exfiles' ), lcfirst( $svc['addon']['name'] ), exf_money( exf_consult_price( $svc ) ) ),
 			'url'   => exf_consult_url( $o ),
 			'label' => $prepaid ? __( 'Book a time', 'exfiles' ) : __( 'Add and book', 'exfiles' ),
 		);

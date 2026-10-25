@@ -40,7 +40,7 @@ get_header();
 					?>
 				</p>
 				<?php if ( ! $exf_is_staff ) : ?>
-					<p style="margin-top:20px"><a class="btn" href="<?php echo esc_url( exf_page_url( 'register' ) ); ?>"><?php esc_html_e( 'Open your Ex File', 'exfiles' ); ?></a></p>
+					<p style="margin-top:20px"><a class="btn" href="<?php echo esc_url( exf_page_url( 'choose_service' ) ); ?>"><?php esc_html_e( 'Create your Ex File', 'exfiles' ); ?></a></p>
 				<?php endif; ?>
 			</div>
 		<?php else : ?>

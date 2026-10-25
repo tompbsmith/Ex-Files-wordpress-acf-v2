@@ -24,7 +24,7 @@ add_action(
 				'short'     => __( 'Please use at least 10 characters.', 'exfiles' ),
 				'exDob'     => __( "Please enter their date of birth, or tick that you don't know it.", 'exfiles' ),
 				'stepLabel' => __( 'Step %1$s of %2$s', 'exfiles' ),
-				'sending'   => __( 'Opening your Ex File…', 'exfiles' ),
+				'sending'   => __( 'Creating your Ex File…', 'exfiles' ),
 			)
 		);
 	}

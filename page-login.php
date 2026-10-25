@@ -52,7 +52,7 @@ get_header();
 				<p class="login-links">
 					<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'Forgotten your password?', 'exfiles' ); ?></a>
 					&nbsp;·&nbsp;
-					<a href="<?php echo esc_url( exf_page_url( 'register' ) ); ?>"><?php esc_html_e( 'New here? Open your Ex File', 'exfiles' ); ?></a>
+					<a href="<?php echo esc_url( exf_page_url( 'choose_service' ) ); ?>"><?php esc_html_e( 'New here? Create your Ex File', 'exfiles' ); ?></a>
 				</p>
 			</form>
 

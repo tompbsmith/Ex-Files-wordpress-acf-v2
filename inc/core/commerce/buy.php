@@ -1,6 +1,7 @@
 <?php
 /**
- * The buy page (/my-ex-file/buy/, template page-buy.php):
+ * The buy page (/my-ex-file/buy/, template page-buy.php). For visitors who aren't
+ * logged in it's the basket of the checkout flow instead (see basket.php).
  *
  *   ?service=ID                 choose the Ex File (and a slot), then pay
  *   ?new_separation=1           add a new separation (runs the conflict check)
@@ -28,10 +29,10 @@ function exf_buy_route() {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 	$service = isset( $_GET['service'] ) ? absint( $_GET['service'] ) : 0;
 
+	// New clients: the basket, then "Create your Ex File", then payment (basket.php).
 	if ( ! is_user_logged_in() ) {
-		$target = $service ? add_query_arg( 'service', $service, exf_page_url( 'register' ) ) : wp_login_url( exf_page_url( 'buy' ) );
-		wp_safe_redirect( $target );
-		exit;
+		exf_basket_route( $service );
+		return;
 	}
 	$user_id = get_current_user_id();
 
@@ -156,13 +157,33 @@ function exf_handle_buy( $service_id, $ex_file, $slot, array $opts = array() ) {
 		return array( '_form' => $recheck );
 	}
 
+	$result = exf_purchase_start( $user_id, $ex_file, $service, $slot, $opts );
+	if ( isset( $result['errors'] ) ) {
+		return $result['errors'];
+	}
+	exf_purchase_redirect( $result );
+}
+
+/**
+ * Hold the slot, create the order and start the payment (or confirm a free service).
+ * Shared by logged-in clients (exf_handle_buy) and new clients at checkout (basket.php).
+ * The caller has already checked the client, the Ex File and the options.
+ *
+ * @param int   $user_id Client.
+ * @param int   $ex_file Ex File.
+ * @param array $service From exf_service().
+ * @param int   $slot    Appointment start, or 0.
+ * @param array $opts    addon (bool), consent (bool).
+ * @return array { order, url, free } on success, or { errors } (field => message).
+ */
+function exf_purchase_start( $user_id, $ex_file, array $service, $slot, array $opts = array() ) {
 	// Lock, re-check the slot, and create the order so the slot is held while they pay.
 	if ( $service['booking'] && ! exf_lock( 'booking', 20 ) ) {
-		return array( '_form' => __( 'Sorry, the booking system is busy. Please try again.', 'exfiles' ) );
+		return array( 'errors' => array( '_form' => __( 'Sorry, the booking system is busy. Please try again.', 'exfiles' ) ) );
 	}
 	if ( $service['booking'] && ! exf_slot_is_free( $slot, $service['minutes'] ) ) {
 		exf_unlock( 'booking' );
-		return array( 'slot' => __( 'Sorry, that time has just been taken. Please choose another.', 'exfiles' ) );
+		return array( 'errors' => array( 'slot' => __( 'Sorry, that time has just been taken. Please choose another.', 'exfiles' ) ) );
 	}
 	$order = exf_order_create(
 		$user_id,
@@ -178,32 +199,50 @@ function exf_handle_buy( $service_id, $ex_file, $slot, array $opts = array() ) {
 		exf_unlock( 'booking' );
 	}
 	if ( ! $order ) {
-		return array( '_form' => __( 'Sorry, something went wrong. Please try again.', 'exfiles' ) );
+		return array( 'errors' => array( '_form' => __( 'Sorry, something went wrong. Please try again.', 'exfiles' ) ) );
 	}
 
 	if ( $service['free'] ) {
 		exf_order_confirm_free( $order );
-		wp_safe_redirect(
-			add_query_arg(
+		return array(
+			'order' => $order,
+			'free'  => true,
+			'url'   => add_query_arg(
 				array(
 					'order' => $order,
 					'done'  => 1,
 				),
 				exf_page_url( 'buy' )
-			)
+			),
 		);
-		exit;
 	}
 
 	$session = exf_stripe_create_session( $order );
 	if ( is_wp_error( $session ) || empty( $session['url'] ) ) {
 		exf_order_set_status( $order, 'cancelled', 'Could not start payment: ' . ( is_wp_error( $session ) ? $session->get_error_message() : 'no URL' ) );
-		return array( '_form' => __( "Sorry, we couldn't start the payment. Please try again, or contact us if it keeps happening.", 'exfiles' ) );
+		return array( 'errors' => array( '_form' => __( "Sorry, we couldn't start the payment. Please try again, or contact us if it keeps happening.", 'exfiles' ) ) );
 	}
 	update_post_meta( $order, 'stripe_session', (string) $session['id'] );
 	exf_order_log( $order, 'Sent to Stripe to pay' );
 
-	wp_redirect( $session['url'] ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Stripe's hosted checkout.
+	return array(
+		'order' => $order,
+		'free'  => false,
+		'url'   => (string) $session['url'],
+	);
+}
+
+/**
+ * Send the visitor on after exf_purchase_start(): to Stripe, or to the confirmation.
+ *
+ * @param array $result From exf_purchase_start().
+ */
+function exf_purchase_redirect( array $result ) {
+	if ( ! empty( $result['free'] ) ) {
+		wp_safe_redirect( $result['url'] );
+	} else {
+		wp_redirect( $result['url'] ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Stripe's hosted checkout.
+	}
 	exit;
 }
 

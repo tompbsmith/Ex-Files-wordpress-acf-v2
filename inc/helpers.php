@@ -183,7 +183,7 @@ function exf_nav_links() {
 			(object) array( 'title' => __( 'The Brand', 'exfiles' ), 'url' => exf_page_url( 'brand' ), 'target' => '', 'classes' => exf_page_id( 'brand' ) && is_page( exf_page_id( 'brand' ) ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
 			(object) array( 'title' => __( 'The Brains', 'exfiles' ), 'url' => exf_page_url( 'brains' ), 'target' => '', 'classes' => exf_page_id( 'brains' ) && is_page( exf_page_id( 'brains' ) ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
 			(object) array( 'title' => __( 'Our Services', 'exfiles' ), 'url' => exf_page_id( 'services' ) ? exf_page_url( 'services' ) : '#services', 'target' => '', 'classes' => exf_page_id( 'services' ) && is_page( exf_page_id( 'services' ) ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
-			(object) array( 'title' => __( 'Open Your Ex File', 'exfiles' ), 'url' => '/open-your-ex-file/', 'target' => '', 'classes' => array(), 'menu_item_parent' => 0 ),
+			(object) array( 'title' => __( 'Create Your Ex File', 'exfiles' ), 'url' => exf_page_id( 'choose_service' ) ? exf_page_url( 'choose_service' ) : '/open-your-ex-file/', 'target' => '', 'classes' => exf_page_id( 'choose_service' ) && is_page( exf_page_id( 'choose_service' ) ) ? array( 'current-menu-item' ) : array(), 'menu_item_parent' => 0 ),
 		);
 	} else {
 		_wp_menu_item_classes_by_context( $items );
@@ -193,7 +193,7 @@ function exf_nav_links() {
 		if ( ! empty( $item->menu_item_parent ) ) {
 			continue;
 		}
-		// Logged-in visitors already have an Ex File: hide "Open Your Ex File".
+		// Logged-in visitors already have an Ex File: hide "Create Your Ex File".
 		if ( is_user_logged_in() && exf_is_register_link( $item ) ) {
 			continue;
 		}
@@ -211,7 +211,8 @@ function exf_nav_links() {
 }
 
 /**
- * Whether a menu item goes to an "Open your Ex File" page (either layout).
+ * Whether a menu item goes to "Create your Ex File": the choose-a-service page or a
+ * registration page (either layout).
  *
  * @param object $item Menu item.
  */
@@ -219,14 +220,17 @@ function exf_is_register_link( $item ) {
 	if ( isset( $item->object, $item->object_id ) && 'page' === $item->object && in_array( get_page_template_slug( (int) $item->object_id ), array( 'page-register.php', 'page-register-panels.php' ), true ) ) {
 		return true;
 	}
+	if ( isset( $item->object, $item->object_id ) && 'page' === $item->object && function_exists( 'exf_page_id' ) && exf_page_id( 'choose_service' ) && (int) $item->object_id === exf_page_id( 'choose_service' ) ) {
+		return true;
+	}
 	$path = untrailingslashit( (string) wp_parse_url( (string) $item->url, PHP_URL_PATH ) );
-	foreach ( array( 'register', 'register_alt' ) as $key ) {
+	foreach ( array( 'register', 'register_alt', 'choose_service' ) as $key ) {
 		$page = function_exists( 'exf_page_id' ) ? exf_page_id( $key ) : 0;
 		if ( $page && '' !== $path && untrailingslashit( (string) wp_parse_url( get_permalink( $page ), PHP_URL_PATH ) ) === $path ) {
 			return true;
 		}
 	}
-	return '/open-your-ex-file' === $path;
+	return in_array( $path, array( '/open-your-ex-file', '/create-your-ex-file' ), true );
 }
 
 /**

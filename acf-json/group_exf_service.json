@@ -190,6 +190,39 @@
             "message": ""
         },
         {
+            "key": "field_exf_svc_questionnaire_due_hours",
+            "label": "Questionnaire needed by",
+            "name": "questionnaire_due_hours",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "How long before the appointment you need the completed questionnaire. Clients are told this when they book and reminded the day before; if it hasn't arrived by then you're emailed, so you can cancel or move the appointment.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_requires_booking",
+                        "operator": "==",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_exf_svc_requires_questionnaire",
+                        "operator": "==",
+                        "value": "1"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 24,
+            "min": 0,
+            "max": 336,
+            "step": 1,
+            "append": "hours before"
+        },
+        {
             "key": "field_exf_svc_deliverable",
             "label": "What the client receives",
             "name": "deliverable",
@@ -206,7 +239,7 @@
             "choices": {
                 "appointment": "An appointment",
                 "report": "A written report",
-                "document": "A drafted legal document"
+                "document": "Legal documents we prepare"
             },
             "default_value": "report",
             "return_format": "value",
@@ -248,6 +281,26 @@
                 "id": ""
             },
             "placeholder": "Report within 5 working days of your questionnaire"
+        },
+        {
+            "key": "field_exf_svc_report_days",
+            "label": "Written report sent within",
+            "name": "report_days",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Days after you receive the completed questionnaire (or after payment, if there's no questionnaire). Clients are told this, and the report's due date shows on the order and your dashboard. Leave empty or 0 if there's no written report.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "min": 0,
+            "max": 90,
+            "step": 1,
+            "append": "days"
         },
         {
             "key": "field_exf_svc_buy_label",
@@ -325,7 +378,7 @@
             "name": "addon_type",
             "aria-label": "",
             "type": "select",
-            "instructions": "A consultation is booked by the client once you share a document of type “Report” with them (or when you open booking from the order).",
+            "instructions": "A consultation is booked by the client once you share a document of type “Report” with them or mark the service completed (or when you open booking from the order). Clients who didn't add it when ordering are offered it then, as a separate purchase.",
             "required": 0,
             "conditional_logic": [
                 [
@@ -391,6 +444,37 @@
             "append": "minutes"
         },
         {
+            "key": "field_exf_svc_addon_later_price",
+            "label": "Price if booked after the report",
+            "name": "addon_later_price",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Clients who didn't add the consultation when they ordered are offered it on its own once their report is ready (when you share a “Report” document or mark the service completed). Leave empty to charge the add-on price.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_svc_is_free",
+                        "operator": "!=",
+                        "value": "1"
+                    },
+                    {
+                        "field": "field_exf_svc_addon_type",
+                        "operator": "==",
+                        "value": "consultation"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "25",
+                "class": "",
+                "id": ""
+            },
+            "min": 0,
+            "step": "0.01",
+            "prepend": "£"
+        },
+        {
             "key": "field_exf_svc_addon_description",
             "label": "Add-on description (optional)",
             "name": "addon_description",
@@ -439,5 +523,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792450494
+    "modified": 1792944267
 }

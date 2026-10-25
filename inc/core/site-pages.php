@@ -73,7 +73,7 @@ function exf_paras( array $paras ) {
 /**
  * The sections for one of these pages.
  *
- * @param string $key brand|brains|services|register_alt.
+ * @param string $key brand|brains|services|register_alt|choose_service.
  * @return array[] Rows for the "sections" field.
  */
 function exf_page_sections_content( $key ) {
@@ -226,6 +226,33 @@ function exf_page_sections_content( $key ) {
 				),
 			);
 
+		case 'choose_service':
+			// A copy of Our Services, with each card going straight to the basket.
+			$rows  = exf_page_sections_content( 'services' );
+			$types = array( 'know_your_position', 'check_your_deal', 'make_it_legal' );
+			foreach ( $rows as $i => $row ) {
+				if ( 'service_list' === $row['acf_fc_layout'] ) {
+					$rows[ $i ]['eyebrow'] = __( 'Create your Ex File', 'exfiles' );
+					$rows[ $i ]['heading'] = __( 'Before you open your Ex File, please choose a service', 'exfiles' );
+					foreach ( $row['cards'] as $n => $card ) {
+						$rows[ $i ]['cards'][ $n ]['link'] = array();
+						foreach ( exf_services() as $svc ) {
+							if ( isset( $types[ $n ] ) && $types[ $n ] === $svc['type'] ) {
+								$rows[ $i ]['cards'][ $n ]['link'] = array(
+									'title'  => __( 'Choose this service', 'exfiles' ),
+									'url'    => add_query_arg( 'service', $svc['id'], exf_page_url( 'buy' ) ),
+									'target' => '',
+								);
+							}
+						}
+					}
+				} elseif ( 'inquiry' === $row['acf_fc_layout'] ) {
+					$rows[ $i ]['heading'] = __( 'Not sure which service you need?', 'exfiles' );
+					$rows[ $i ]['text']    = __( "Send us an enquiry and tell us a little about your situation. We'll get back to you as soon as possible to help you choose.", 'exfiles' );
+				}
+			}
+			return $rows;
+
 		case 'register_alt':
 			return array(
 				array(
@@ -234,9 +261,9 @@ function exf_page_sections_content( $key ) {
 					'image_side'    => 'right',
 					'background'    => 'cream',
 					'heading_tag'   => 'h1',
-					'heading'       => __( 'Open Your Ex File', 'exfiles' ),
-					'subheading'    => __( 'Conflict-of-Interest Check', 'exfiles' ),
-					'text'          => exf_paras( array( __( "Before we can begin creating your account or reviewing any detailed financial information, The Ex Files must perform a professional conflict-of-interest check. This is a standard procedure in matrimonial finance specialists to ensure we haven't already been engaged by your former partner, allowing us to provide you with completely independent and unbiased advice throughout your separation process.", 'exfiles' ) ) ),
+					'heading'       => __( 'Create Your Ex File', 'exfiles' ),
+					'subheading'    => __( 'Your private account with us', 'exfiles' ),
+					'text'          => exf_paras( array( __( 'Your Ex File holds everything about your matter in one secure place: your booking, your financial questionnaire, the documents we share with you and anything you send us.', 'exfiles' ) ) ),
 				),
 			);
 	}
@@ -261,7 +288,7 @@ function exf_seed_page_sections( $key, $page_id ) {
 
 /**
  * Put The Brand, The Brains and Our Services in the main menu, in the Wix order:
- * Home, The Brand, The Brains, Our Services, Open Your Ex File.
+ * Home, The Brand, The Brains, Our Services, Create Your Ex File.
  */
 function exf_menu_add_site_pages() {
 	$locations = get_nav_menu_locations();

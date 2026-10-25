@@ -253,6 +253,28 @@ function exf_ex_details( $ex_file_id ) {
 }
 
 /**
+ * Whether someone's details are compared in other people's conflict checks.
+ *
+ * Someone who has given their details at checkout but hasn't paid isn't on the
+ * register at all: the client didn't want people "on the conflict register" just for
+ * filling in the form (October 2026). Unverified registrations from before the
+ * checkout flow don't count either, unless they've bought something (a paid client
+ * who hasn't clicked the confirmation link yet still counts).
+ *
+ * @param int $user_id User.
+ */
+function exf_user_counts_in_conflict_check( $user_id ) {
+	$status = exf_user_status( $user_id );
+	if ( '' === $status || EXF_STATUS_AWAITING === $status ) {
+		return false;
+	}
+	if ( EXF_STATUS_PENDING === $status && ! get_user_meta( $user_id, 'exf_email_verified', true ) ) {
+		return exf_client_has_service( $user_id );
+	}
+	return true;
+}
+
+/**
  * Everyone the solicitor acts or has acted for, except one user.
  *
  * @param int $exclude_user Client being checked.
@@ -263,14 +285,17 @@ function exf_conflict_pool_clients( $exclude_user ) {
 	$users = get_users(
 		array(
 			'meta_key'     => 'exf_status', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-			'meta_value'   => EXF_STATUS_PENDING, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			'meta_compare' => '!=',
+			'meta_value'   => array( EXF_STATUS_AWAITING ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			'meta_compare' => 'NOT IN',
 			'exclude'      => array( (int) $exclude_user ),
 			'fields'       => 'ID',
 			'number'       => -1,
 		)
 	);
 	foreach ( $users as $uid ) {
+		if ( ! exf_user_counts_in_conflict_check( $uid ) ) {
+			continue;
+		}
 		$d      = exf_client_details( $uid );
 		$pool[] = array(
 			'type'   => 'client',
@@ -308,8 +333,8 @@ function exf_conflict_pool_exes( $exclude_user ) {
 	);
 	foreach ( $ids as $id ) {
 		$owner = (int) get_post_field( 'post_author', $id );
-		if ( EXF_STATUS_PENDING === exf_user_status( $owner ) ) {
-			continue; // Unverified registrations don't count yet.
+		if ( ! exf_user_counts_in_conflict_check( $owner ) ) {
+			continue; // Unpaid or unverified sign-ups don't count yet.
 		}
 		$d      = exf_ex_details( $id );
 		$pool[] = array(
@@ -603,7 +628,11 @@ function exf_ex_file_log( $ex_file_id, $message ) {
  * @param int $user_id User ID.
  */
 function exf_sync_user_status( $user_id ) {
-	if ( EXF_STATUS_PENDING === exf_user_status( $user_id ) && ! get_user_meta( $user_id, 'exf_email_verified', true ) ) {
+	$current = exf_user_status( $user_id );
+	if ( EXF_STATUS_AWAITING === $current ) {
+		return; // Set by checkout (basket.php) until they pay.
+	}
+	if ( EXF_STATUS_PENDING === $current && ! get_user_meta( $user_id, 'exf_email_verified', true ) ) {
 		return;
 	}
 	$first = exf_first_ex_file( $user_id );

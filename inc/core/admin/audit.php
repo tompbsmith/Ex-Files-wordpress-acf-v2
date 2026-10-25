@@ -246,9 +246,9 @@ add_action(
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename="activity-log-' . gmdate( 'Y-m-d' ) . '.csv"' );
 		$out = fopen( 'php://output', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
-		fputcsv( $out, array( 'When (UTC)', 'Who', 'Action', 'What', 'Object type', 'Object ID', 'IP' ) );
+		fputcsv( $out, array( 'When (UK time)', 'When (UTC)', 'Who', 'Action', 'What', 'Object type', 'Object ID', 'IP' ) );
 		foreach ( $rows as $r ) {
-			fputcsv( $out, array( $r->created_at, $r->user_name, $r->action, exf_csv_safe( $r->summary ), $r->object_type, $r->object_id, $r->ip ) );
+			fputcsv( $out, array( wp_date( 'Y-m-d H:i:s', strtotime( $r->created_at . ' UTC' ) ), $r->created_at, $r->user_name, $r->action, exf_csv_safe( $r->summary ), $r->object_type, $r->object_id, $r->ip ) );
 		}
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		exit;

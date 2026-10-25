@@ -17,7 +17,7 @@ A WordPress version of the original Ex Files one-pager (previously a static site
    - fills it with the original site's sections and copy
    - adds the two hero videos and the logo to the Media Library
    - fills in **Site Settings** (footer, socials, contact recipient, meta description)
-   - creates the main menu (Home / Our Services / Open Your Ex File) if none is assigned
+   - creates the main menu (Home / Our Services / Create Your Ex File) if none is assigned
 4. Set **Settings → General → Site Title** to "The Ex Files" and the **Tagline** to "Matrimonial Finance Specialists". The browser tab title is built from these, giving "The Ex Files | Matrimonial Finance Specialists".
 
 Running the import again won't change existing content unless you tick **Replace existing sections and settings**.
@@ -63,9 +63,10 @@ Everything beyond the marketing pages lives in `inc/core/`. It's kept separate f
 - **Free Divorce Guide** (`/free-divorce-guide/`): an ordinary Sections page, so edit it like the homepage
 - **Get your free guide** (`/free-divorce-guide/start/`, template *Divorce Guide Form*)
 - **Your guide is on its way** (`/free-divorce-guide/sent/`, template *Divorce Guide Sent*)
-- **Open your Ex File** (`/open-your-ex-file/`, template *Open Your Ex File*): registration
+- **Create your Ex File** (`/create-your-ex-file/`, a Sections page): "Before you open your Ex File, please choose a service". A copy of Our Services whose cards go straight to the basket, with the service enquiry form for people who aren't sure. The menu's **Create Your Ex File** goes here.
+- **Create your Ex File: your details** (`/open-your-ex-file/`, template *Open Your Ex File*): the registration form, the step after the basket
 - **My Ex File** (`/my-ex-file/`, template *My Ex File (account)*): the client's account page
-- **Choose your service** (`/my-ex-file/buy/`, template *Buy a Service*): checkout
+- **Choose your service** (`/my-ex-file/buy/`, template *Buy a Service*): checkout (the basket, for visitors who aren't logged in)
 - **Our services** (`/services/`, a Sections page) and one page per service under it (template *Service*): Know Your Position, Check Your Deal, Make It Legal. (The free 15-minute consultation was dropped at the client's request; existing copies of its page are switched to draft. Ticking "Free" in a service page's Service settings makes a free bookable service if one is wanted again.)
 
 Pages are found by their template, so they can be renamed or moved.
@@ -82,9 +83,21 @@ The branching is in `exf_guide_next_step()` (PHP) and `next()` in `guide.js`; ke
 
 ### Accounts and the conflict check
 
-**Registration** (`/open-your-ex-file/`, `inc/core/accounts/register.php`) has four steps: your details, your ex, your relationship, your account. It creates a `customer` user (the WooCommerce role) and their first **Ex File** (one separation). Contact details are saved under WooCommerce's `billing_*` keys, so checkout will be pre-filled. Nothing is checked until the client clicks the link in the confirmation email (valid 48 hours). Unconfirmed registrations are deleted after 7 days (**Ex Files → Settings**).
+**New clients choose a service first** (October 2026, `inc/core/commerce/basket.php`), so nobody gives their ex's details without going ahead:
 
-**The conflict check** (`inc/core/accounts/conflict.php`) runs when the email is confirmed. It compares:
+1. **Choose a service** on Create your Ex File (or a service page's button).
+2. **Basket** (`/my-ex-file/buy/?service=ID` while logged out): the time, if it has an appointment, any add-on and the cancellation consent.
+3. **Create your Ex File** (the registration form, `inc/core/accounts/register.php`): four steps, your details, your ex, your relationship, your account. It creates a `customer` user (the WooCommerce role) with the status **Not paid yet** (`awaiting_payment`) and their first **Ex File** (one separation), and runs the conflict check straight away. Nothing on the page mentions the check.
+4. **Payment** on Stripe, if the check is clear.
+5. Once Stripe confirms the payment, the account is created properly (**Email not verified**) and the client is emailed a **confirm your email** link (valid 48 hours, Email Copy → *Confirm email (after paying)*). Clicking it logs them in to My Ex File.
+
+If the check needs a manual review, the client sees only "we're just checking a few details", isn't charged, and is sent the usual confirmation link; once you clear it they're emailed a link to book and pay as any client does. A block shows the general "unable to help" wording (also "you haven't been charged").
+
+The basket is kept for 48 hours in a cookie, so someone who cancels at Stripe or comes back later goes straight to payment without filling the form in again. Someone who starts again with the same email address (e.g. on another device) replaces their unpaid sign-up, and any payment page still open is closed at Stripe first. Unpaid sign-ups **aren't used in anyone's conflict check** (the client didn't want them on the register just for filling in the form) and are deleted, without adding anyone to the Conflict Register, after the unconfirmed sign-up period (**Ex Files → Settings**, 7 days). Clients who paid but haven't clicked the confirmation link are never deleted.
+
+Contact details are saved under WooCommerce's `billing_*` keys, so checkout will be pre-filled. Registrations from before October 2026 that were never confirmed still work the old way: the check runs when the email is confirmed.
+
+**The conflict check** (`inc/core/accounts/conflict.php`) compares:
 
 - the **ex** with every existing client, and with Conflict Register entries for clients and "other";
 - the **client** with the exes named in other clients' Ex Files, and with register entries for opposing parties (the reverse check).
@@ -120,7 +133,7 @@ The weights are constants at the top of `conflict.php`, to be tuned with the cli
 
 **Services** are pages using the *Service* template. Each has **Service settings**: price (or free), whether it needs an appointment and how long, whether it needs the financial questionnaire, what the client receives, a short description, and the button label. Below that, the page uses the same Page Builder sections as the homepage. New service pages are created **without a price**, and their Buy button stays hidden until one is set. A notice in the admin lists any services without a price.
 
-**Buying** (`inc/core/commerce/buy.php`, `page-buy.php`): a logged-out visitor clicking Book/Get started goes to registration first, and the service is remembered. A logged-in client chooses **which Ex File** it's for (or adds **a new separation**, which runs the conflict check on its own; only that Ex File is affected), chooses a time if the service has an appointment, and pays on **Stripe Checkout**. Free services are confirmed without payment. Clients under review can't buy.
+**Buying** (`inc/core/commerce/buy.php`, `page-buy.php`): a logged-out visitor clicking Book/Get started goes to the basket and then Create your Ex File (above). A logged-in client chooses **which Ex File** it's for (or adds **a new separation**, which runs the conflict check on its own; only that Ex File is affected), chooses a time if the service has an appointment, and pays on **Stripe Checkout**. Free services are confirmed without payment. Clients under review can't buy.
 
 **Payments** (`inc/core/commerce/stripe.php`): Stripe Checkout Sessions created with the API directly (no plugin). Keys and the webhook secret go in **Ex Files → Settings → Payments**, or better, as `EXF_STRIPE_SECRET_KEY` and `EXF_STRIPE_WEBHOOK_SECRET` in `wp-config.php` on the live site. The webhook URL is shown on that settings tab. A payment is confirmed by the signed webhook or by the return page checking the session, whichever comes first, and it's only processed once. Refunds are done in the Stripe dashboard, and the order is marked refunded through the webhook.
 
@@ -134,7 +147,9 @@ The weights are constants at the top of `conflict.php`, to be tuned with the cli
 
 **Documents** (Ex Files → Client Documents, or *Upload a document for this client* on an Ex File): files are stored privately, never in the media library. Tick *Email the client* to send a "document ready" email, which links to the portal rather than attaching the file. The portal marks new documents until the client opens them, and the admin shows when they did. Clients can send documents too (PDF, Word, Excel, CSV, text or photos, up to 15 MB, 20 an hour); you get an email, and they can remove their own uploads. Deleting a document deletes its file.
 
-**Appointments:** clients can download a calendar file, but can't move or cancel online. They send a request, which emails you and shows on the order, the Ex File and the dashboard. If you cancel, use *Cancel appointment* on the order to free the slot; it isn't refunded (refunds, if ever, are done in Stripe). **Payments** lists what they've paid, with a reference; Stripe emails the receipts, and there's no VAT.
+**Appointments:** clients can download a calendar file, but can't move or cancel online. They send a request, which emails you and shows on the order, the Ex File and the dashboard. To move or cancel an appointment, use **Change or cancel** on the order or next to the appointment on the dashboard (`inc/core/portal/appointments-admin.php`). Moving offers your free times or any time you've agreed (it can't overlap another booking), and sends the client and you an updated calendar invite, so the event moves in both calendars. Cancelling frees the slot, records the reason, and sends a calendar cancellation so the event disappears, plus an email to the client if you tick it (wording in Email Copy, including a sentence per reason). Neither refunds anything: refunds are done in Stripe. **Payments** lists what they've paid, with a reference; Stripe emails the receipts, and there's no VAT.
+
+**Consultation after a report** (Check Your Deal): clients who added the consultation when ordering are emailed a booking link when their report is shared (a document of type "Report") or the order is marked completed. Clients who didn't are offered it then as a separate purchase, by email and under "What to do next" in My Ex File, at the service's *Price if booked after the report* (the add-on price unless set).
 
 **Account details:** clients can change their phone, address and marketing choice. A new email address only takes effect after they click a link sent to it, and the old address is told. Name and date of birth can't be changed online, because they're part of the conflict check.
 
@@ -154,11 +169,12 @@ The **dashboard widget** shows conflict checks waiting, appointment requests, th
 - In the admin, a questionnaire shows every answer read-only, the downloads, and **Reopen for the client** (they're emailed and can submit again).
 - If the client buys another service for the same separation, they can start from their last answers.
 - **Google Sheets (optional):** Settings → Google Drive. With a Google Cloud OAuth client (Web application; redirect URI shown on the tab; ID and secret in the settings or as `EXF_GOOGLE_CLIENT_ID` / `EXF_GOOGLE_CLIENT_SECRET` in `wp-config.php`), press **Connect Google Drive** and switch it on. Each asset schedule is then also saved as a Google Sheet in a "Asset schedules" folder the site creates, linked from the questionnaire screen. The site uses Google's drive.file permission, so it only sees what it creates. Recreating a schedule replaces its Sheet; deleting a questionnaire or matter deletes it. If an upload fails, the questionnaire shows "Send to Google Sheets" to try again; submission is never held up.
-- Reminders go 3 and 7 days after payment, and 2 days before a Know Your Position appointment, if it hasn't been submitted (never two within a day).
+- Reminders go 3 and 7 days after payment, and the day before it's needed for an appointment, if it hasn't been submitted (never two within a day).
+- **Deadlines** (Service settings, `inc/core/questionnaire/deadlines.php`): *Questionnaire needed by* (24 hours before the appointment by default) and *Written report sent within* (7 days of receiving the questionnaire by default for Check Your Deal). Clients are told in the basket, the confirmation email and My Ex File. If a questionnaire for an appointment hasn't arrived by its deadline you're emailed, and it's listed on the dashboard with a link to cancel or move the appointment. Report due dates show on the order and the dashboard.
 
 ### Admin tools
 
-- **Activity log** (Ex Files → Activity log): who did what, newest first, with search and CSV download. Everything recorded on an Ex File is copied here, plus staff logins, staff downloads of client documents, matter deletions and data protection requests. Kept for the client retention period.
+- **Activity log** (Ex Files → Activity log): who did what, newest first, with search and CSV download (UK time and UTC). Times are stored in UTC and shown in the site's time zone; a site left on WordPress's default fixed "UTC+0" is switched to London once, as times were an hour out in summer. Everything recorded on an Ex File is copied here, plus staff logins, staff downloads of client documents, matter deletions and data protection requests. Kept for the client retention period.
 - **Retention review** (Ex Files → Retention review): matters with no activity for the retention period (Settings → Data retention, default 6 years). Nothing is deleted automatically. Deleting a matter removes its documents, questionnaires, schedules and orders, and the client's account if it was their only matter; the client and their ex are added to the Conflict Register first so future conflict checks still find them. Deleting a client from Users does the same.
 - **Data protection requests** use WordPress's own tools (Tools → Export / Erase Personal Data). The export covers the account, Ex Files, orders, documents, questionnaire answers and free guide requests. Erasing deletes free guide requests and registrations with no work; a paying client's matters are kept as legal records (the request says until when) and marketing is switched off.
 - **Delivery to-do:** paid services stay on the dashboard and in Orders → To do until marked **completed** on the order. The client then sees "Completed". The dashboard also lists submitted questionnaires waiting for you and matters past retention.

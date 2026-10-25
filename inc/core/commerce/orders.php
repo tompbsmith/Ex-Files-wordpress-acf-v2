@@ -134,7 +134,7 @@ function exf_order_create( $client_id, $ex_file_id, array $service, $start = 0, 
 		/* translators: 1: add-on, 2: service */
 		$service['name'] = sprintf( __( '%1$s (%2$s)', 'exfiles' ), $service['addon']['name'], $service['name'] );
 		$minutes         = $service['addon']['minutes'];
-		$pence           = get_post_meta( $parent, 'addon_pence', true ) ? 0 : $service['addon']['pence'];
+		$pence           = get_post_meta( $parent, 'addon_pence', true ) ? 0 : ( function_exists( 'exf_consult_price' ) ? exf_consult_price( $service ) : $service['addon']['pence'] );
 	}
 	$id = wp_insert_post(
 		array(
@@ -217,6 +217,10 @@ function exf_order_mark_paid( $order_id, array $session ) {
 		exf_order_log( $order_id, 'Paid after the slot hold expired, and the slot is now taken: needs rescheduling' );
 	}
 
+	// A new client who paid at checkout: create their account properly first (basket.php).
+	if ( function_exists( 'exf_basket_activate_client' ) ) {
+		exf_basket_activate_client( $order_id );
+	}
 	exf_order_fulfil( $order_id );
 	exf_unlock( 'order_' . $order_id );
 }
@@ -245,6 +249,9 @@ function exf_slot_is_free_for_paid( $order_id ) {
 function exf_order_confirm_free( $order_id ) {
 	delete_post_meta( $order_id, 'hold_expires' );
 	exf_order_set_status( $order_id, 'confirmed', 'Free service confirmed' );
+	if ( function_exists( 'exf_basket_activate_client' ) ) {
+		exf_basket_activate_client( $order_id );
+	}
 	exf_order_fulfil( $order_id );
 }
 
@@ -352,6 +359,11 @@ function exf_order_email_vars( $order_id ) {
 		} else {
 			$next = __( 'Next, please complete your questionnaire in your Ex File.', 'exfiles' );
 		}
+	}
+
+	$deadline = function_exists( 'exf_order_deadline_note' ) ? exf_order_deadline_note( $order_id ) : '';
+	if ( $deadline ) {
+		$next .= ( $next ? "\n\n" : '' ) . $deadline;
 	}
 
 	if ( $addon && 'consultation' === get_post_meta( $order_id, 'addon_type', true ) ) {
@@ -629,7 +641,6 @@ function exf_order_box( $post ) {
 	$q       = (int) get_post_meta( $id, 'questionnaire_id', true );
 	$log     = array_reverse( array_filter( (array) get_post_meta( $id, 'order_log', true ) ) );
 	$pence   = (int) get_post_meta( $id, 'amount_pence', true );
-	$cancel  = wp_nonce_url( admin_url( 'admin-post.php?action=exf_order_cancel&order=' . $id ), 'exf_order_cancel_' . $id );
 	?>
 	<h2 style="padding-left:0"><?php echo esc_html( get_the_title( $post ) ); ?></h2>
 	<table class="form-table" role="presentation">
@@ -646,10 +657,38 @@ function exf_order_box( $post ) {
 				&nbsp; <a href="<?php echo esc_url( exf_stripe_dashboard_url( $pi ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'View in Stripe (refunds are done there)', 'exfiles' ); ?></a>
 			<?php endif; ?>
 		</td></tr>
-		<?php if ( $start ) : ?>
-			<tr><th><?php esc_html_e( 'Appointment', 'exfiles' ); ?></th><td><?php echo esc_html( exf_booking_label( $start, (int) get_post_meta( $id, 'booking_end', true ) ) ); ?>
-				<?php if ( exf_order_is_live( $id ) && $start > time() ) : ?>
-					&nbsp; <a href="<?php echo esc_url( $cancel ); ?>" onclick="return confirm('<?php echo esc_js( __( 'Cancel this appointment and free the slot? This does not refund the payment or email the client.', 'exfiles' ) ); ?>')" style="color:#b32d2e"><?php esc_html_e( 'Cancel appointment', 'exfiles' ); ?></a>
+		<?php $svc = exf_service( (int) get_post_meta( $id, 'service_id', true ) ); ?>
+		<?php if ( $start || ( $svc && $svc['booking'] && ! get_post_meta( $id, 'parent_order', true ) ) || get_post_meta( $id, 'cancelled_start', true ) ) : ?>
+			<tr id="exf-appointment"><th><?php esc_html_e( 'Appointment', 'exfiles' ); ?></th><td>
+				<?php if ( $start ) : ?>
+					<?php echo esc_html( exf_booking_label( $start, (int) get_post_meta( $id, 'booking_end', true ) ) ); ?>
+				<?php elseif ( get_post_meta( $id, 'cancelled_start', true ) ) : ?>
+					<?php
+					/* translators: %s: date and time */
+					echo esc_html( sprintf( __( 'Cancelled (was %s)', 'exfiles' ), exf_booking_label( (int) get_post_meta( $id, 'cancelled_start', true ) ) ) );
+					?>
+				<?php else : ?>
+					<?php esc_html_e( 'None booked', 'exfiles' ); ?>
+				<?php endif; ?>
+				<?php if ( exf_order_is_live( $id ) && ( ! $start || $start > time() ) && function_exists( 'exf_appointment_admin_url' ) ) : ?>
+					&nbsp; <a class="button" href="<?php echo esc_url( exf_appointment_admin_url( $id ) ); ?>"><?php echo esc_html( $start ? __( 'Change or cancel', 'exfiles' ) : __( 'Book a time', 'exfiles' ) ); ?></a>
+				<?php endif; ?>
+			</td></tr>
+		<?php endif; ?>
+		<?php $qdl = function_exists( 'exf_order_q_deadline' ) ? exf_order_q_deadline( $id ) : 0; ?>
+		<?php if ( $qdl && exf_order_is_live( $id ) && exf_order_q_outstanding( $id ) ) : ?>
+			<tr><th><?php esc_html_e( 'Questionnaire needed by', 'exfiles' ); ?></th><td>
+				<?php echo esc_html( exf_booking_label( $qdl ) ); ?>
+				<?php if ( $qdl < time() ) : ?>
+					<strong style="color:#b32d2e"><?php esc_html_e( 'Not received in time. You can cancel or move the appointment above.', 'exfiles' ); ?></strong>
+				<?php endif; ?>
+			</td></tr>
+		<?php endif; ?>
+		<?php $rdue = function_exists( 'exf_order_report_due' ) ? exf_order_report_due( $id ) : 0; ?>
+		<?php if ( $rdue ) : ?>
+			<tr><th><?php esc_html_e( 'Report due', 'exfiles' ); ?></th><td><?php echo esc_html( wp_date( 'l j F Y', $rdue ) ); ?>
+				<?php if ( $rdue < time() && ! exf_order_completed( $id ) ) : ?>
+					<strong style="color:#b32d2e"><?php esc_html_e( 'Overdue', 'exfiles' ); ?></strong>
 				<?php endif; ?>
 			</td></tr>
 		<?php endif; ?>
@@ -666,7 +705,7 @@ function exf_order_box( $post ) {
 			$cstat = (string) get_post_meta( $id, 'consult_status', true );
 			$copen = wp_nonce_url( admin_url( 'admin-post.php?action=exf_consult_open&order=' . $id ), 'exf_consult_open_' . $id );
 			$clabs = array(
-				''       => exf_consult_prepaid( $id ) ? __( 'Paid for. Booking opens when you share a document of type “Report” on this Ex File.', 'exfiles' ) : __( 'Not bought. Offered to the client once you share their report.', 'exfiles' ),
+				''       => exf_consult_prepaid( $id ) ? __( 'Paid for. Booking opens when you share a document of type “Report” on this Ex File.', 'exfiles' ) : __( 'Not bought. Offered to the client (emailed, and shown in their Ex File) once you share their report or mark this completed.', 'exfiles' ),
 				'open'   => __( 'Open: the client has been emailed a link to book.', 'exfiles' ),
 				'offer'  => __( 'Offered: the client can add it from their Ex File.', 'exfiles' ),
 				'booked' => __( 'Booked.', 'exfiles' ),

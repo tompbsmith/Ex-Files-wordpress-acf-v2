@@ -60,7 +60,7 @@
         },
         {
             "key": "field_exf_em_tab_verify",
-            "label": "Confirm email",
+            "label": "Confirm email (before paying)",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -82,7 +82,7 @@
             "name": "verify_subject",
             "aria-label": "",
             "type": "text",
-            "instructions": "Merge tags: {first_name}, {link}",
+            "instructions": "Merge tags: {first_name}, {link}. Sent to sign-ups whose details we need to check by hand before they can pay, and to accounts from before the checkout.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -95,6 +95,56 @@
             "key": "field_exf_em_verify_body",
             "label": "Message",
             "name": "verify_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_verify_paid",
+            "label": "Confirm email (after paying)",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_verify_paid_subject",
+            "label": "Subject",
+            "name": "verify_paid_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {link}. Sent to new clients once their payment is confirmed: clicking the link opens their Ex File.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_verify_paid_body",
+            "label": "Message",
+            "name": "verify_paid_body",
             "aria-label": "",
             "type": "textarea",
             "instructions": "",
@@ -559,6 +609,206 @@
             "new_lines": ""
         },
         {
+            "key": "field_exf_em_tab_appointment_moved",
+            "label": "Appointment moved",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_appointment_moved_subject",
+            "label": "Subject",
+            "name": "appointment_moved_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {service}, {appointment}, {old_appointment}, {meeting_details}, {link}. Sent with an updated calendar invite.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_appointment_moved_body",
+            "label": "Message",
+            "name": "appointment_moved_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_appointment_cancelled",
+            "label": "Appointment cancelled",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_appointment_cancelled_subject",
+            "label": "Subject",
+            "name": "appointment_cancelled_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {service}, {appointment}, {reason}. {reason} is the sentence for the reason you choose when cancelling (empty for \"Other\"). Sent with a calendar cancellation.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_appointment_cancelled_body",
+            "label": "Message",
+            "name": "appointment_cancelled_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_appointment_changed",
+            "label": "To you: appointment moved or cancelled",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_appointment_changed_subject",
+            "label": "Subject",
+            "name": "admin_appointment_changed_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {service}, {what} (moved or cancelled), {appointment}, {admin_link}. Sent with the calendar file, so the event updates in your calendar.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_appointment_changed_body",
+            "label": "Message",
+            "name": "admin_appointment_changed_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_admin_q_overdue",
+            "label": "To you: questionnaire not received in time",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_admin_q_overdue_subject",
+            "label": "Subject",
+            "name": "admin_q_overdue_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {client_name}, {service}, {deadline}, {appointment}, {admin_link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_admin_q_overdue_body",
+            "label": "Message",
+            "name": "admin_q_overdue_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
             "key": "field_exf_em_tab_admin_order",
             "label": "To you: new order",
             "name": "",
@@ -698,6 +948,56 @@
             "aria-label": "",
             "type": "textarea",
             "instructions": "Sent when you share a report with a client who paid for a consultation add-on. Merge tags: {first_name}, {service}, {addon}, {link}",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_consultation_offer",
+            "label": "Consultation offered after the report",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_consultation_offer_subject",
+            "label": "Subject",
+            "name": "consultation_offer_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {service}, {addon}, {price}, {link}. Sent when a report is ready for a client who didn’t add the consultation when they ordered.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_consultation_offer_body",
+            "label": "Message",
+            "name": "consultation_offer_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -982,7 +1282,7 @@
             "name": "questionnaire_reminder_subject",
             "aria-label": "",
             "type": "text",
-            "instructions": "Merge tags: {first_name}, {service}, {link}, {appointment}, {before_appt}",
+            "instructions": "Merge tags: {first_name}, {service}, {link}, {appointment}, {before_appt} (for the reminder before an appointment: the appointment and when the answers are needed by)",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -1032,7 +1332,7 @@
             "name": "questionnaire_received_subject",
             "aria-label": "",
             "type": "text",
-            "instructions": "Merge tags: {first_name}, {service}, {link}",
+            "instructions": "Merge tags: {first_name}, {service}, {link}, {report_due} (when the written report will be sent, if the service has a report deadline)",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -1177,5 +1477,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792601170
+    "modified": 1792944284
 }

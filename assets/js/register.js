@@ -1,4 +1,4 @@
-/* The Ex Files: "Open your Ex File" registration, one step at a time.
+/* The Ex Files: "Create your Ex File" registration, one step at a time.
    Without this script all four steps show on one page and the server validates. */
 (function () {
   'use strict';
@@ -127,7 +127,7 @@
     if (current !== total || !validStep(current)) { e.preventDefault(); return; }
     if (exDob) { exDob.disabled = false; }
     btnSubmit.disabled = true;
-    btnSubmit.textContent = cfg.sending || 'Opening your Ex File…';
+    btnSubmit.textContent = cfg.sending || 'Creating your Ex File…';
   });
 
   show(current, false);

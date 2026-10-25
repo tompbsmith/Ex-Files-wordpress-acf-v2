@@ -283,7 +283,17 @@ function exf_q_after_submit( $q ) {
 	}
 
 	$counts = exf_q_flag_counts( $data );
+	// When each written report is now due (e.g. Check Your Deal: 7 days from today).
+	$due    = array();
+	foreach ( exf_q_orders( $q ) as $o ) {
+		$at = function_exists( 'exf_order_report_due' ) ? exf_order_report_due( $o ) : 0;
+		if ( $at && ! exf_order_completed( $o ) ) {
+			/* translators: 1: service, 2: date */
+			$due[] = sprintf( __( 'We’ll send your written report for %1$s by %2$s.', 'exfiles' ), get_post_meta( $o, 'service_name', true ), wp_date( 'l j F Y', $at ) );
+		}
+	}
 	$vars   = array_merge( ( $ex_file ? exf_ex_file_email_vars( $ex_file ) : array() ), array(
+		'report_due' => implode( "\n", $due ),
 		'service'    => exf_q_service_name( $q ),
 		'link'       => exf_portal_url( 'documents' ),
 		'admin_link' => admin_url( 'post.php?post=' . $q . '&action=edit' ),
@@ -355,7 +365,8 @@ add_action(
 );
 
 /* -------------------------------------------------------------------------
- * Reminders: 3 and 7 days after payment, and 2 days before an appointment.
+ * Reminders: 3 and 7 days after payment, and a day before the questionnaire is
+ * needed for an appointment (see deadlines.php).
  * ---------------------------------------------------------------------- */
 
 add_action( 'exf_hourly', 'exf_q_send_reminders' );
@@ -397,8 +408,12 @@ function exf_q_send_reminders() {
 		$sent = array_filter( (array) get_post_meta( $q, 'q_reminders', true ) );
 		$paid = (int) get_post_meta( $live[0], 'paid_at', true );
 		$paid = $paid ? $paid : get_post_timestamp( $q );
-		$due   = '';
-		if ( $start && $start - $now <= 2 * DAY_IN_SECONDS && empty( $sent['appointment'] ) ) {
+		// The appointment reminder goes a day before the questionnaire's deadline
+		// (Service settings → "Questionnaire needed by"), or 2 days before the appointment.
+		$deadline = $start && function_exists( 'exf_order_q_deadline' ) ? exf_order_q_deadline( $order ) : 0;
+		$remind   = $deadline ? $deadline - DAY_IN_SECONDS : $start - 2 * DAY_IN_SECONDS;
+		$due      = '';
+		if ( $start && $now >= $remind && ( ! $deadline || $now < $deadline ) && empty( $sent['appointment'] ) ) {
 			$due = 'appointment';
 		} elseif ( $now - $paid >= 7 * DAY_IN_SECONDS && empty( $sent['day7'] ) ) {
 			$due = 'day7';
@@ -423,8 +438,11 @@ function exf_q_send_reminders() {
 					'link'        => exf_q_url( $q ),
 					'appointment' => $start ? exf_booking_label( $start, (int) get_post_meta( $order, 'booking_end', true ) ) : '',
 					'before_appt' => 'appointment' === $due && $start
-						/* translators: %s: appointment date */
-						? sprintf( __( 'Your appointment is on %s, and we need your answers before then to prepare.', 'exfiles' ), exf_booking_label( $start ) ) . "\n\n"
+						? ( $deadline
+							/* translators: 1: appointment date, 2: deadline */
+							? sprintf( __( 'Your appointment is on %1$s. To prepare, we need your answers by %2$s. If we don’t have them by then, we may need to cancel or move your appointment.', 'exfiles' ), exf_booking_label( $start ), exf_booking_label( $deadline ) )
+							/* translators: %s: appointment date */
+							: sprintf( __( 'Your appointment is on %s, and we need your answers before then to prepare.', 'exfiles' ), exf_booking_label( $start ) ) ) . "\n\n"
 						: '',
 				) )
 			);

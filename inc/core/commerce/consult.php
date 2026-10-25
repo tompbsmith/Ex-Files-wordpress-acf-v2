@@ -39,6 +39,7 @@ function exf_consult_service( $order_id ) {
 				'name'        => (string) get_post_meta( $order_id, 'addon_name', true ),
 				'price'       => (int) get_post_meta( $order_id, 'addon_pence', true ) / 100,
 				'pence'       => (int) get_post_meta( $order_id, 'addon_pence', true ),
+				'later_pence' => (int) get_post_meta( $order_id, 'addon_pence', true ),
 				'type'        => 'consultation',
 				'minutes'     => 60,
 				'description' => '',
@@ -47,6 +48,15 @@ function exf_consult_service( $order_id ) {
 		return $service;
 	}
 	return ( $service && $service['addon'] && 'consultation' === $service['addon']['type'] ) ? $service : null;
+}
+
+/**
+ * What a consultation costs when it's bought after the report (pence).
+ *
+ * @param array $service From exf_consult_service().
+ */
+function exf_consult_price( array $service ) {
+	return (int) ( $service['addon']['later_pence'] ?? $service['addon']['pence'] );
 }
 
 /**
@@ -92,8 +102,24 @@ function exf_consult_open( $order_id, $why = '' ) {
 	update_post_meta( $order_id, 'consult_opened_at', time() );
 	exf_order_log( $order_id, ( $prepaid ? 'Consultation booking opened' : 'Consultation offered to the client' ) . ( $why ? ' (' . $why . ')' : '' ) );
 
+	$user = get_userdata( (int) get_post_meta( $order_id, 'client_id', true ) );
+	if ( ! $prepaid && $user ) {
+		// Not bought with the order: offer it as a separate product (it also shows
+		// under "What to do next" in their Ex File).
+		exf_send_email(
+			'consultation_offer',
+			$user->user_email,
+			array_merge(
+				exf_order_email_vars( $order_id ),
+				array(
+					'addon' => lcfirst( $service['addon']['name'] ),
+					'price' => exf_money( exf_consult_price( $service ) ),
+					'link'  => exf_consult_url( $order_id ),
+				)
+			)
+		);
+	}
 	if ( $prepaid ) {
-		$user = get_userdata( (int) get_post_meta( $order_id, 'client_id', true ) );
 		if ( $user ) {
 			exf_send_email(
 				'consultation_open',
@@ -213,5 +239,16 @@ add_action(
 		exf_consult_open( $id, 'opened by ' . wp_get_current_user()->display_name );
 		wp_safe_redirect( get_edit_post_link( $id, 'url' ) );
 		exit;
+	}
+);
+
+// Marking the service completed (the report has gone, whichever way it was sent)
+// opens the consultation too, if sharing a "Report" document hasn't already.
+add_action(
+	'exf_order_completed',
+	function ( $order_id ) {
+		if ( exf_consult_service( $order_id ) && '' === (string) get_post_meta( $order_id, 'consult_status', true ) ) {
+			exf_consult_open( $order_id, 'service marked completed' );
+		}
 	}
 );

@@ -24,7 +24,9 @@ function exf_required_pages() {
 		'register_alt'  => array( 'page-register-panels.php', __( 'Open Your Ex File (alternative layout)', 'exfiles' ), 'open-your-ex-file-alt', '', 'template' ),
 		'guide_form'    => array( 'page-guide-form.php', __( 'Get your free guide', 'exfiles' ), 'start', 'guide_landing', 'template' ),
 		'guide_sent'    => array( 'page-guide-sent.php', __( 'Your guide is on its way', 'exfiles' ), 'sent', 'guide_landing', 'template' ),
-		'register'      => array( 'page-register.php', __( 'Open your Ex File', 'exfiles' ), 'open-your-ex-file', '', 'template' ),
+		'register'      => array( 'page-register.php', __( 'Create your Ex File: your details', 'exfiles' ), 'open-your-ex-file', '', 'template' ),
+		// "Before you open your Ex File, please choose a service": where the menu's Create Your Ex File goes.
+		'choose_service' => array( 'page-sections.php', __( 'Create your Ex File', 'exfiles' ), 'create-your-ex-file', '', 'option' ),
 		'account'       => array( 'page-account.php', __( 'My Ex File', 'exfiles' ), 'my-ex-file', '', 'template' ),
 		'login'         => array( 'page-login.php', __( 'Log in', 'exfiles' ), 'log-in', '', 'template' ),
 		'buy'           => array( 'page-buy.php', __( 'Choose your service', 'exfiles' ), 'buy', 'account', 'template' ),
@@ -145,17 +147,18 @@ function exf_create_missing_pages() {
 	}
 
 	// Content for new pages, once all of them exist (so links between them work).
-	if ( isset( $new['guide_landing'] ) ) {
-		exf_seed_guide_landing_sections( $new['guide_landing'] );
-	}
-	foreach ( array( 'brand', 'brains', 'services', 'register_alt' ) as $key ) {
-		if ( isset( $new[ $key ] ) ) {
-			exf_seed_page_sections( $key, $new[ $key ] );
-		}
-	}
+	// Service settings first: the service lists link to services by their type.
 	foreach ( exf_default_services() as $key => $svc ) {
 		if ( isset( $new[ $key ] ) ) {
 			exf_seed_service_page( $new[ $key ], $svc[2] );
+		}
+	}
+	if ( isset( $new['guide_landing'] ) ) {
+		exf_seed_guide_landing_sections( $new['guide_landing'] );
+	}
+	foreach ( array( 'brand', 'brains', 'services', 'register_alt', 'choose_service' ) as $key ) {
+		if ( isset( $new[ $key ] ) ) {
+			exf_seed_page_sections( $key, $new[ $key ] );
 		}
 	}
 
@@ -378,4 +381,61 @@ add_action(
 		update_option( 'exf_menu_register_link_done', 1, false );
 	},
 	30
+);
+
+/*
+ * One-off (October 2026): "Open your Ex File" becomes "Create your Ex File", and the
+ * menu link goes to the choose-a-service page first (the checkout flow, see
+ * commerce/basket.php). The registration page keeps its address so old links work;
+ * only a title still set to the old default is changed. Runs once both pages exist.
+ */
+add_action(
+	'init',
+	function () {
+		if ( get_option( 'exf_create_ex_file_rename_done' ) || ! exf_page_id( 'choose_service' ) ) {
+			return;
+		}
+		$choose = exf_page_id( 'choose_service' );
+		$path   = wp_make_link_relative( get_permalink( $choose ) );
+
+		$register = exf_page_id( 'register' );
+		if ( $register && 'open your ex file' === strtolower( trim( get_the_title( $register ) ) ) ) {
+			wp_update_post(
+				array(
+					'ID'         => $register,
+					'post_title' => __( 'Create your Ex File: your details', 'exfiles' ),
+				)
+			);
+		}
+
+		$items = get_posts(
+			array(
+				'post_type'      => 'nav_menu_item',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+			)
+		);
+		foreach ( $items as $item ) {
+			$item  = wp_setup_nav_menu_item( $item );
+			$title = strtolower( trim( (string) $item->title ) );
+			if ( 'open your ex file' !== $title && ! exf_is_register_link( $item ) ) {
+				continue;
+			}
+			// A link to the page that used its title has none of its own once it's a custom link.
+			if ( 'open your ex file' === $title || '' === trim( (string) get_post_field( 'post_title', $item->ID ) ) ) {
+				wp_update_post(
+					array(
+						'ID'         => $item->ID,
+						'post_title' => __( 'Create Your Ex File', 'exfiles' ),
+					)
+				);
+			}
+			update_post_meta( $item->ID, '_menu_item_type', 'custom' );
+			update_post_meta( $item->ID, '_menu_item_object', 'custom' );
+			update_post_meta( $item->ID, '_menu_item_object_id', $item->ID );
+			update_post_meta( $item->ID, '_menu_item_url', $path );
+		}
+		update_option( 'exf_create_ex_file_rename_done', 1, false );
+	},
+	31
 );

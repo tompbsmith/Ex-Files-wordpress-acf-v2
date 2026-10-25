@@ -211,12 +211,23 @@ function exf_dashboard_widget() {
 		<?php endif; ?>
 	</p>
 
+	<?php $overdue = function_exists( 'exf_orders_q_overdue' ) ? exf_orders_q_overdue() : array(); ?>
+	<?php if ( $overdue ) : ?>
+		<h3><strong style="color:#b32d2e"><?php esc_html_e( 'Questionnaires not received in time', 'exfiles' ); ?></strong></h3>
+		<ul>
+			<?php foreach ( $overdue as $o ) : ?>
+				<?php $u = get_userdata( (int) get_post_meta( $o, 'client_id', true ) ); ?>
+				<li><?php echo esc_html( ( $u ? $u->display_name : '' ) . ' – ' . get_post_meta( $o, 'service_name', true ) . ', ' . exf_booking_label( (int) get_post_meta( $o, 'booking_start', true ) ) ); ?> · <a href="<?php echo esc_url( exf_appointment_admin_url( $o ) ); ?>"><?php esc_html_e( 'Change or cancel', 'exfiles' ); ?></a></li>
+			<?php endforeach; ?>
+		</ul>
+	<?php endif; ?>
+
 	<?php if ( $requests ) : ?>
 		<h3><strong><?php esc_html_e( 'Appointment requests', 'exfiles' ); ?></strong></h3>
 		<ul>
 			<?php foreach ( $requests as $o ) : ?>
 				<?php $u = get_userdata( (int) get_post_meta( $o, 'client_id', true ) ); ?>
-				<li><a href="<?php echo esc_url( get_edit_post_link( $o ) ); ?>"><?php echo esc_html( ( $u ? $u->display_name : '' ) . ' – ' . ( 'cancel' === get_post_meta( $o, 'change_request_kind', true ) ? __( 'cancel', 'exfiles' ) : __( 'move', 'exfiles' ) ) . ' ' . exf_booking_label( (int) get_post_meta( $o, 'booking_start', true ) ) ); ?></a></li>
+				<li><a href="<?php echo esc_url( get_edit_post_link( $o ) ); ?>"><?php echo esc_html( ( $u ? $u->display_name : '' ) . ' – ' . ( 'cancel' === get_post_meta( $o, 'change_request_kind', true ) ? __( 'cancel', 'exfiles' ) : __( 'move', 'exfiles' ) ) . ' ' . exf_booking_label( (int) get_post_meta( $o, 'booking_start', true ) ) ); ?></a> · <a href="<?php echo esc_url( exf_appointment_admin_url( $o ) ); ?>"><?php esc_html_e( 'Change or cancel', 'exfiles' ); ?></a></li>
 			<?php endforeach; ?>
 		</ul>
 	<?php endif; ?>
@@ -226,11 +237,30 @@ function exf_dashboard_widget() {
 		<ul>
 			<?php foreach ( $appts as $o ) : ?>
 				<?php $u = get_userdata( (int) get_post_meta( $o, 'client_id', true ) ); ?>
-				<li><a href="<?php echo esc_url( get_edit_post_link( $o ) ); ?>"><?php echo esc_html( exf_booking_label( (int) get_post_meta( $o, 'booking_start', true ) ) ); ?></a> – <?php echo esc_html( ( $u ? $u->display_name : '' ) . ', ' . get_post_meta( $o, 'service_name', true ) ); ?></li>
+				<li><a href="<?php echo esc_url( get_edit_post_link( $o ) ); ?>"><?php echo esc_html( exf_booking_label( (int) get_post_meta( $o, 'booking_start', true ) ) ); ?></a> – <?php echo esc_html( ( $u ? $u->display_name : '' ) . ', ' . get_post_meta( $o, 'service_name', true ) ); ?>
+					<?php if ( (int) get_post_meta( $o, 'booking_start', true ) > time() ) : ?>
+						· <a href="<?php echo esc_url( exf_appointment_admin_url( $o ) ); ?>"><?php esc_html_e( 'Change or cancel', 'exfiles' ); ?></a>
+					<?php endif; ?>
+				</li>
 			<?php endforeach; ?>
 		</ul>
 	<?php else : ?>
 		<p><?php esc_html_e( 'None.', 'exfiles' ); ?></p>
+	<?php endif; ?>
+
+	<?php $reports = function_exists( 'exf_reports_due' ) ? array_slice( exf_reports_due(), 0, 10, true ) : array(); ?>
+	<?php if ( $reports ) : ?>
+		<h3><strong><?php esc_html_e( 'Written reports due', 'exfiles' ); ?></strong></h3>
+		<ul>
+			<?php foreach ( $reports as $o => $due ) : ?>
+				<?php $u = get_userdata( (int) get_post_meta( $o, 'client_id', true ) ); ?>
+				<li><a href="<?php echo esc_url( get_edit_post_link( $o ) ); ?>"><?php echo esc_html( wp_date( 'D j M', $due ) ); ?></a> – <?php echo esc_html( ( $u ? $u->display_name : '' ) . ', ' . get_post_meta( $o, 'service_name', true ) ); ?>
+					<?php if ( $due < time() ) : ?>
+						<strong style="color:#b32d2e"><?php esc_html_e( 'overdue', 'exfiles' ); ?></strong>
+					<?php endif; ?>
+				</li>
+			<?php endforeach; ?>
+		</ul>
 	<?php endif; ?>
 
 	<h3><strong><?php esc_html_e( 'Recent uploads from clients', 'exfiles' ); ?></strong></h3>

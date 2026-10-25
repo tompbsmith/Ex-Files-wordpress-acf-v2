@@ -26,6 +26,7 @@ function exf_document_types() {
 		'report'        => __( 'Report', 'exfiles' ),
 		'letter'        => __( 'Letter', 'exfiles' ),
 		'consent_order' => __( 'Consent order', 'exfiles' ),
+		'court_document' => __( 'Other court document', 'exfiles' ),
 		'form'          => __( 'Form to complete', 'exfiles' ),
 		'questionnaire' => __( 'Questionnaire answers', 'exfiles' ),
 		'other'         => __( 'Other', 'exfiles' ),

@@ -113,6 +113,7 @@ add_action(
 		} else {
 			update_post_meta( $id, 'completed_at', time() );
 			exf_order_log( $id, 'Marked as completed' );
+			do_action( 'exf_order_completed', $id );
 		}
 		wp_safe_redirect( wp_get_referer() ? wp_get_referer() : get_edit_post_link( $id, 'url' ) );
 		exit;

@@ -16,7 +16,7 @@
                 "class": "",
                 "id": ""
             },
-            "placeholder": "Open your Ex File"
+            "placeholder": "Create your Ex File"
         },
         {
             "key": "field_exf_rc_intro_text",
@@ -41,7 +41,7 @@
             "name": "why_text",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "Shown at the top of step 2. Keep it reassuring, and don't mention conflicts by name if you'd rather not.",
+            "instructions": "Shown at the top of step 2. Don't mention the conflict check: to the visitor they're just creating an account.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -50,7 +50,8 @@
                 "id": ""
             },
             "rows": 4,
-            "new_lines": ""
+            "new_lines": "",
+            "placeholder": "We'll use these details to set up your Ex File. Tell us as much as you can: if something is missing, we may need to ask you for it later."
         },
         {
             "key": "field_exf_rc_terms",
@@ -100,8 +101,40 @@
             "new_lines": ""
         },
         {
+            "key": "field_exf_rc_checking_heading",
+            "label": "“Checking a few details” heading",
+            "name": "checking_heading",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Shown instead of payment when a sign-up needs checking by hand. Must stay generic: never mention the conflict check.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_rc_checking_text",
+            "label": "“Checking a few details” text",
+            "name": "checking_text",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
             "key": "field_exf_rc_unable_heading",
-            "label": "“Unable to open” heading",
+            "label": "“Unable to help” heading",
             "name": "unable_heading",
             "aria-label": "",
             "type": "text",
@@ -116,7 +149,7 @@
         },
         {
             "key": "field_exf_rc_unable_text",
-            "label": "“Unable to open” text",
+            "label": "“Unable to help” text",
             "name": "unable_text",
             "aria-label": "",
             "type": "textarea",
@@ -152,5 +185,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792448503
+    "modified": 1792943753
 }

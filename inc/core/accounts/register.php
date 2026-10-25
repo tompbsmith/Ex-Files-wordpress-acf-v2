@@ -1,10 +1,16 @@
 <?php
 /**
- * "Open your Ex File": registration, email verification and resending the link.
+ * "Create your Ex File": registration, email verification and resending the link.
  *
- * Registration creates the WordPress user and their first Ex File together, as
- * "pending_verification". Nothing is checked until the email link is clicked, so a
- * made-up email address can't be used to probe the conflict check.
+ * Since October 2026 this is step 3 of the checkout (see commerce/basket.php): the
+ * visitor has already chosen a service. Registration creates the WordPress user and
+ * their first Ex File as "awaiting_payment" and runs the check straight away; if it's
+ * clear they go on to pay, and the account is only created properly (and the
+ * confirmation email sent) once the payment is confirmed. Nothing about the check is
+ * shown on the page.
+ *
+ * Registrations from before the checkout (status "pending_verification", Ex File not
+ * checked yet) still work as they did: the check runs when the email link is clicked.
  *
  * @package exfiles
  */
@@ -142,11 +148,30 @@ function exf_register_route() {
 	// phpcs:enable
 
 	if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		// Logged-in clients have nothing to do here.
-		if ( is_user_logged_in() && exf_is_client( get_current_user_id() ) && empty( $_GET['result'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( is_user_logged_in() && exf_is_client( get_current_user_id() ) && empty( $_GET['result'] ) ) {
 			wp_safe_redirect( exf_page_url( 'account' ) );
 			exit;
 		}
+		// The form is the step after choosing a service: without one, choose first.
+		if ( ! is_user_logged_in() && empty( $_GET['result'] ) ) {
+			$basket = exf_basket_get();
+			if ( isset( $_GET['service'] ) && exf_service( absint( $_GET['service'] ) ) ) {
+				wp_safe_redirect( add_query_arg( 'service', absint( $_GET['service'] ), exf_page_url( 'buy' ) ) ); // Old links.
+				exit;
+			}
+			if ( ! exf_basket_service( $basket ) ) {
+				wp_safe_redirect( exf_page_url( 'choose_service' ) );
+				exit;
+			}
+			if ( exf_basket_user( $basket ) ) {
+				// Details already given in this browser: back to the basket to pay.
+				wp_safe_redirect( add_query_arg( 'service', (int) $basket['service'], exf_page_url( 'buy' ) ) );
+				exit;
+			}
+		}
+		// phpcs:enable
 		return;
 	}
 
@@ -178,6 +203,12 @@ function exf_handle_register( array $post ) {
 		exit; // Bot.
 	}
 
+	$basket = exf_basket_get();
+	if ( ! exf_basket_service( $basket ) ) {
+		wp_safe_redirect( exf_page_url( 'choose_service' ) );
+		exit;
+	}
+
 	$panels = isset( $post['layout'] ) && 'panels' === $post['layout'];
 	$pre_e  = array();
 	if ( $panels ) {
@@ -197,7 +228,7 @@ function exf_handle_register( array $post ) {
 			$v[ $name ] = sanitize_text_field( $raw );
 		}
 	}
-	$v['service'] = sanitize_key( $post['service'] ?? '' );
+	$v['service'] = (string) (int) $basket['service'];
 
 	$e = $pre_e;
 	foreach ( exf_register_fields() as $name => $f ) {
@@ -222,7 +253,7 @@ function exf_handle_register( array $post ) {
 		$e['email']     = __( 'Please enter a valid email address.', 'exfiles' );
 	} elseif ( $v['email'] && ! is_email( $v['email'] ) ) {
 		$e['email'] = __( 'Please enter a valid email address.', 'exfiles' );
-	} elseif ( $v['email'] && email_exists( $v['email'] ) ) {
+	} elseif ( $v['email'] && email_exists( $v['email'] ) && ! exf_register_replace_unpaid( (int) email_exists( $v['email'] ) ) ) {
 		$e['email'] = sprintf(
 			/* translators: %s: login URL */
 			__( 'There is already an account with this email address. <a href="%s">Log in</a> or reset your password.', 'exfiles' ),
@@ -284,6 +315,13 @@ function exf_handle_register( array $post ) {
 	}
 	set_transient( $limit, (int) get_transient( $limit ) + 1, HOUR_IN_SECONDS );
 
+	// An unpaid sign-up from earlier with this address (exf_register_replace_unpaid()
+	// said it can go): start again with the new details.
+	$old_user = $v['email'] ? (int) email_exists( $v['email'] ) : 0;
+	if ( $old_user && function_exists( 'exf_delete_prospect' ) ) {
+		exf_delete_prospect( $old_user, 'started checkout again with the same email address' );
+	}
+
 	$user_id = exf_create_client( $v );
 	if ( is_wp_error( $user_id ) ) {
 		return array(
@@ -292,8 +330,83 @@ function exf_handle_register( array $post ) {
 		);
 	}
 
+	exf_register_after_create( $user_id, $basket );
+}
+
+/**
+ * Whether an existing account with this email address is an unpaid checkout sign-up
+ * that can be replaced (they're starting again, e.g. on another device).
+ *
+ * @param int $user_id Existing user.
+ */
+function exf_register_replace_unpaid( $user_id ) {
+	if ( ! $user_id || EXF_STATUS_AWAITING !== exf_user_status( $user_id ) || ! function_exists( 'exf_is_deletable_prospect' ) || ! exf_is_deletable_prospect( $user_id ) ) {
+		return false;
+	}
+	// A payment page from the earlier attempt may still be open: close it at Stripe
+	// first, so it can't be paid after the account is replaced.
+	foreach ( exf_client_orders( $user_id ) as $o ) {
+		if ( 'pending' !== exf_order_status( $o ) ) {
+			continue;
+		}
+		$sid = (string) get_post_meta( $o, 'stripe_session', true );
+		if ( $sid && get_post_timestamp( $o ) > time() - 2 * HOUR_IN_SECONDS ) {
+			$session = exf_stripe_request( 'GET', 'checkout/sessions/' . rawurlencode( $sid ) );
+			if ( is_wp_error( $session ) || 'complete' === ( $session['status'] ?? '' ) ) {
+				return false; // Paid (or we can't tell): keep it.
+			}
+			if ( 'open' === ( $session['status'] ?? '' ) ) {
+				$expired = exf_stripe_request( 'POST', 'checkout/sessions/' . rawurlencode( $sid ) . '/expire' );
+				if ( is_wp_error( $expired ) ) {
+					return false;
+				}
+			}
+		}
+		exf_order_set_status( $o, 'cancelled', 'Client started checkout again' );
+	}
+	return true;
+}
+
+/**
+ * After the details are saved: run the check, then on to payment (clear), "we're
+ * checking a few details" (review) or "unable to help" (blocked).
+ *
+ * @param int   $user_id New client (awaiting_payment).
+ * @param array $basket  Basket.
+ */
+function exf_register_after_create( $user_id, array $basket ) {
+	$register = exf_page_url( 'register' );
+	$ex_file  = exf_first_ex_file( $user_id );
+	// Not exf_conflict_notify(): the account emails are for after payment.
+	$outcome = $ex_file ? exf_conflict_run( $ex_file, false ) : 'review';
+	$vars    = $ex_file ? exf_ex_file_email_vars( $ex_file ) : array();
+
+	if ( 'clear' === $outcome ) {
+		$basket['user_id'] = $user_id;
+		$basket['ex_file'] = $ex_file;
+		$basket            = exf_basket_save( $basket );
+		$errors            = exf_basket_checkout( $basket ); // Redirects to Stripe.
+		exf_basket_back_with_errors( $basket, $errors );
+	}
+
+	exf_basket_clear();
+	if ( 'blocked' === $outcome ) {
+		exf_set_user_status( $user_id, EXF_STATUS_BLOCKED );
+		$user = get_userdata( $user_id );
+		exf_send_email( 'unable', $user->user_email, $vars );
+		exf_send_email( 'admin_blocked', exf_notify_emails(), $vars );
+		wp_safe_redirect( add_query_arg( 'result', 'unable', $register ) );
+		exit;
+	}
+
+	// Review: nothing is charged. They confirm their email as before, and can pay
+	// once the solicitor has cleared the check (they're emailed a link).
+	exf_set_user_status( $user_id, EXF_STATUS_PENDING );
+	if ( $vars ) {
+		exf_send_email( 'admin_review', exf_notify_emails(), $vars );
+	}
 	exf_send_verification( $user_id );
-	wp_safe_redirect( add_query_arg( 'result', 'check-email', exf_page_url( 'register' ) ) );
+	wp_safe_redirect( add_query_arg( 'result', 'checking', $register ) );
 	exit;
 }
 
@@ -327,7 +440,7 @@ function exf_create_client( array $v ) {
 	}
 
 	$meta = array(
-		'exf_status'           => EXF_STATUS_PENDING,
+		'exf_status'           => EXF_STATUS_AWAITING,
 		'exf_title'            => $v['title'],
 		'exf_prev_names'       => $v['prev_names'],
 		'exf_middle_names'     => $v['middle_names'] ?? '',
@@ -388,28 +501,40 @@ function exf_create_ex_file( $user_id, array $v ) {
 /**
  * Email a fresh verification link.
  *
- * @param int $user_id User.
+ * @param int    $user_id User.
+ * @param string $key     Email: verify, or verify_paid after paying at checkout.
  */
-function exf_send_verification( $user_id ) {
+function exf_send_verification( $user_id, $key = '' ) {
+	if ( '' === $key ) {
+		$key = get_user_meta( $user_id, 'exf_paid_signup', true ) ? 'verify_paid' : 'verify';
+	}
+	$user = get_userdata( $user_id );
+	return exf_send_email(
+		$key,
+		$user->user_email,
+		array(
+			'first_name' => $user->first_name,
+			'link'       => exf_new_verification_link( $user_id ),
+		)
+	);
+}
+
+/**
+ * A fresh confirmation link (any earlier one stops working).
+ *
+ * @param int $user_id User.
+ * @return string
+ */
+function exf_new_verification_link( $user_id ) {
 	$token = wp_generate_password( 32, false, false );
 	update_user_meta( $user_id, 'exf_verify_hash', hash( 'sha256', $token ) );
 	update_user_meta( $user_id, 'exf_verify_expires', time() + EXF_VERIFY_HOURS * HOUR_IN_SECONDS );
-
-	$link = add_query_arg(
+	return add_query_arg(
 		array(
 			'uid'    => $user_id,
 			'verify' => $token,
 		),
 		exf_page_url( 'register' )
-	);
-	$user = get_userdata( $user_id );
-	return exf_send_email(
-		'verify',
-		$user->user_email,
-		array(
-			'first_name' => $user->first_name,
-			'link'       => $link,
-		)
 	);
 }
 
@@ -436,9 +561,27 @@ function exf_handle_verify( $user_id, $token ) {
 	delete_user_meta( $user_id, 'exf_verify_hash' );
 	delete_user_meta( $user_id, 'exf_verify_expires' );
 	update_user_meta( $user_id, 'exf_email_verified', time() );
-	exf_set_user_status( $user_id, EXF_STATUS_REVIEW ); // Placeholder until the check sets it.
 
 	$ex_file = exf_first_ex_file( $user_id );
+	if ( $ex_file && 'pending' !== exf_ex_file_status( $ex_file ) ) {
+		// Checked at checkout: the account follows that result.
+		exf_sync_user_status( $user_id );
+		$status = exf_user_status( $user_id );
+		if ( EXF_STATUS_BLOCKED === $status ) {
+			wp_safe_redirect( add_query_arg( 'result', 'unable', $register ) );
+			exit;
+		}
+		if ( EXF_STATUS_REVIEW === $status && ! exf_client_has_service( $user_id ) ) {
+			exf_send_email( 'review', get_userdata( $user_id )->user_email, exf_ex_file_email_vars( $ex_file ) + array( 'link' => exf_page_url( 'account' ) ) );
+		}
+		wp_set_current_user( $user_id );
+		wp_set_auth_cookie( $user_id, false );
+		wp_safe_redirect( EXF_STATUS_ACTIVE === $status && ! exf_client_has_service( $user_id ) ? exf_after_clear_url( $user_id ) : exf_page_url( 'account' ) );
+		exit;
+	}
+
+	// Registered before the checkout flow: check now, as before.
+	exf_set_user_status( $user_id, EXF_STATUS_REVIEW ); // Placeholder until the check sets it.
 	$outcome = $ex_file ? exf_conflict_run( $ex_file ) : 'review';
 
 	if ( 'blocked' === $outcome ) {
@@ -479,7 +622,8 @@ function exf_handle_resend( $email ) {
 add_action( 'exf_daily_cleanup', 'exf_cleanup_unverified' );
 
 /**
- * Delete unverified clients (and their Ex Files) after the retention period.
+ * Delete unverified clients (and their Ex Files) after the retention period. Clients
+ * who paid at checkout but haven't confirmed their email are kept.
  *
  * @return int Number deleted.
  */
@@ -500,11 +644,16 @@ function exf_cleanup_unverified() {
 			'role__not_in'   => array( 'administrator', 'ex_files_manager' ),
 		)
 	);
+	$n = 0;
 	foreach ( $users as $uid ) {
+		if ( exf_client_has_service( $uid ) ) {
+			continue; // Paid at checkout but hasn't clicked the link yet: keep.
+		}
 		foreach ( exf_client_ex_files( $uid ) as $ex_file ) {
 			wp_delete_post( $ex_file, true );
 		}
 		wp_delete_user( $uid );
+		++$n;
 	}
-	return count( $users );
+	return $n;
 }

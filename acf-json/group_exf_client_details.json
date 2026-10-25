@@ -8,7 +8,7 @@
             "name": "exf_status",
             "aria-label": "",
             "type": "select",
-            "instructions": "Normally set by email verification and the conflict check. Change by hand only if you need to.",
+            "instructions": "Normally set by checkout, email verification and the conflict check. Change by hand only if you need to.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -17,6 +17,7 @@
                 "id": ""
             },
             "choices": {
+                "awaiting_payment": "Not paid yet",
                 "pending_verification": "Email not verified",
                 "active": "Active",
                 "review": "Under review",
@@ -190,5 +191,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792448503
+    "modified": 1792943504
 }

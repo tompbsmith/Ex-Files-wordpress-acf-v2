@@ -39,8 +39,12 @@ add_action(
 function exf_email_defaults() {
 	return array(
 		'verify'         => array(
-			'Confirm your email to open your Ex File',
-			"Hello {first_name},\n\nThank you for opening your Ex File with The Ex Files. Please confirm your email address using this link:\n\n{link}\n\nThe link works for 48 hours. If you didn't sign up, you can ignore this email.\n\nBest wishes,\nThe Ex Files",
+			'Confirm your email to create your Ex File',
+			"Hello {first_name},\n\nThank you for creating your Ex File with The Ex Files. Please confirm your email address using this link:\n\n{link}\n\nThe link works for 48 hours. If you didn't sign up, you can ignore this email.\n\nBest wishes,\nThe Ex Files",
+		),
+		'verify_paid'    => array(
+			'Confirm your email to access your Ex File',
+			"Hello {first_name},\n\nThank you for your order. To finish creating your Ex File, please confirm your email address using this link:\n\n{link}\n\nYou'll then be logged in to your Ex File, where you'll find your booking and anything we need from you next. We've sent your order confirmation separately.\n\nThe link works for 48 hours. If it runs out, you can ask for a new one on the log in page.\n\nBest wishes,\nThe Ex Files",
 		),
 		'active'         => array(
 			"You're all set",
@@ -74,6 +78,22 @@ function exf_email_defaults() {
 			'Reminder: your appointment tomorrow',
 			"Hello {first_name},\n\nA reminder that your {service} appointment is on {appointment}.\n\n{meeting_details}\n\nIf you need to change it, please send us a request from your Ex File:\n{link}\n\nBest wishes,\nThe Ex Files",
 		),
+		'appointment_moved' => array(
+			'Your appointment has moved: {appointment}',
+			"Hello {first_name},\n\nYour {service} appointment has moved. The new time is:\n\n{appointment}\n\n(It was {old_appointment}.)\n\n{meeting_details}\n\nAn updated calendar invite is attached, so the appointment should move in your calendar.\n\nYou can see your appointments in your Ex File:\n{link}\n\nBest wishes,\nThe Ex Files",
+		),
+		'appointment_cancelled' => array(
+			'Your appointment has been cancelled',
+			"Hello {first_name},\n\nYour {service} appointment on {appointment} has been cancelled. {reason}\n\nIf you'd like to arrange a new time, please reply to this email.\n\nA calendar cancellation is attached, so the appointment should disappear from your calendar.\n\nBest wishes,\nThe Ex Files",
+		),
+		'admin_appointment_changed' => array(
+			'Appointment {what}: {client_name}, {service}',
+			"{client_name}'s {service} appointment has been {what}: {appointment}.\n\nThe calendar file attached updates the event in your calendar. Order details:\n{admin_link}",
+		),
+		'admin_q_overdue' => array(
+			'Questionnaire not received: {client_name}',
+			"{client_name} hasn't submitted their financial questionnaire for {service}. It was needed by {deadline}, for the appointment on {appointment}.\n\nYou can cancel or move the appointment here:\n{admin_link}",
+		),
 		'document_ready'   => array(
 			'A new document is ready in your Ex File',
 			"Hello {first_name},\n\nWe've added a new document to your Ex File: {document}.\n\n{attachment_note}\n{link}\n\nBest wishes,\nThe Ex Files",
@@ -81,6 +101,10 @@ function exf_email_defaults() {
 		'consultation_open' => array(
 			'Book your consultation',
 			"Hello {first_name},\n\nYour report for {service} is ready in your Ex File, so you can now book the consultation you added to your order. Please choose a time here:\n\n{link}\n\nBest wishes,\nThe Ex Files",
+		),
+		'consultation_offer' => array(
+			'Would you like to talk your report through?',
+			"Hello {first_name},\n\nYour report for {service} is in your Ex File. If you'd like to go through it with us, you can book a {addon} for {price}. Choose a time and pay here:\n\n{link}\n\nThere's no need if you don't want one.\n\nBest wishes,\nThe Ex Files",
 		),
 		'email_change'     => array(
 			'Confirm your new email address',
@@ -104,7 +128,7 @@ function exf_email_defaults() {
 		),
 		'questionnaire_received' => array(
 			"We've received your questionnaire",
-			"Hello {first_name},\n\nThank you for completing your financial questionnaire for {service}. We'll be in touch.\n\nA copy of your answers is in your Ex File:\n{link}\n\nPlease note that receiving your answers doesn't mean we have checked your financial disclosure yet.\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nThank you for completing your financial questionnaire for {service}. We'll be in touch.\n\n{report_due}\n\nA copy of your answers is in your Ex File:\n{link}\n\nPlease note that receiving your answers doesn't mean we have checked your financial disclosure yet.\n\nBest wishes,\nThe Ex Files",
 		),
 		'questionnaire_reopened' => array(
 			'Your questionnaire is open again',
@@ -185,7 +209,10 @@ function exf_conflict_notify( $ex_file_id, $outcome ) {
 	$vars = exf_ex_file_email_vars( $ex_file_id );
 
 	if ( 'clear' === $outcome ) {
-		exf_send_email( 'active', $user->user_email, $vars + array( 'link' => exf_after_clear_url( $client_id ) ) );
+		// Checked by hand before they'd confirmed their email (checkout, basket.php):
+		// the link confirms it too, then goes on to the service they chose.
+		$unconfirmed = EXF_STATUS_PENDING === exf_user_status( $client_id ) && ! get_user_meta( $client_id, 'exf_email_verified', true );
+		exf_send_email( 'active', $user->user_email, $vars + array( 'link' => $unconfirmed ? exf_new_verification_link( $client_id ) : exf_after_clear_url( $client_id ) ) );
 	} elseif ( 'review' === $outcome ) {
 		exf_send_email( 'review', $user->user_email, $vars + array( 'link' => exf_page_url( 'account' ) ) );
 		exf_send_email( 'admin_review', exf_notify_emails(), $vars );

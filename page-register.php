@@ -2,9 +2,14 @@
 /**
  * Template Name: Open Your Ex File
  *
- * Registration in four steps (assets/js/register.js shows one at a time). Also
- * shows the "check your email", "link expired" and "unable to open" messages.
- * Form handling is in inc/core/accounts/register.php.
+ * "Create your Ex File": the registration form, in four steps (assets/js/register.js
+ * shows one at a time). It's step 3 of the checkout, after choosing a service (see
+ * inc/core/commerce/basket.php). Also shows the "check your email", "checking",
+ * "link expired" and "unable to help" messages. Form handling is in
+ * inc/core/accounts/register.php.
+ *
+ * Nothing on this page mentions the conflict check: to the visitor they're simply
+ * creating an account (the client's request, October 2026).
  *
  * @package exfiles
  */
@@ -16,9 +21,8 @@ $exf_f      = function ( $name ) {
 	return function_exists( 'get_field' ) ? (string) get_field( $name ) : '';
 };
 
-if ( empty( $exf_values['service'] ) && isset( $_GET['service'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$exf_values['service'] = sanitize_key( wp_unslash( $_GET['service'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-}
+$exf_basket  = function_exists( 'exf_basket_get' ) ? exf_basket_get() : null;
+$exf_bsvc    = function_exists( 'exf_basket_service' ) ? exf_basket_service( $exf_basket ) : null;
 
 $exf_args = function ( $extra = array() ) use ( $exf_values, $exf_errors ) {
 	return array_merge(
@@ -44,16 +48,24 @@ get_header();
 <section class="guide-form-section register-section">
 	<div class="wrap guide-form-wrap">
 
-	<?php if ( 'check-email' === $exf_result || 'resent' === $exf_result || 'link-expired' === $exf_result ) : ?>
+	<?php if ( 'checking' === $exf_result ) : ?>
 
 		<header class="guide-form-head">
-			<p class="eyebrow"><?php esc_html_e( 'Open your Ex File', 'exfiles' ); ?></p>
+			<p class="eyebrow"><?php esc_html_e( 'Create your Ex File', 'exfiles' ); ?></p>
+			<h1><?php echo esc_html( $exf_f( 'checking_heading' ) ? $exf_f( 'checking_heading' ) : __( "Thank you. We're just checking a few details", 'exfiles' ) ); ?></h1>
+			<p class="lead"><?php echo exf_lines( $exf_f( 'checking_text' ) ? $exf_f( 'checking_text' ) : __( "We need to check a few details before we can take your booking. This is done within one working day, and we'll email you as soon as it's finished so you can complete your booking. You haven't been charged.\n\nIn the meantime, we've sent you an email to confirm your email address. Please click the link in it.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+		</header>
+
+	<?php elseif ( 'check-email' === $exf_result || 'resent' === $exf_result || 'link-expired' === $exf_result ) : ?>
+
+		<header class="guide-form-head">
+			<p class="eyebrow"><?php esc_html_e( 'Create your Ex File', 'exfiles' ); ?></p>
 			<?php if ( 'link-expired' === $exf_result ) : ?>
 				<h1><?php esc_html_e( 'That link has expired', 'exfiles' ); ?></h1>
 				<p class="lead"><?php esc_html_e( 'Confirmation links work for 48 hours. Enter your email address and we’ll send you a new one.', 'exfiles' ); ?></p>
 			<?php else : ?>
 				<h1><?php echo esc_html( $exf_f( 'check_heading' ) ? $exf_f( 'check_heading' ) : __( 'Check your email', 'exfiles' ) ); ?></h1>
-				<p class="lead"><?php echo exf_lines( $exf_f( 'check_text' ) ? $exf_f( 'check_text' ) : __( "We've sent you a link to confirm your email address. Click it to finish opening your Ex File. It may take a few minutes to arrive, so check your junk folder if you can't see it.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+				<p class="lead"><?php echo exf_lines( $exf_f( 'check_text' ) ? $exf_f( 'check_text' ) : __( "We've sent you a link to confirm your email address. Click it to finish creating your Ex File. It may take a few minutes to arrive, so check your junk folder if you can't see it.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 			<?php endif; ?>
 		</header>
 		<?php if ( 'resent' === $exf_result ) : ?>
@@ -70,17 +82,17 @@ get_header();
 	<?php elseif ( 'unable' === $exf_result ) : ?>
 
 		<header class="guide-form-head">
-			<p class="eyebrow"><?php esc_html_e( 'Open your Ex File', 'exfiles' ); ?></p>
+			<p class="eyebrow"><?php esc_html_e( 'Create your Ex File', 'exfiles' ); ?></p>
 			<h1><?php echo esc_html( $exf_f( 'unable_heading' ) ? $exf_f( 'unable_heading' ) : __( "We're unable to help on this occasion", 'exfiles' ) ); ?></h1>
-			<p class="lead"><?php echo exf_lines( $exf_f( 'unable_text' ) ? $exf_f( 'unable_text' ) : __( "Thank you for your interest in The Ex Files. Unfortunately we're unable to take on your matter. We can't give details, as it can be for a number of reasons. We've sent you an email confirming this. If you have any questions, please get in touch.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+			<p class="lead"><?php echo exf_lines( $exf_f( 'unable_text' ) ? $exf_f( 'unable_text' ) : __( "Thank you for your interest in The Ex Files. Unfortunately we're unable to take on your matter. We can't give details, as it can be for a number of reasons. We've sent you an email confirming this. You haven't been charged. If you have any questions, please get in touch.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 			<p style="margin-top:28px"><a class="btn outline" href="<?php echo esc_url( home_url( '/#contact' ) ); ?>"><?php esc_html_e( 'Contact us', 'exfiles' ); ?></a></p>
 		</header>
 
 	<?php else : ?>
 
 		<header class="guide-form-head">
-			<p class="eyebrow"><?php esc_html_e( 'Open your Ex File', 'exfiles' ); ?></p>
-			<h1><?php echo esc_html( $exf_f( 'intro_heading' ) ? $exf_f( 'intro_heading' ) : __( 'Open your Ex File', 'exfiles' ) ); ?></h1>
+			<p class="eyebrow"><?php echo esc_html( $exf_bsvc ? $exf_bsvc['name'] : __( 'Create your Ex File', 'exfiles' ) ); ?></p>
+			<h1><?php echo esc_html( $exf_f( 'intro_heading' ) ? $exf_f( 'intro_heading' ) : __( 'Create your Ex File', 'exfiles' ) ); ?></h1>
 			<p class="lead"><?php echo exf_lines( $exf_f( 'intro_text' ) ? $exf_f( 'intro_text' ) : __( 'Your Ex File is your private account with us. It holds your questionnaires, documents and appointments.', 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 			<p class="field-note" style="margin-top:14px">
 				<?php
@@ -93,6 +105,12 @@ get_header();
 			</p>
 		</header>
 
+		<?php
+		if ( function_exists( 'exf_basket_summary' ) ) {
+			exf_basket_summary( $exf_basket );
+		}
+		?>
+
 		<?php if ( isset( $exf_errors['_form'] ) ) : ?>
 			<div class="notice-box notice-box--error" role="alert"><p><?php echo esc_html( $exf_errors['_form'] ); ?></p></div>
 		<?php elseif ( $exf_errors ) : ?>
@@ -102,7 +120,6 @@ get_header();
 		<form class="guide-form register-form" method="post" novalidate data-register-form data-start-step="<?php echo (int) max( 1, $exf_error_step ); ?>">
 			<?php wp_nonce_field( 'exf_register' ); ?>
 			<input type="hidden" name="exf_register" value="1">
-			<input type="hidden" name="service" value="<?php echo esc_attr( $exf_values['service'] ?? '' ); ?>">
 
 			<div class="guide-progress" aria-hidden="true"><span data-reg-progress></span></div>
 			<p class="field-note reg-step-count" data-reg-count aria-live="polite"></p>
@@ -141,7 +158,7 @@ get_header();
 			<fieldset class="reg-step" data-reg-step="2">
 				<legend class="gq-label" tabindex="-1"><?php esc_html_e( 'About your ex', 'exfiles' ); ?></legend>
 				<div class="reg-why">
-					<?php echo wp_kses_post( wpautop( $exf_f( 'why_text' ) ? $exf_f( 'why_text' ) : __( "We ask for your ex's details to make sure we haven't already been instructed by them, which would stop us acting for you.\n\nThe more you can tell us, the quicker the check. If we can't tell your ex apart from someone else with the same name, we may need to ask you for more information.", 'exfiles' ) ) ); ?>
+					<?php echo wp_kses_post( wpautop( $exf_f( 'why_text' ) ? $exf_f( 'why_text' ) : __( "We'll use these details to set up your Ex File. Tell us as much as you can: if something is missing, we may need to ask you for it later.", 'exfiles' ) ) ); ?>
 				</div>
 				<div class="field-row">
 					<?php
@@ -223,7 +240,7 @@ get_header();
 			<div class="guide-nav">
 				<button type="button" class="btn outline" data-reg-back hidden><?php esc_html_e( 'Back', 'exfiles' ); ?></button>
 				<button type="button" class="btn" data-reg-next hidden><?php esc_html_e( 'Next', 'exfiles' ); ?></button>
-				<button type="submit" class="btn" data-reg-submit><?php esc_html_e( 'Open my Ex File', 'exfiles' ); ?></button>
+				<button type="submit" class="btn" data-reg-submit><?php echo esc_html( $exf_bsvc && ! $exf_bsvc['free'] ? __( 'Continue to payment', 'exfiles' ) : __( 'Create my Ex File', 'exfiles' ) ); ?></button>
 			</div>
 		</form>
 

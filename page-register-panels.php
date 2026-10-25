@@ -2,7 +2,7 @@
 /**
  * Template Name: Open Your Ex File (panels)
  *
- * The alternative "Open your Ex File" layout, from the Wix design: Page Builder
+ * The alternative "Create your Ex File" layout, from the Wix design: Page Builder
  * sections at the top (e.g. an "Image and text" section), then "Your details" and
  * "Partner's details" side by side. It posts to the same registration handler as the
  * step-by-step form (inc/core/accounts/register.php), which maps the combined
@@ -13,9 +13,8 @@
 
 $exf_errors = $GLOBALS['exf_register_errors'] ?? array();
 $exf_values = $GLOBALS['exf_register_values'] ?? array();
-if ( empty( $exf_values['service'] ) && isset( $_GET['service'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$exf_values['service'] = sanitize_key( wp_unslash( $_GET['service'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-}
+$exf_basket = function_exists( 'exf_basket_get' ) ? exf_basket_get() : null;
+$exf_bsvc   = function_exists( 'exf_basket_service' ) ? exf_basket_service( $exf_basket ) : null;
 
 /**
  * One underlined field on a dark panel.
@@ -71,6 +70,11 @@ if ( exf_acf_ready() && get_field( 'sections' ) ) {
 ?>
 <section class="register-panels">
 	<div class="wrap">
+		<?php
+		if ( function_exists( 'exf_basket_summary' ) ) {
+			exf_basket_summary( $exf_basket );
+		}
+		?>
 		<?php if ( $exf_errors ) : ?>
 			<div class="notice-box notice-box--error" role="alert">
 				<p>
@@ -86,7 +90,6 @@ if ( exf_acf_ready() && get_field( 'sections' ) ) {
 			<?php wp_nonce_field( 'exf_register' ); ?>
 			<input type="hidden" name="exf_register" value="1">
 			<input type="hidden" name="layout" value="panels">
-			<input type="hidden" name="service" value="<?php echo esc_attr( $exf_values['service'] ?? '' ); ?>">
 
 			<div class="register-panels-grid">
 				<fieldset class="register-panel">
@@ -129,8 +132,8 @@ if ( exf_acf_ready() && get_field( 'sections' ) ) {
 						echo wp_kses(
 							$exf_privacy
 								/* translators: %s: privacy policy URL */
-								? sprintf( __( 'I confirm that the details provided are accurate and I agree to the conflict-of-interest check, the terms of business and the <a href="%s" target="_blank">privacy notice</a>.', 'exfiles' ), esc_url( $exf_privacy ) )
-								: __( 'I confirm that the details provided are accurate and I agree to the conflict-of-interest check, the terms of business and the privacy notice.', 'exfiles' ),
+								? sprintf( __( 'I confirm that the details provided are accurate and I agree to the terms of business and the <a href="%s" target="_blank">privacy notice</a>.', 'exfiles' ), esc_url( $exf_privacy ) )
+								: __( 'I confirm that the details provided are accurate and I agree to the terms of business and the privacy notice.', 'exfiles' ),
 							array( 'a' => array( 'href' => array(), 'target' => array() ) )
 						);
 						?>
@@ -143,7 +146,7 @@ if ( exf_acf_ready() && get_field( 'sections' ) ) {
 					<label for="exf-p-company">Company</label>
 					<input type="text" id="exf-p-company" name="company" tabindex="-1" autocomplete="off">
 				</div>
-				<button type="submit" class="btn"><?php esc_html_e( 'Agree and Submit', 'exfiles' ); ?></button>
+				<button type="submit" class="btn"><?php echo esc_html( $exf_bsvc && ! $exf_bsvc['free'] ? __( 'Agree and Continue to Payment', 'exfiles' ) : __( 'Agree and Submit', 'exfiles' ) ); ?></button>
 				<p class="register-panels-login">
 					<?php
 					/* translators: %s: login URL */

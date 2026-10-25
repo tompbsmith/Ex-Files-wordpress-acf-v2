@@ -7,7 +7,10 @@
  * WooCommerce's billing_* meta keys so checkout will be pre-filled.
  *
  * Account status (user meta exf_status):
- *   pending_verification  registered, email not confirmed yet (can't log in)
+ *   awaiting_payment      gave their details at checkout and passed the check, but
+ *                         hasn't paid yet (can't log in; not counted in conflict checks;
+ *                         deleted if they never pay, see basket.php)
+ *   pending_verification  registered (or paid), email not confirmed yet (can't log in)
  *   active                conflict check clear
  *   review                possible conflict, waiting for the solicitor (can log in, can't buy)
  *   blocked               conflict found (can't log in)
@@ -17,7 +20,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-const EXF_STATUS_PENDING = 'pending_verification';
+const EXF_STATUS_AWAITING = 'awaiting_payment';
+const EXF_STATUS_PENDING  = 'pending_verification';
 const EXF_STATUS_ACTIVE  = 'active';
 const EXF_STATUS_REVIEW  = 'review';
 const EXF_STATUS_BLOCKED = 'blocked';
@@ -68,7 +72,8 @@ function exf_is_client( $user_id ) {
  */
 function exf_status_label( $status ) {
 	$labels = array(
-		EXF_STATUS_PENDING => __( 'Email not verified', 'exfiles' ),
+		EXF_STATUS_AWAITING => __( 'Not paid yet', 'exfiles' ),
+		EXF_STATUS_PENDING  => __( 'Email not verified', 'exfiles' ),
 		EXF_STATUS_ACTIVE  => __( 'Active', 'exfiles' ),
 		EXF_STATUS_REVIEW  => __( 'Under review', 'exfiles' ),
 		EXF_STATUS_BLOCKED => __( 'Blocked', 'exfiles' ),
@@ -102,6 +107,16 @@ add_filter(
 			return $user;
 		}
 		$status = exf_user_status( $user->ID );
+		if ( EXF_STATUS_AWAITING === $status ) {
+			return new WP_Error(
+				'exf_unpaid',
+				sprintf(
+					/* translators: %s: link to choose a service */
+					__( "You haven't finished creating your Ex File yet. <a href=\"%s\">Choose a service</a> to carry on.", 'exfiles' ),
+					esc_url( exf_page_url( 'choose_service' ) )
+				)
+			);
+		}
 		if ( EXF_STATUS_PENDING === $status ) {
 			return new WP_Error(
 				'exf_unverified',
@@ -186,11 +201,11 @@ add_action(
 add_filter( 'login_headerurl', fn() => home_url( '/' ) );
 add_filter( 'login_headertext', fn() => exf_site_name() );
 
-// Registration link on the login screen points to our registration, not WordPress's.
+// Registration links point to our checkout (choose a service first), not WordPress's.
 add_filter(
 	'register_url',
 	function () {
-		return exf_page_url( 'register' );
+		return exf_page_url( 'choose_service' );
 	}
 );
 

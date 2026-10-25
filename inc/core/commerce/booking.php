@@ -211,13 +211,14 @@ function exf_slot_is_free( $start, $minutes, $ignore_order = 0 ) {
 /**
  * Busy periods: confirmed bookings, live holds, and the solicitor's calendar.
  *
- * @param int $from   From timestamp.
- * @param int $to     To timestamp.
- * @param int $ignore Order to leave out.
+ * @param int  $from     From timestamp.
+ * @param int  $to       To timestamp.
+ * @param int  $ignore   Order to leave out.
+ * @param bool $calendar Include the solicitor's calendar (false: only bookings made here).
  * @return int[][]
  */
-function exf_busy_periods( $from, $to, $ignore = 0 ) {
-	$busy = exf_calendar_busy( $from, $to );
+function exf_busy_periods( $from, $to, $ignore = 0, $calendar = true ) {
+	$busy = $calendar ? exf_calendar_busy( $from, $to ) : array();
 
 	$orders = get_posts(
 		array(
@@ -387,14 +388,20 @@ function exf_unlock( $name ) {
  * ---------------------------------------------------------------------- */
 
 /**
- * An .ics invite for a booking.
+ * An .ics invite for a booking. Every version of an order's invite has the same UID,
+ * so calendars update the existing event: a moved appointment is sent again with a
+ * higher SEQUENCE, and a cancelled one with METHOD:CANCEL (see appointments-admin.php).
  *
- * @param int $order_id Order.
+ * @param int    $order_id Order.
+ * @param string $method   REQUEST (new or moved) or CANCEL.
+ * @param int    $start    Start, if not the order's current booking (e.g. when cancelled).
+ * @param int    $end      End, likewise.
  * @return string
  */
-function exf_booking_ics( $order_id ) {
-	$start   = (int) get_post_meta( $order_id, 'booking_start', true );
-	$end     = (int) get_post_meta( $order_id, 'booking_end', true );
+function exf_booking_ics( $order_id, $method = 'REQUEST', $start = 0, $end = 0 ) {
+	$cancel  = 'CANCEL' === $method;
+	$start   = $start ? (int) $start : (int) get_post_meta( $order_id, 'booking_start', true );
+	$end     = $end ? (int) $end : (int) get_post_meta( $order_id, 'booking_end', true );
 	$client  = get_userdata( (int) get_post_meta( $order_id, 'client_id', true ) );
 	$service = (string) get_post_meta( $order_id, 'service_name', true );
 	$org     = exf_notify_emails()[0];
@@ -412,9 +419,10 @@ function exf_booking_ics( $order_id ) {
 		'BEGIN:VCALENDAR',
 		'VERSION:2.0',
 		'PRODID:-//The Ex Files//Bookings//EN',
-		'METHOD:REQUEST',
+		'METHOD:' . ( $cancel ? 'CANCEL' : 'REQUEST' ),
 		'BEGIN:VEVENT',
 		'UID:exf-order-' . $order_id . '@' . $host,
+		'SEQUENCE:' . (int) get_post_meta( $order_id, 'ics_sequence', true ),
 		'DTSTAMP:' . $fmt( time() ),
 		'DTSTART:' . $fmt( $start ),
 		'DTEND:' . $fmt( $end ),
@@ -429,7 +437,7 @@ function exf_booking_ics( $order_id ) {
 	if ( $client ) {
 		$lines[] = 'ATTENDEE;CN=' . $esc( $who ) . ';ROLE=REQ-PARTICIPANT;RSVP=TRUE:mailto:' . $client->user_email;
 	}
-	$lines[] = 'STATUS:CONFIRMED';
+	$lines[] = $cancel ? 'STATUS:CANCELLED' : 'STATUS:CONFIRMED';
 	$lines[] = 'END:VEVENT';
 	$lines[] = 'END:VCALENDAR';
 
@@ -444,6 +452,59 @@ function exf_booking_ics( $order_id ) {
 		$out[] = $line;
 	}
 	return implode( "\r\n", $out ) . "\r\n";
+}
+
+/**
+ * The appointment time picker used on the buy page and in the basket.
+ *
+ * @param array  $slots    From exf_available_slots().
+ * @param int    $minutes  Length.
+ * @param int    $selected Chosen start, or 0.
+ * @param string $error    Error message, or ''.
+ */
+function exf_render_slot_picker( $slots, $minutes, $selected = 0, $error = '' ) {
+	?>
+				<fieldset class="buy-step slot-picker" data-slot-picker>
+					<legend class="gq-label">
+						<?php
+						/* translators: %d: minutes */
+						echo esc_html( sprintf( __( 'Choose a time (%d minutes)', 'exfiles' ), $minutes ) );
+						?>
+					</legend>
+					<?php if ( ! $slots ) : ?>
+						<p><?php esc_html_e( 'Sorry, there are no times available online at the moment. Please contact us and we’ll find a time.', 'exfiles' ); ?></p>
+					<?php else : ?>
+						<div class="slot-days">
+							<?php $exf_n = 0; ?>
+							<?php foreach ( $slots as $exf_times ) : ?>
+								<details class="slot-day" <?php echo ( 0 === $exf_n || in_array( (int) $selected, $exf_times, true ) ) ? 'open' : ''; ?>>
+									<summary><?php echo esc_html( wp_date( 'l j F', $exf_times[0] ) ); ?> <span class="slot-count">
+										<?php
+										/* translators: %d: number of times */
+										echo esc_html( sprintf( _n( '%d time', '%d times', count( $exf_times ), 'exfiles' ), count( $exf_times ) ) );
+										?>
+									</span></summary>
+									<div class="slot-times">
+										<?php foreach ( $exf_times as $exf_t ) : ?>
+											<label class="slot"><input type="radio" name="slot" value="<?php echo (int) $exf_t; ?>" <?php checked( (int) $selected, $exf_t ); ?>><span><?php echo esc_html( wp_date( 'g:ia', $exf_t ) ); ?></span></label>
+										<?php endforeach; ?>
+									</div>
+								</details>
+								<?php ++$exf_n; ?>
+							<?php endforeach; ?>
+						</div>
+						<p class="field-note">
+							<?php
+							/* translators: %d: hours */
+							echo esc_html( sprintf( __( 'Times are UK time. Appointments need at least %d hours’ notice.', 'exfiles' ), exf_booking_settings()['notice_hours'] ) );
+							?>
+						</p>
+					<?php endif; ?>
+					<?php if ( $error ) : ?>
+						<p class="field-error"><?php echo esc_html( $error ); ?></p>
+					<?php endif; ?>
+				</fieldset>
+	<?php
 }
 
 /**

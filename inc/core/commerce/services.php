@@ -48,10 +48,14 @@ function exf_service( $page_id ) {
 	if ( ! $free && '' !== $addon_name && $addon_price > 0 ) {
 		$addon_type = 'consultation' === $get( 'addon_type', 'report' ) ? 'consultation' : 'report';
 		$addon_mins = (int) $get( 'addon_minutes', 60 );
+		// A consultation can also be bought on its own after the report, as a separate
+		// product with its own price (October 2026); the same price unless set.
+		$later      = (float) $get( 'addon_later_price', 0 );
 		$addon      = array(
 			'name'        => $addon_name,
 			'price'       => $addon_price,
 			'pence'       => (int) round( $addon_price * 100 ),
+			'later_pence' => (int) round( ( $later > 0 ? $later : $addon_price ) * 100 ),
 			'type'        => $addon_type,
 			'minutes'     => $addon_mins > 0 ? $addon_mins : 60,
 			'description' => (string) $get( 'addon_description', '' ),
@@ -76,6 +80,10 @@ function exf_service( $page_id ) {
 		'sellable'      => $free || $price > 0,
 		'immediate'     => ! $free && (bool) $get( 'starts_immediately', 0 ),
 		'addon'         => $addon,
+		// Deadlines (October 2026): the questionnaire is needed this many hours before
+		// an appointment, and a written report goes out this many days after it's received.
+		'q_due_hours'   => (bool) $get( 'requires_booking', 0 ) && (bool) $get( 'requires_questionnaire', 0 ) ? max( 0, (int) $get( 'questionnaire_due_hours', 24 ) ) : 0,
+		'report_days'   => max( 0, (int) $get( 'report_days', 'check_your_deal' === $get( 'service_type', 'other' ) ? 7 : 0 ) ),
 	);
 }
 
@@ -149,16 +157,15 @@ function exf_cancellation_text( $service = null ) {
 /**
  * Where a "Buy" or "Book" button goes for a service.
  *
- * Logged-out visitors go to registration first (the service is remembered),
- * logged-in clients straight to the buy page.
+ * The buy page: the basket for visitors who aren't logged in, choosing the Ex File
+ * for clients who are.
  *
  * @param int $page_id Service page.
  */
 function exf_service_buy_url( $page_id ) {
-	if ( is_user_logged_in() ) {
-		return add_query_arg( 'service', (int) $page_id, exf_page_url( 'buy' ) );
-	}
-	return add_query_arg( 'service', (int) $page_id, exf_page_url( 'register' ) );
+	// Logged in: choose the Ex File and pay. Not logged in: the basket, then
+	// "Create your Ex File", then payment (see basket.php).
+	return add_query_arg( 'service', (int) $page_id, exf_page_url( 'buy' ) );
 }
 
 // After registration and a clear check, send the client on to the service they picked.
@@ -269,7 +276,7 @@ function exf_default_services() {
 				'deliverable'            => 'document',
 				'price'                  => 900,
 				'starts_immediately'     => 1,
-				'intro'                  => __( 'Transform your agreement into a legally binding financial consent order.', 'exfiles' ),
+				'intro'                  => exf_make_it_legal_intro(),
 			),
 		),
 	);
@@ -340,6 +347,34 @@ add_action(
 			}
 			if ( $set ) {
 				exf_audit( 'service_settings', sprintf( 'Filled in %s for %s (prices and add-ons agreed October 2026).', implode( ', ', $set ), $s['name'] ), 'post', $s['id'] );
+			}
+		}
+	}
+);
+
+/**
+ * Make It Legal's description. Kept general (October 2026): a consent order is the
+ * usual document, but the service may cover other court documents in future.
+ */
+function exf_make_it_legal_intro() {
+	return __( 'Make your agreement legally binding. We prepare the documents the court needs to approve it, such as a financial consent order.', 'exfiles' );
+}
+
+/*
+ * One-off (October 2026): Make It Legal's description no longer promises only a
+ * consent order. Changed only if it still has the old default wording.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'exf_mil_wording_2026_10' ) || ! current_user_can( 'edit_pages' ) ) {
+			return;
+		}
+		update_option( 'exf_mil_wording_2026_10', time(), false );
+		foreach ( exf_services() as $s ) {
+			if ( 'make_it_legal' === $s['type'] && 'Transform your agreement into a legally binding financial consent order.' === trim( $s['intro'] ) ) {
+				update_post_meta( $s['id'], 'intro', exf_make_it_legal_intro() );
+				exf_audit( 'service_settings', 'Updated the Make It Legal description so it isn’t limited to consent orders.', 'post', $s['id'] );
 			}
 		}
 	}
