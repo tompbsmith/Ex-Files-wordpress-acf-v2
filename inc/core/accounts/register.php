@@ -579,7 +579,9 @@ function exf_handle_verify( $user_id, $token ) {
 	$expires  = (int) get_user_meta( $user_id, 'exf_verify_expires', true );
 
 	if ( get_user_meta( $user_id, 'exf_email_verified', true ) ) {
-		wp_safe_redirect( wp_login_url( exf_page_url( 'account' ) ) );
+		// The link has been used already (e.g. they've opened the email again): log in,
+		// then go where the link was for, such as the basket they're coming back to.
+		wp_safe_redirect( wp_login_url( exf_verify_used_destination( $user_id ) ) );
 		exit;
 	}
 	if ( ! $hash || ! hash_equals( $hash, hash( 'sha256', $token ) ) || $expires < time() ) {
@@ -629,6 +631,27 @@ function exf_handle_verify( $user_id, $token ) {
 	wp_set_auth_cookie( $user_id, false );
 	wp_safe_redirect( 'clear' === $outcome ? exf_after_clear_url( $user_id ) : exf_page_url( 'account' ) );
 	exit;
+}
+
+/**
+ * Where a confirmation link that has already been used should take the client after
+ * logging in: their saved basket if they were held for review at checkout and
+ * haven't ordered yet, the reply form if the link was for "more information", or
+ * My Ex File.
+ *
+ * @param int $user_id Client.
+ */
+function exf_verify_used_destination( $user_id ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only picks a page to show after logging in.
+	$go    = isset( $_GET['go'] ) ? sanitize_key( wp_unslash( $_GET['go'] ) ) : '';
+	$saved = get_user_meta( $user_id, 'exf_saved_basket', true );
+	if ( is_array( $saved ) && ! empty( $saved['service'] ) && exf_service( (int) $saved['service'] ) ) {
+		return add_query_arg( 'service', (int) $saved['service'], exf_page_url( 'buy' ) );
+	}
+	if ( 'reply' === $go && exf_first_ex_file( $user_id ) ) {
+		return exf_portal_url( 'ex-files', exf_first_ex_file( $user_id ) );
+	}
+	return exf_page_url( 'account' );
 }
 
 /**
