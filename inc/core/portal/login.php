@@ -142,7 +142,7 @@ add_action(
 			);
 			if ( is_wp_error( $user ) ) {
 				set_transient( $limit, $fails + 1, 15 * MINUTE_IN_SECONDS );
-				$own = array( 'exf_unverified', 'exf_blocked' );
+				$own = array( 'exf_unverified', 'exf_blocked', 'exf_checking', 'exf_unpaid' );
 				$msg = in_array( $user->get_error_code(), $own, true )
 					? $user->get_error_message()
 					: __( "That email address and password don't match. Please try again, or reset your password.", 'exfiles' );
