@@ -19,6 +19,11 @@ $exf_order    = isset( $_GET['order'] ) ? absint( $_GET['order'] ) : 0;
 $exf_new      = isset( $_GET['new_separation'] ) || isset( $exf_errors['values'] );
 $exf_chosen   = isset( $_POST['ex_file'] ) ? absint( $_POST['ex_file'] ) : ( isset( $_GET['ex_file'] ) ? absint( $_GET['ex_file'] ) : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 $exf_slot     = isset( $_POST['slot'] ) ? absint( $_POST['slot'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+// Back from a "you're all set" email: reopen the basket they chose before the check.
+$exf_saved    = ( $exf_service && 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) && function_exists( 'exf_saved_basket_for' ) ) ? exf_saved_basket_for( $exf_uid, $exf_service ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+if ( $exf_saved && ! $exf_slot ) {
+	$exf_slot = $exf_saved['slot'];
+}
 $exf_blocker  = exf_buy_blocker( $exf_uid );
 $exf_consult  = isset( $_GET['consult'] ) ? absint( $_GET['consult'] ) : ( isset( $_POST['consult'] ) ? absint( $_POST['consult'] ) : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 // phpcs:enable
@@ -264,6 +269,17 @@ get_header();
 			</p>
 		</header>
 
+		<?php if ( $exf_saved ) : ?>
+			<div class="notice-box" role="status"><p>
+				<?php
+				echo esc_html(
+					$exf_saved['slot_gone']
+						? __( 'Thanks for waiting. Your basket is below, but the time you chose has since been booked, so please choose another.', 'exfiles' )
+						: __( 'Thanks for waiting. Your basket is just as you left it: check the details and continue to payment.', 'exfiles' )
+				);
+				?>
+			</p></div>
+		<?php endif; ?>
 		<?php if ( isset( $_GET['separation'] ) && 'clear' === $_GET['separation'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 			<div class="notice-box" role="status"><p><?php esc_html_e( 'Your new Ex File is open.', 'exfiles' ); ?></p></div>
 		<?php endif; ?>
@@ -316,7 +332,7 @@ get_header();
 				<fieldset class="gq-services buy-step">
 					<legend class="gq-label"><?php esc_html_e( 'Optional add-on', 'exfiles' ); ?></legend>
 					<label class="gq-option gq-option--check">
-						<input type="checkbox" name="addon" value="1" data-addon-pence="<?php echo (int) $exf_addon['pence']; ?>" <?php checked( ! empty( $_POST['addon'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing ?>>
+						<input type="checkbox" name="addon" value="1" data-addon-pence="<?php echo (int) $exf_addon['pence']; ?>" <?php checked( ! empty( $_POST['addon'] ) || ( $exf_saved && $exf_saved['addon'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing ?>>
 						<span>
 							<?php
 							/* translators: 1: add-on, 2: price */

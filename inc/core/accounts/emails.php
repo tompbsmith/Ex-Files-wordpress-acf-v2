@@ -62,6 +62,10 @@ function exf_email_defaults() {
 			'We need a little more information',
 			"Hello {first_name},\n\nTo finish our routine check, we need a little more information:\n\n{question}\n\nPlease log in to your Ex File to reply:\n\n{link}\n\nBest wishes,\nThe Ex Files",
 		),
+		'info_requested_email' => array(
+			'We need a little more information',
+			"Hello {first_name},\n\nTo finish our checks before we can take your booking, we need a little more information:\n\n{question}\n\nPlease reply to this email with your answer. We'll be in touch as soon as we've finished, within one working day of hearing from you.\n\nYou haven't been charged.\n\nBest wishes,\nThe Ex Files",
+		),
 		'unable'         => array(
 			'About your Ex File',
 			"Hello {first_name},\n\nThank you for your interest in The Ex Files. Unfortunately we're unable to take on your matter. We can't give details, as it can be for a number of reasons. We're sorry we can't help on this occasion.\n\nIf you have any questions, please reply to this email.\n\nBest wishes,\nThe Ex Files",

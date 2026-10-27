@@ -310,7 +310,7 @@
         },
         {
             "key": "field_exf_em_tab_info_requested",
-            "label": "More information needed",
+            "label": "More information needed (in My Ex File)",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -345,6 +345,56 @@
             "key": "field_exf_em_info_requested_body",
             "label": "Message",
             "name": "info_requested_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_em_tab_info_requested_email",
+            "label": "More information needed (at checkout)",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_info_requested_email_subject",
+            "label": "Subject",
+            "name": "info_requested_email_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}, {question}. For sign-ups waiting at checkout: they reply to the email, so there's no link. Never mention conflicts.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_info_requested_email_body",
+            "label": "Message",
+            "name": "info_requested_email_body",
             "aria-label": "",
             "type": "textarea",
             "instructions": "",
@@ -1527,5 +1577,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1793123440
+    "modified": 1793123823
 }

@@ -389,6 +389,16 @@ function exf_register_after_create( $user_id, array $basket ) {
 		exf_basket_back_with_errors( $basket, $errors );
 	}
 
+	// Keep what they chose, so the link they're sent when cleared reopens their basket.
+	update_user_meta(
+		$user_id,
+		'exf_saved_basket',
+		array(
+			'service' => (int) $basket['service'],
+			'slot'    => (int) $basket['slot'],
+			'addon'   => ! empty( $basket['addon'] ),
+		)
+	);
 	exf_basket_clear();
 	if ( 'blocked' === $outcome ) {
 		exf_set_user_status( $user_id, EXF_STATUS_BLOCKED );

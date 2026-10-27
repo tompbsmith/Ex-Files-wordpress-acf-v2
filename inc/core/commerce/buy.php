@@ -161,7 +161,29 @@ function exf_handle_buy( $service_id, $ex_file, $slot, array $opts = array() ) {
 	if ( isset( $result['errors'] ) ) {
 		return $result['errors'];
 	}
+	delete_user_meta( $user_id, 'exf_saved_basket' );
 	exf_purchase_redirect( $result );
+}
+
+/**
+ * The basket a client chose at checkout before being held for review, if it's for
+ * this service: [ slot, addon ]. The slot is 0 if it has gone meanwhile.
+ *
+ * @param int   $user_id Client.
+ * @param array $service From exf_service().
+ * @return array|null
+ */
+function exf_saved_basket_for( $user_id, array $service ) {
+	$saved = get_user_meta( $user_id, 'exf_saved_basket', true );
+	if ( ! is_array( $saved ) || (int) ( $saved['service'] ?? 0 ) !== (int) $service['id'] ) {
+		return null;
+	}
+	$slot = (int) ( $saved['slot'] ?? 0 );
+	return array(
+		'slot'      => $service['booking'] && $slot && exf_slot_is_free( $slot, $service['minutes'] ) ? $slot : 0,
+		'slot_gone' => $service['booking'] && $slot && ! exf_slot_is_free( $slot, $service['minutes'] ),
+		'addon'     => ! empty( $saved['addon'] ),
+	);
 }
 
 /**

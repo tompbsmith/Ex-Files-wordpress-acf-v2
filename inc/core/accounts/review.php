@@ -253,7 +253,7 @@ function exf_conflict_box( $post ) {
 			<textarea id="exf-review-note" name="exf_note" form="exf-conflict-form" rows="2" style="width:100%"></textarea>
 		</p>
 		<p>
-			<label for="exf-question"><?php esc_html_e( 'Question for the client (only used with “Request more information”)', 'exfiles' ); ?></label><br>
+			<label for="exf-question"><?php echo esc_html( function_exists( 'exf_unconfirmed_awaiting_decision' ) && exf_unconfirmed_awaiting_decision( (int) $post->post_author ) ? __( 'Question for the client (only used with “Request more information”). They’re waiting at checkout, so they’ll reply by email: update this Ex File with their answer, then Clear, Block or Run the check again.', 'exfiles' ) : __( 'Question for the client (only used with “Request more information”)', 'exfiles' ) ); ?></label><br>
 			<textarea id="exf-question" name="exf_question" form="exf-conflict-form" rows="3" style="width:100%" placeholder="<?php esc_attr_e( "For example: Please give us your ex's date of birth and their address while you lived together.", 'exfiles' ); ?>"></textarea>
 		</p>
 		<p>
@@ -443,7 +443,11 @@ function exf_handle_conflict_action() {
 			delete_post_meta( $id, 'info_provided' );
 			exf_ex_file_log( $id, 'More information requested by ' . $me . ': ' . $question );
 			exf_sync_user_status( $client );
-			if ( $user ) {
+			if ( $user && exf_unconfirmed_awaiting_decision( $client ) ) {
+				// Waiting at checkout (no account yet): they reply by email. Update the Ex
+				// File with what they send, then Clear, Block or Run the check again.
+				exf_send_email( 'info_requested_email', $user->user_email, exf_ex_file_email_vars( $id ) + array( 'question' => $question ) );
+			} elseif ( $user ) {
 				exf_send_email( 'info_requested', $user->user_email, exf_ex_file_email_vars( $id ) + array( 'question' => $question, 'link' => exf_client_link( $client, exf_portal_url( 'ex-files', $id ) ) ) );
 			}
 			$msg = 'requested';
