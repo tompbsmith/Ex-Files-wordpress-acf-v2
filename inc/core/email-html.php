@@ -68,7 +68,11 @@ function exf_email_footer_text() {
  * @param string $url Link.
  */
 function exf_email_button_label( $url ) {
+	// Links through the log in page carry where they go as redirect_to: match on that too.
+	$url   = rawurldecode( (string) $url );
 	$rules = array(
+		'go=booking'           => __( 'Complete your booking', 'exfiles' ),
+		'go=reply'             => __( 'Reply now', 'exfiles' ),
 		'consult='             => __( 'Book your consultation', 'exfiles' ),
 		'verify='              => __( 'Confirm my email', 'exfiles' ),
 		'confirm_email='       => __( 'Confirm my new email', 'exfiles' ),

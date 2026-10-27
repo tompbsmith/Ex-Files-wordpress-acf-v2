@@ -443,14 +443,15 @@ function exf_handle_conflict_action() {
 			delete_post_meta( $id, 'info_provided' );
 			exf_ex_file_log( $id, 'More information requested by ' . $me . ': ' . $question );
 			exf_sync_user_status( $client );
-			if ( $user && exf_unconfirmed_awaiting_decision( $client ) ) {
+			$by_email = $user && exf_unconfirmed_awaiting_decision( $client );
+			if ( $by_email ) {
 				// Waiting at checkout (no account yet): they reply by email. Update the Ex
 				// File with what they send, then Clear, Block or Run the check again.
 				exf_send_email( 'info_requested_email', $user->user_email, exf_ex_file_email_vars( $id ) + array( 'question' => $question ) );
 			} elseif ( $user ) {
 				exf_send_email( 'info_requested', $user->user_email, exf_ex_file_email_vars( $id ) + array( 'question' => $question, 'link' => exf_client_link( $client, exf_portal_url( 'ex-files', $id ) ) ) );
 			}
-			$msg = 'requested';
+			$msg = $by_email ? 'requested_email' : 'requested';
 			break;
 
 		case 'block':
@@ -487,6 +488,7 @@ add_action(
 		$messages = array(
 			'cleared'        => array( 'success', __( 'Cleared. The client has been emailed.', 'exfiles' ) ),
 			'requested'      => array( 'success', __( 'Request sent. The client has been emailed and can reply from their account.', 'exfiles' ) ),
+			'requested_email' => array( 'success', __( 'Request sent. The client has been emailed and will reply by email. Update this Ex File with their answer, then Clear, Block or Run the check again.', 'exfiles' ) ),
 			'blocked'        => array( 'success', __( 'Blocked. The client has been told you are unable to act.', 'exfiles' ) ),
 			'need_question'  => array( 'error', __( 'Please write the question for the client.', 'exfiles' ) ),
 			'rerun_clear'    => array( 'info', __( 'Check run again: no conflict found. No email was sent.', 'exfiles' ) ),

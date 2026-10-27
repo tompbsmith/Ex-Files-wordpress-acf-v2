@@ -52,7 +52,7 @@ function exf_email_defaults() {
 		),
 		'active'         => array(
 			"You're all set",
-			"Hello {first_name},\n\nYour Ex File is open and you can now choose your service:\n\n{link}\n\nBest wishes,\nThe Ex Files",
+			"Hello {first_name},\n\nThank you for waiting. Your Ex File is ready, so you can now complete your booking:\n\n{link}\n\nThe link logs you in and takes you back to your basket.\n\nBest wishes,\nThe Ex Files",
 		),
 		'review'         => array(
 			"We're just checking a few details",
@@ -259,11 +259,15 @@ function exf_ex_file_email_vars( $ex_file_id ) {
  * @param string $url     Where they should end up.
  */
 function exf_client_link( $user_id, $url ) {
+	// Tells the email's button what to say ("Complete your booking", "Reply now").
+	$go = false !== strpos( $url, '/buy/' ) ? 'booking' : ( false !== strpos( $url, '/ex-files/' ) ? 'reply' : '' );
 	if ( EXF_STATUS_PENDING === exf_user_status( $user_id ) && ! get_user_meta( $user_id, 'exf_email_verified', true ) ) {
 		update_user_meta( $user_id, 'exf_verify_then', esc_url_raw( $url ) );
-		return exf_new_verification_link( $user_id );
+		$link = exf_new_verification_link( $user_id );
+		return $go ? add_query_arg( 'go', $go, $link ) : $link;
 	}
-	return wp_login_url( $url );
+	$link = wp_login_url( $url );
+	return $go ? add_query_arg( 'go', $go, $link ) : $link;
 }
 
 /**
