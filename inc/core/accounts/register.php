@@ -399,15 +399,34 @@ function exf_register_after_create( $user_id, array $basket ) {
 		exit;
 	}
 
-	// Review: nothing is charged. They confirm their email as before, and can pay
-	// once the solicitor has cleared the check (they're emailed a link).
+	// Review: nothing is charged, and they can't log in yet. No confirmation link is
+	// sent until the solicitor decides: clearing it emails them a link that confirms
+	// their email and takes them to pay; asking for more information emails a link
+	// that confirms it and opens the reply form; blocking sends the usual
+	// "unable to help" email.
 	exf_set_user_status( $user_id, EXF_STATUS_PENDING );
 	if ( $vars ) {
 		exf_send_email( 'admin_review', exf_notify_emails(), $vars );
+		exf_send_email( 'review_checkout', get_userdata( $user_id )->user_email, $vars );
 	}
-	exf_send_verification( $user_id );
 	wp_safe_redirect( add_query_arg( 'result', 'checking', $register ) );
 	exit;
+}
+
+/**
+ * Whether a sign-up who hasn't confirmed their email is waiting for the solicitor
+ * (held for review at checkout, see exf_register_after_create()).
+ *
+ * @param int $user_id User.
+ * @return string Ex File status (review|info_requested|blocked), or '' if not waiting.
+ */
+function exf_unconfirmed_awaiting_decision( $user_id ) {
+	if ( EXF_STATUS_PENDING !== exf_user_status( $user_id ) || get_user_meta( $user_id, 'exf_email_verified', true ) ) {
+		return '';
+	}
+	$first  = exf_first_ex_file( $user_id );
+	$status = $first ? exf_ex_file_status( $first ) : '';
+	return in_array( $status, array( 'review', 'info_requested', 'blocked' ), true ) ? $status : '';
 }
 
 /**
@@ -571,12 +590,18 @@ function exf_handle_verify( $user_id, $token ) {
 			wp_safe_redirect( add_query_arg( 'result', 'unable', $register ) );
 			exit;
 		}
-		if ( EXF_STATUS_REVIEW === $status && ! exf_client_has_service( $user_id ) ) {
+		// A link from a "more information" or "all set" email goes where that email said.
+		$then = (string) get_user_meta( $user_id, 'exf_verify_then', true );
+		delete_user_meta( $user_id, 'exf_verify_then' );
+		if ( ! $then && EXF_STATUS_REVIEW === $status && ! exf_client_has_service( $user_id ) ) {
 			exf_send_email( 'review', get_userdata( $user_id )->user_email, exf_ex_file_email_vars( $ex_file ) + array( 'link' => exf_page_url( 'account' ) ) );
 		}
 		wp_set_current_user( $user_id );
 		wp_set_auth_cookie( $user_id, false );
-		wp_safe_redirect( EXF_STATUS_ACTIVE === $status && ! exf_client_has_service( $user_id ) ? exf_after_clear_url( $user_id ) : exf_page_url( 'account' ) );
+		if ( ! $then ) {
+			$then = EXF_STATUS_ACTIVE === $status && ! exf_client_has_service( $user_id ) ? exf_after_clear_url( $user_id ) : exf_page_url( 'account' );
+		}
+		wp_safe_redirect( wp_validate_redirect( $then, exf_page_url( 'account' ) ) );
 		exit;
 	}
 
@@ -610,7 +635,7 @@ function exf_handle_resend( $email ) {
 	if ( $count < 5 && is_email( $email ) ) {
 		set_transient( $limit, $count + 1, HOUR_IN_SECONDS );
 		$user = get_user_by( 'email', $email );
-		if ( $user && EXF_STATUS_PENDING === exf_user_status( $user->ID ) ) {
+		if ( $user && EXF_STATUS_PENDING === exf_user_status( $user->ID ) && ! exf_unconfirmed_awaiting_decision( $user->ID ) ) {
 			exf_send_verification( $user->ID );
 		}
 	}
@@ -648,6 +673,13 @@ function exf_cleanup_unverified() {
 	foreach ( $users as $uid ) {
 		if ( exf_client_has_service( $uid ) ) {
 			continue; // Paid at checkout but hasn't clicked the link yet: keep.
+		}
+		if ( in_array( exf_unconfirmed_awaiting_decision( $uid ), array( 'review', 'info_requested' ), true ) ) {
+			continue; // Waiting for the solicitor: left for her to decide.
+		}
+		$decided = (int) get_post_meta( exf_first_ex_file( $uid ), 'conflict_reviewed_at', true );
+		if ( $decided > time() - $days * DAY_IN_SECONDS ) {
+			continue; // Cleared recently: give them the full period to use the link.
 		}
 		foreach ( exf_client_ex_files( $uid ) as $ex_file ) {
 			wp_delete_post( $ex_file, true );

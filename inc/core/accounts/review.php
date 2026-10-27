@@ -444,7 +444,7 @@ function exf_handle_conflict_action() {
 			exf_ex_file_log( $id, 'More information requested by ' . $me . ': ' . $question );
 			exf_sync_user_status( $client );
 			if ( $user ) {
-				exf_send_email( 'info_requested', $user->user_email, exf_ex_file_email_vars( $id ) + array( 'question' => $question, 'link' => exf_page_url( 'account' ) ) );
+				exf_send_email( 'info_requested', $user->user_email, exf_ex_file_email_vars( $id ) + array( 'question' => $question, 'link' => exf_client_link( $client, exf_portal_url( 'ex-files', $id ) ) ) );
 			}
 			$msg = 'requested';
 			break;

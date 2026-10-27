@@ -46,6 +46,10 @@ function exf_email_defaults() {
 			'Confirm your email to access your Ex File',
 			"Hello {first_name},\n\nThank you for your order. To finish creating your Ex File, please confirm your email address using this link:\n\n{link}\n\nYou'll then be logged in to your Ex File, where you'll find your booking and anything we need from you next. We've sent your order confirmation separately.\n\nThe link works for 48 hours. If it runs out, you can ask for a new one on the log in page.\n\nBest wishes,\nThe Ex Files",
 		),
+		'review_checkout' => array(
+			"We're just checking a few details",
+			"Hello {first_name},\n\nThank you for choosing The Ex Files. Before we can take your booking, we need to check a few details. This is done within one working day, and we'll email you as soon as it's finished so you can complete your booking.\n\nYou haven't been charged.\n\nBest wishes,\nThe Ex Files",
+		),
 		'active'         => array(
 			"You're all set",
 			"Hello {first_name},\n\nYour Ex File is open and you can now choose your service:\n\n{link}\n\nBest wishes,\nThe Ex Files",
@@ -209,10 +213,11 @@ function exf_conflict_notify( $ex_file_id, $outcome ) {
 	$vars = exf_ex_file_email_vars( $ex_file_id );
 
 	if ( 'clear' === $outcome ) {
-		// Checked by hand before they'd confirmed their email (checkout, basket.php):
-		// the link confirms it too, then goes on to the service they chose.
-		$unconfirmed = EXF_STATUS_PENDING === exf_user_status( $client_id ) && ! get_user_meta( $client_id, 'exf_email_verified', true );
-		exf_send_email( 'active', $user->user_email, $vars + array( 'link' => $unconfirmed ? exf_new_verification_link( $client_id ) : exf_after_clear_url( $client_id ) ) );
+		// The link confirms their email if they haven't yet (sign-ups held for review at
+		// checkout aren't sent a confirmation link until now), then goes on to the service
+		// they chose. Otherwise it goes through the log in page, which sends anyone already
+		// logged in straight on.
+		exf_send_email( 'active', $user->user_email, $vars + array( 'link' => exf_client_link( $client_id, exf_after_clear_url( $client_id ) ) ) );
 	} elseif ( 'review' === $outcome ) {
 		exf_send_email( 'review', $user->user_email, $vars + array( 'link' => exf_page_url( 'account' ) ) );
 		exf_send_email( 'admin_review', exf_notify_emails(), $vars );
@@ -239,6 +244,22 @@ function exf_ex_file_email_vars( $ex_file_id ) {
 		'strength'    => (int) get_post_meta( $ex_file_id, 'conflict_score', true ) >= EXF_CONFLICT_BLOCK ? 'strong match: we recommend declining' : 'possible match',
 		'admin_link'  => admin_url( 'post.php?post=' . $ex_file_id . '&action=edit' ),
 	);
+}
+
+/**
+ * A link for an email to a client: their confirmation link if they haven't confirmed
+ * their email address yet (it logs them in), otherwise the log in page, which goes on
+ * to $url (straight away if they're already logged in).
+ *
+ * @param int    $user_id Client.
+ * @param string $url     Where they should end up.
+ */
+function exf_client_link( $user_id, $url ) {
+	if ( EXF_STATUS_PENDING === exf_user_status( $user_id ) && ! get_user_meta( $user_id, 'exf_email_verified', true ) ) {
+		update_user_meta( $user_id, 'exf_verify_then', esc_url_raw( $url ) );
+		return exf_new_verification_link( $user_id );
+	}
+	return wp_login_url( $url );
 }
 
 /**

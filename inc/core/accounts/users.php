@@ -117,6 +117,13 @@ add_filter(
 				)
 			);
 		}
+		$waiting = EXF_STATUS_PENDING === $status && function_exists( 'exf_unconfirmed_awaiting_decision' ) ? exf_unconfirmed_awaiting_decision( $user->ID ) : '';
+		if ( 'blocked' === $waiting ) {
+			return new WP_Error( 'exf_blocked', __( "We're unable to open an account for you. We can't give details, as it can be for a number of reasons.", 'exfiles' ) );
+		}
+		if ( $waiting ) {
+			return new WP_Error( 'exf_checking', __( "We're still checking a few details before we can take your booking. We'll email you as soon as it's done, within one working day.", 'exfiles' ) );
+		}
 		if ( EXF_STATUS_PENDING === $status ) {
 			return new WP_Error(
 				'exf_unverified',

@@ -82,7 +82,7 @@
             "name": "verify_subject",
             "aria-label": "",
             "type": "text",
-            "instructions": "Merge tags: {first_name}, {link}. Sent to sign-ups whose details we need to check by hand before they can pay, and to accounts from before the checkout.",
+            "instructions": "Merge tags: {first_name}, {link}. Sent to accounts from before the checkout, and when someone asks for a new link.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -182,7 +182,7 @@
             "name": "active_subject",
             "aria-label": "",
             "type": "text",
-            "instructions": "Merge tags: {first_name}, {link}",
+            "instructions": "Merge tags: {first_name}, {link}. {link} confirms their email first if they haven't yet, otherwise goes through the log in page to the service they chose.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -210,7 +210,7 @@
         },
         {
             "key": "field_exf_em_tab_review",
-            "label": "Account under review",
+            "label": "Account under review (after confirming)",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -259,6 +259,56 @@
             "new_lines": ""
         },
         {
+            "key": "field_exf_em_tab_review_checkout",
+            "label": "Checking details (at checkout)",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_review_checkout_subject",
+            "label": "Subject",
+            "name": "review_checkout_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}. Sent when a sign-up at checkout needs checking by hand. There's no link: they're emailed one when you clear the check or ask for more information. Never mention conflicts.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_review_checkout_body",
+            "label": "Message",
+            "name": "review_checkout_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
             "key": "field_exf_em_tab_info_requested",
             "label": "More information needed",
             "name": "",
@@ -282,7 +332,7 @@
             "name": "info_requested_subject",
             "aria-label": "",
             "type": "text",
-            "instructions": "Merge tags: {first_name}, {question}, {link}",
+            "instructions": "Merge tags: {first_name}, {question}, {link}. {link} confirms their email first if they haven't yet, otherwise goes through the log in page to the reply form.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -1477,5 +1527,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792944284
+    "modified": 1793123440
 }

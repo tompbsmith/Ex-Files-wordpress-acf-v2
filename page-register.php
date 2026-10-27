@@ -53,7 +53,7 @@ get_header();
 		<header class="guide-form-head">
 			<p class="eyebrow"><?php esc_html_e( 'Create your Ex File', 'exfiles' ); ?></p>
 			<h1><?php echo esc_html( $exf_f( 'checking_heading' ) ? $exf_f( 'checking_heading' ) : __( "Thank you. We're just checking a few details", 'exfiles' ) ); ?></h1>
-			<p class="lead"><?php echo exf_lines( $exf_f( 'checking_text' ) ? $exf_f( 'checking_text' ) : __( "We need to check a few details before we can take your booking. This is done within one working day, and we'll email you as soon as it's finished so you can complete your booking. You haven't been charged.\n\nIn the meantime, we've sent you an email to confirm your email address. Please click the link in it.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+			<p class="lead"><?php echo exf_lines( $exf_f( 'checking_text' ) ? $exf_f( 'checking_text' ) : __( "We need to check a few details before we can take your booking. This is done within one working day, and we'll email you as soon as it's finished so you can complete your booking. You haven't been charged.", 'exfiles' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
 		</header>
 
 	<?php elseif ( 'check-email' === $exf_result || 'resent' === $exf_result || 'link-expired' === $exf_result ) : ?>
