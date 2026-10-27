@@ -274,7 +274,7 @@ get_header();
 				<?php
 				echo esc_html(
 					$exf_saved['slot_gone']
-						? __( 'Thanks for waiting. Your basket is below, but the time you chose has since been booked, so please choose another.', 'exfiles' )
+						? __( 'Thanks for waiting. Your basket is below, but the time you chose is no longer available, so please choose another.', 'exfiles' )
 						: __( 'Thanks for waiting. Your basket is just as you left it: check the details and continue to payment.', 'exfiles' )
 				);
 				?>
