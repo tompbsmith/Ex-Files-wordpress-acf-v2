@@ -170,147 +170,6 @@ function exf_q_build_xlsx( $q ) {
 		return 'Yes' === ( $d[ $section ]['_gate'] ?? '' );
 	};
 	$money = 'exf_q_money_cell';
-	$num   = 'exf_q_money_num';
-
-	// Assets.
-	$rows   = array(
-		array( array( 'v' => __( 'Assets', 'exfiles' ), 's' => 'title' ) ),
-		array( __( 'Yellow = estimate. Red = client doesn’t know. Net value = value less mortgage, charges and tax, where given.', 'exfiles' ) ),
-		array(),
-		exf_q_header_row( array( 'Type', 'Description', 'Owner', 'Value', 'Mortgage', 'Early repayment charge', 'CGT', 'Net value', 'Certainty (value)', 'As at', 'Basis of estimate', 'Notes' ) ),
-	);
-	$first  = count( $rows ) + 1;
-	$assets = 0.0;
-	if ( $yes( 'properties' ) ) {
-		foreach ( (array) ( $d['properties']['properties'] ?? array() ) as $p ) {
-			$net     = $num( $p['value'] ?? null ) - $num( $p['mortgage'] ?? null ) - $num( $p['erc'] ?? null ) - $num( $p['cgt'] ?? null );
-			$assets += $net;
-			$rows[]  = array( 'Property', array( 'v' => $p['address'] ?? '', 's' => 'wrap' ), $p['owner'] ?? '', $money( $p['value'] ?? null ), $money( $p['mortgage'] ?? null ), $money( $p['erc'] ?? null ), $money( $p['cgt'] ?? null ), array( 'v' => $net, 's' => 'money' ), exf_q_certainty_label( $p['value'] ?? null ), exf_q_date_cell( $p['value']['as_at'] ?? '' ), $p['value']['basis'] ?? '', array( 'v' => $p['additional'] ?? '', 's' => 'wrap' ) );
-		}
-	}
-	if ( $yes( 'accounts' ) ) {
-		foreach ( (array) ( $d['accounts']['accounts'] ?? array() ) as $a ) {
-			$assets += $num( $a['balance'] ?? null );
-			$rows[]  = array( 'Account' . ( ! empty( $a['kind'] ) ? ' (' . $a['kind'] . ')' : '' ), $a['bank'] ?? '', $a['owner'] ?? '', $money( $a['balance'] ?? null ), null, null, null, array( 'v' => $num( $a['balance'] ?? null ), 's' => 'money' ), exf_q_certainty_label( $a['balance'] ?? null ), exf_q_date_cell( $a['balance']['as_at'] ?? '' ), $a['balance']['basis'] ?? '', array( 'v' => $a['additional'] ?? '', 's' => 'wrap' ) );
-		}
-	}
-	if ( $yes( 'investments' ) ) {
-		foreach ( (array) ( $d['investments']['investments'] ?? array() ) as $i ) {
-			$assets += $num( $i['value'] ?? null );
-			$note    = trim( ( isset( $i['maturity']['amount'] ) && '' !== $i['maturity']['amount'] ? 'Maturity value £' . $i['maturity']['amount'] . ( ! empty( $i['maturity_date'] ) ? ' on ' . exf_q_date( $i['maturity_date'] ) : '' ) . '. ' : '' ) . ( $i['additional'] ?? '' ) );
-			$rows[]  = array( 'Investment', $i['description'] ?? '', $i['owner'] ?? '', $money( $i['value'] ?? null ), null, null, null, array( 'v' => $num( $i['value'] ?? null ), 's' => 'money' ), exf_q_certainty_label( $i['value'] ?? null ), exf_q_date_cell( $i['value']['as_at'] ?? '' ), $i['value']['basis'] ?? '', array( 'v' => $note, 's' => 'wrap' ) );
-		}
-	}
-	if ( $yes( 'assets' ) ) {
-		foreach ( (array) ( $d['assets']['assets'] ?? array() ) as $a ) {
-			$assets += $num( $a['value'] ?? null );
-			$rows[]  = array( 'Other asset', $a['description'] ?? '', $a['owner'] ?? '', $money( $a['value'] ?? null ), null, null, null, array( 'v' => $num( $a['value'] ?? null ), 's' => 'money' ), exf_q_certainty_label( $a['value'] ?? null ), exf_q_date_cell( $a['value']['as_at'] ?? '' ), $a['value']['basis'] ?? '', array( 'v' => $a['additional'] ?? '', 's' => 'wrap' ) );
-		}
-	}
-	if ( $yes( 'business' ) ) {
-		foreach ( (array) ( $d['business']['businesses'] ?? array() ) as $b ) {
-			$value   = 'Yes' === ( $b['know_value'] ?? '' ) ? ( $b['value'] ?? null ) : array( 'certainty' => "Don't know" );
-			$net     = $num( $value ) - $num( $b['cgt'] ?? null );
-			$assets += $net;
-			$desc    = ( $b['name'] ?? '' ) . ( ! empty( $b['structure'] ) ? ' – ' . ( 'Other' === $b['structure'] ? ( $b['structure_other'] ?? 'Other' ) : $b['structure'] ) : '' ) . ( isset( $b['percent'] ) && '' !== $b['percent'] ? ' (' . $b['percent'] . '%)' : '' );
-			$note    = trim( ( ! empty( $b['value_source'] ) ? 'Value from: ' . $b['value_source'] . '. ' : '' ) . ( $b['additional'] ?? '' ) );
-			$rows[]  = array( 'Business', $desc, $b['owner'] ?? '', $money( $value ), null, null, $money( $b['cgt'] ?? null ), array( 'v' => $net, 's' => 'money' ), exf_q_certainty_label( $value ), exf_q_date_cell( $value['as_at'] ?? '' ), $value['basis'] ?? '', array( 'v' => $note, 's' => 'wrap' ) );
-		}
-	}
-	$last   = count( $rows );
-	$rows[] = array();
-	$rows[] = array( array( 'v' => 'Total', 's' => 'bold' ), null, null, null, null, null, null, $last >= $first ? array( 'f' => 'SUM(H' . $first . ':H' . $last . ')', 's' => 'money_bold' ) : array( 'v' => 0, 's' => 'money_bold' ) );
-	$x->sheet( 'Assets', $rows, array( 16, 36, 20, 13, 13, 13, 11, 13, 14, 12, 26, 40 ) );
-
-	// Liabilities.
-	$rows  = array(
-		array( array( 'v' => __( 'Liabilities', 'exfiles' ), 's' => 'title' ) ),
-		array(),
-		exf_q_header_row( array( 'Creditor / type', 'Who is liable', 'Names on agreement', 'Supplementary cardholder?', 'Balance', 'Monthly repayment', 'Certainty (balance)', 'As at', 'Basis of estimate', 'Notes' ) ),
-	);
-	$first = count( $rows ) + 1;
-	$debts = 0.0;
-	if ( $yes( 'liabilities' ) ) {
-		foreach ( (array) ( $d['liabilities']['liabilities'] ?? array() ) as $l ) {
-			$debts += $num( $l['balance'] ?? null );
-			$rows[] = array( $l['creditor'] ?? '', $l['liable'] ?? '', $l['names'] ?? '', $l['supplementary'] ?? '', $money( $l['balance'] ?? null ), $money( $l['monthly'] ?? null ), exf_q_certainty_label( $l['balance'] ?? null ), exf_q_date_cell( $l['balance']['as_at'] ?? '' ), $l['balance']['basis'] ?? '', array( 'v' => $l['additional'] ?? '', 's' => 'wrap' ) );
-		}
-	}
-	$last   = count( $rows );
-	$rows[] = array();
-	$rows[] = array( array( 'v' => 'Total', 's' => 'bold' ), null, null, null, $last >= $first ? array( 'f' => 'SUM(E' . $first . ':E' . $last . ')', 's' => 'money_bold' ) : array( 'v' => 0, 's' => 'money_bold' ), $last >= $first ? array( 'f' => 'SUM(F' . $first . ':F' . $last . ')', 's' => 'money_bold' ) : null );
-	$x->sheet( 'Liabilities', $rows, array( 30, 22, 26, 14, 13, 13, 14, 12, 26, 40 ) );
-
-	// Pensions.
-	$rows     = array(
-		array( array( 'v' => __( 'Pensions', 'exfiles' ), 's' => 'title' ) ),
-		array(),
-		exf_q_header_row( array( 'Provider', 'Whose', 'Type', 'In payment / drawdown', 'CETV', 'Certainty', 'As at', 'Basis of estimate', 'Notes' ) ),
-	);
-	$first    = count( $rows ) + 1;
-	$pensions = 0.0;
-	if ( $yes( 'pensions' ) ) {
-		foreach ( (array) ( $d['pensions']['pensions'] ?? array() ) as $p ) {
-			$cetv      = 'Yes' === ( $p['know_cetv'] ?? '' ) ? ( $p['cetv'] ?? null ) : array( 'certainty' => "Don't know" );
-			$pensions += $num( $cetv );
-			$rows[]    = array( $p['provider'] ?? '', $p['owner'] ?? '', $p['kind'] ?? '', $p['in_payment'] ?? '', $money( $cetv ), exf_q_certainty_label( $cetv ), exf_q_date_cell( $cetv['as_at'] ?? '' ), $cetv['basis'] ?? '', array( 'v' => $p['additional'] ?? '', 's' => 'wrap' ) );
-		}
-	}
-	$last   = count( $rows );
-	$rows[] = array();
-	$rows[] = array( array( 'v' => 'Total', 's' => 'bold' ), null, null, null, $last >= $first ? array( 'f' => 'SUM(E' . $first . ':E' . $last . ')', 's' => 'money_bold' ) : array( 'v' => 0, 's' => 'money_bold' ) );
-	$x->sheet( 'Pensions', $rows, array( 28, 18, 30, 14, 13, 12, 12, 26, 40 ) );
-
-	// Income.
-	$rows    = array(
-		array( array( 'v' => __( 'Income', 'exfiles' ), 's' => 'title' ) ),
-		array( __( 'Monthly equivalent: weekly × 52 ÷ 12; fortnightly × 26 ÷ 12; four-weekly × 13 ÷ 12; quarterly × 4 ÷ 12; annual ÷ 12.', 'exfiles' ) ),
-		exf_q_header_row( array( 'Person', 'Source', 'Detail', 'Amount', 'Frequency', 'Monthly equivalent', 'Certainty', 'As at', 'Basis of estimate' ) ),
-	);
-	$monthly = array(
-		'client' => 0.0,
-		'spouse' => 0.0,
-	);
-	$income  = $d['income'] ?? array();
-	foreach ( array( 'client' => __( 'Client', 'exfiles' ), 'spouse' => __( 'Spouse/partner', 'exfiles' ) ) as $who => $label ) {
-		$has = $income[ $who . '_has' ] ?? '';
-		if ( 'Yes' !== $has ) {
-			$rows[] = array( $label, '' === $has ? '—' : ( 'No' === $has ? 'No income' : array( 'v' => "Don't know", 's' => 'dont_know' ) ) );
-			continue;
-		}
-		$g    = $income[ $who ] ?? array();
-		$line = function ( $source, $detail, $m ) use ( &$rows, &$monthly, $who, $label, $money ) {
-			$m   = is_array( $m ) ? $m : array();
-			$per = exf_q_monthly( $m['amount'] ?? '', $m['frequency'] ?? '' );
-			if ( null !== $per && "Don't know" !== ( $m['certainty'] ?? '' ) && 'Gross salary' !== $source ) {
-				$monthly[ $who ] += $per;
-			}
-			$rows[] = array( $label, $source, $detail, $money( $m ), $m['frequency'] ?? '', null === $per ? null : array( 'v' => $per, 's' => 'money' ), exf_q_certainty_label( $m ), exf_q_date_cell( $m['as_at'] ?? '' ), $m['basis'] ?? '' );
-		};
-		foreach ( (array) ( $g['employment'] ?? array() ) as $e ) {
-			$line( 'Gross salary', $e['occupation'] ?? '', $e['gross'] ?? null );
-			$line( 'Net salary', $e['occupation'] ?? '', $e['net'] ?? null );
-		}
-		foreach ( (array) ( $g['dividends'] ?? array() ) as $e ) {
-			$line( 'Dividends', $e['business'] ?? '', $e['amount'] ?? null );
-		}
-		foreach ( (array) ( $g['benefits'] ?? array() ) as $e ) {
-			$line( 'Benefit', $e['benefit'] ?? '', $e['amount'] ?? null );
-		}
-		if ( ! empty( $g['maintenance']['certainty'] ) && 'None' !== $g['maintenance']['certainty'] ) {
-			$line( 'Child maintenance', '', $g['maintenance'] );
-		}
-		foreach ( (array) ( $g['pension_inc'] ?? array() ) as $e ) {
-			$line( 'Pension income', $e['kind'] ?? '', $e['amount'] ?? null );
-		}
-		foreach ( (array) ( $g['other_inc'] ?? array() ) as $e ) {
-			$line( 'Other income', $e['source'] ?? '', $e['amount'] ?? null );
-		}
-	}
-	$rows[] = array();
-	$rows[] = array( array( 'v' => 'Client: monthly net income (net salary and other income)', 's' => 'bold' ), null, null, null, null, array( 'v' => round( $monthly['client'], 2 ), 's' => 'money_bold' ) );
-	$rows[] = array( array( 'v' => 'Spouse/partner: monthly net income', 's' => 'bold' ), null, null, null, null, array( 'v' => round( $monthly['spouse'], 2 ), 's' => 'money_bold' ) );
-	$x->sheet( 'Income', $rows, array( 16, 20, 28, 13, 13, 15, 12, 12, 26 ) );
 
 	// Outgoings.
 	$rows  = array(
@@ -363,7 +222,7 @@ function exf_q_build_xlsx( $q ) {
 	$counts  = exf_q_flag_counts( $d );
 	$out     = exf_q_outgoings_totals( $d );
 	$summary = array(
-		array( array( 'v' => __( 'Asset schedule', 'exfiles' ), 's' => 'title' ) ),
+		array( array( 'v' => __( 'Case details', 'exfiles' ), 's' => 'title' ) ),
 		array( exf_q_meta_line( $q ) ),
 		array(),
 		array( array( 'v' => 'Married / civil partnership', 's' => 'bold' ), 'No' === ( $about['married'] ?? '' ) ? array( 'v' => 'No – check suitability', 's' => 'dont_know' ) : ( $about['married'] ?? '' ) ),
@@ -371,22 +230,19 @@ function exf_q_build_xlsx( $q ) {
 		array( array( 'v' => 'Date of separation', 's' => 'bold' ), exf_q_date_cell( $about['separation_date'] ?? '' ) ),
 		array( array( 'v' => 'Agreement reached / offer received / offer to make', 's' => 'bold' ), implode( ' / ', array( $about['agreement_reached'] ?? '—', $about['offer_received'] ?? '—', $about['offer_to_make'] ?? '—' ) ) ),
 		array(),
-		array( array( 'v' => 'Totals (known and estimated figures; "Don\'t know" counted as nil)', 's' => 'bold' ) ),
-		array( 'Net assets (after mortgages, charges and tax)', array( 'v' => round( $assets, 2 ), 's' => 'money' ) ),
-		array( 'Liabilities', array( 'v' => round( $debts, 2 ), 's' => 'money' ) ),
-		array( array( 'v' => 'Net assets less liabilities', 's' => 'bold' ), array( 'v' => round( $assets - $debts, 2 ), 's' => 'money_bold' ) ),
-		array( 'Pensions (CETVs)', array( 'v' => round( $pensions, 2 ), 's' => 'money' ) ),
-		array( 'Client monthly net income', array( 'v' => round( $monthly['client'], 2 ), 's' => 'money' ) ),
-		array( 'Spouse/partner monthly net income', array( 'v' => round( $monthly['spouse'], 2 ), 's' => 'money' ) ),
-		array( 'Outgoings per month now', array( 'v' => round( $out['current'], 2 ), 's' => 'money' ) ),
-		array( 'Outgoings per month after separating', array( 'v' => round( $out['future'], 2 ), 's' => 'money' ) ),
+		array( array( 'v' => 'Outgoings per month (see Outgoings)', 's' => 'bold' ) ),
+		array( 'Now', array( 'v' => round( $out['current'], 2 ), 's' => 'money' ) ),
+		array( 'After separating', array( 'v' => round( $out['future'], 2 ), 's' => 'money' ) ),
 		array(),
 		array( array( 'v' => 'Answers the client doesn\'t know', 's' => 'bold' ), $counts['dont_know'] ),
 		array( array( 'v' => 'Estimated answers', 's' => 'bold' ), $counts['estimate'] ),
 		array(),
 		array( __( 'Client-reported information for legal review. It has not been verified.', 'exfiles' ) ),
 	);
-	$x->sheet( 'Summary', $summary, array( 52, 30 ), true );
+	$x->sheet( 'Case details', $summary, array( 52, 30 ), true );
+
+	// The schedule itself, in the firm's template layout (shown first).
+	( new Exf_Asset_Schedule( $q ) )->add_to( $x );
 
 	return $x->output();
 }

@@ -333,6 +333,11 @@ function exf_q_sections() {
 							'type'  => 'text',
 							'label' => __( 'Names of owners on the legal title', 'exfiles' ),
 						),
+						'home'       => array(
+							'type'    => 'radio',
+							'label'   => __( 'Is this the family home?', 'exfiles' ),
+							'options' => array( 'Yes', 'No' ),
+						),
 						'value'      => exf_q_money( __( 'Current value', 'exfiles' ) ),
 						'mortgage'   => exf_q_money( __( 'Outstanding mortgage', 'exfiles' ) ),
 						'erc'        => exf_q_money( __( 'Early repayment charge or other penalty', 'exfiles' ) ),

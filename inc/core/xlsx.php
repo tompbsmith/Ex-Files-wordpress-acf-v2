@@ -1,7 +1,8 @@
 <?php
 /**
  * A small .xlsx writer: enough for a formatted schedule (text, numbers, dates,
- * £ amounts, formulas, bold/highlighted cells, column widths). Needs PHP's zip
+ * £ amounts, formulas, fonts, fills, borders, merged cells, frozen rows, column
+ * widths and row heights). Needs PHP's zip
  * extension, which standard WordPress hosting has.
  *
  * $x = new Exf_Xlsx();
@@ -9,7 +10,8 @@
  * $bytes = $x->output();
  *
  * A cell is a scalar, null, or [ 'v' => value, 's' => style, 'f' => formula ].
- * Styles: bold, money, money_bold, title, header, estimate, dont_know, date, wrap.
+ * Built-in styles: bold, money, money_bold, title, header, estimate, dont_know,
+ * date, wrap. Others: $name = $x->add_style( [ 'font' => …, 'fill' => …, … ] ).
  *
  * @package exfiles
  */
@@ -22,41 +24,107 @@ defined( 'ABSPATH' ) || exit;
 class Exf_Xlsx {
 
 	/**
-	 * Style name => cellXfs index (see styles()).
+	 * The built-in styles, by name. A style is an array of:
+	 *  font   => [ 'b' => bool, 'i' => bool, 'sz' => size, 'name' => font, 'color' => 'RRGGBB' ]
+	 *  fill   => 'RRGGBB'
+	 *  fmt    => number format code ('date' => true for a date format)
+	 *  border => [ 'l' => 'thin'|'medium', 'r' => …, 't' => …, 'b' => … ]
+	 *  h      => horizontal alignment, v => vertical alignment, wrap => bool
 	 *
 	 * @var array
 	 */
 	const STYLES = array(
-		''           => 0,
-		'bold'       => 1,
-		'money'      => 2,
-		'money_bold' => 3,
-		'title'      => 4,
-		'header'     => 5,
-		'estimate'   => 6,
-		'dont_know'  => 7,
-		'date'       => 8,
-		'wrap'       => 9,
+		''           => array( 'v' => 'top' ),
+		'bold'       => array(
+			'font' => array( 'b' => true ),
+			'v'    => 'top',
+		),
+		'money'      => array(
+			'fmt' => '"£"#,##0.00',
+			'v'   => 'top',
+		),
+		'money_bold' => array(
+			'fmt'  => '"£"#,##0.00',
+			'font' => array( 'b' => true ),
+			'v'    => 'top',
+		),
+		'title'      => array( 'font' => array( 'b' => true, 'sz' => 15 ) ),
+		'header'     => array(
+			'font' => array( 'b' => true ),
+			'fill' => 'DED4CA',
+			'v'    => 'top',
+			'wrap' => true,
+		),
+		'estimate'   => array(
+			'fmt'  => '"£"#,##0.00',
+			'fill' => 'FBEFD5',
+			'v'    => 'top',
+		),
+		'dont_know'  => array(
+			'fill' => 'F3DCD6',
+			'v'    => 'top',
+		),
+		'date'       => array(
+			'fmt'  => 'd mmm yyyy',
+			'date' => true,
+			'h'    => 'left',
+			'v'    => 'top',
+		),
+		'wrap'       => array(
+			'v'    => 'top',
+			'wrap' => true,
+		),
 	);
 
 	/**
-	 * Sheets: [ name, rows, widths ].
+	 * Every style in use: key => definition. Built-ins first, then add_style() ones.
+	 *
+	 * @var array
+	 */
+	private $styles = array();
+
+	/**
+	 * Sheets: [ name, rows, widths, options ].
 	 *
 	 * @var array
 	 */
 	private $sheets = array();
 
 	/**
+	 * Start with the built-in styles.
+	 */
+	public function __construct() {
+		$this->styles = self::STYLES;
+	}
+
+	/**
+	 * Register a style (see STYLES for the keys) and get the name to use as a cell's 's'.
+	 *
+	 * @param array $def Style.
+	 * @return string
+	 */
+	public function add_style( array $def ) {
+		$key = 'x' . md5( wp_json_encode( $def ) );
+		if ( ! isset( $this->styles[ $key ] ) ) {
+			$this->styles[ $key ] = $def;
+		}
+		return $key;
+	}
+
+	/**
 	 * Add a sheet.
 	 *
-	 * @param string $name   Name (max 31 characters).
-	 * @param array  $rows   Rows of cells.
-	 * @param array  $widths Column widths in characters.
-	 * @param bool   $first  Put it before the other sheets.
+	 * @param string $name    Name (max 31 characters).
+	 * @param array  $rows    Rows of cells.
+	 * @param array  $widths  Column widths in characters.
+	 * @param bool   $first   Put it before the other sheets.
+	 * @param array  $options merges (e.g. [ 'A1:B1' ]), freeze (rows kept at the top),
+	 *                        heights ([ row number => points ]), portrait (bool),
+	 *                        zoom (percent).
 	 */
-	public function sheet( $name, array $rows, array $widths = array(), $first = false ) {
+	public function sheet( $name, array $rows, array $widths = array(), $first = false, array $options = array() ) {
 		$name  = substr( str_replace( array( '\\', '/', '?', '*', '[', ']', ':' ), '', $name ), 0, 31 );
-		$sheet = array( $name, $rows, $widths );
+		$sheet = array( $name, $rows, $widths, $options );
 		if ( $first ) {
 			array_unshift( $this->sheets, $sheet );
 		} else {
@@ -98,13 +166,32 @@ class Exf_Xlsx {
 	}
 
 	/**
+	 * cellXfs index for a style name.
+	 *
+	 * @param string $name Style.
+	 */
+	private function style_index( $name ) {
+		$i = array_search( (string) $name, array_keys( $this->styles ), true );
+		return false === $i ? 0 : $i;
+	}
+
+	/**
 	 * One worksheet's XML.
 	 *
-	 * @param array $rows   Rows.
-	 * @param array $widths Widths.
+	 * @param array $rows    Rows.
+	 * @param array $widths  Widths.
+	 * @param array $options See sheet().
 	 */
-	private function sheet_xml( array $rows, array $widths ) {
-		$xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">';
+	private function sheet_xml( array $rows, array $widths, array $options ) {
+		$xml    = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">';
+		$freeze = (int) ( $options['freeze'] ?? 0 );
+		$zoom   = (int) ( $options['zoom'] ?? 0 );
+		$fit    = empty( $options['portrait'] ) ? '' : '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>';
+		$xml   .= $fit . '<sheetViews><sheetView workbookViewId="0"' . ( $zoom ? ' zoomScale="' . $zoom . '" zoomScaleNormal="' . $zoom . '"' : '' ) . '>';
+		if ( $freeze ) {
+			$xml .= '<pane ySplit="' . $freeze . '" topLeftCell="A' . ( $freeze + 1 ) . '" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft" activeCell="A' . ( $freeze + 1 ) . '" sqref="A' . ( $freeze + 1 ) . '"/>';
+		}
+		$xml .= '</sheetView></sheetViews>';
 		if ( $widths ) {
 			$xml .= '<cols>';
 			foreach ( $widths as $i => $w ) {
@@ -112,58 +199,98 @@ class Exf_Xlsx {
 			}
 			$xml .= '</cols>';
 		}
-		$xml .= '<sheetData>';
+		$heights = (array) ( $options['heights'] ?? array() );
+		$xml    .= '<sheetData>';
 		foreach ( array_values( $rows ) as $r => $row ) {
-			$xml .= '<row r="' . ( $r + 1 ) . '">';
+			$h    = isset( $heights[ $r + 1 ] ) ? ' ht="' . (float) $heights[ $r + 1 ] . '" customHeight="1"' : '';
+			$xml .= '<row r="' . ( $r + 1 ) . '"' . $h . '>';
 			foreach ( array_values( (array) $row ) as $c => $cell ) {
 				if ( null === $cell || '' === $cell ) {
 					continue;
 				}
 				$cell  = is_array( $cell ) ? $cell : array( 'v' => $cell );
 				$ref   = self::col( $c ) . ( $r + 1 );
-				$style = self::STYLES[ $cell['s'] ?? '' ] ?? 0;
+				$name  = (string) ( $cell['s'] ?? '' );
+				$style = $this->style_index( $name );
 				$s     = $style ? ' s="' . $style . '"' : '';
 				$v     = $cell['v'] ?? '';
 				if ( isset( $cell['f'] ) ) {
 					$xml .= '<c r="' . $ref . '"' . $s . '><f>' . self::x( $cell['f'] ) . '</f></c>';
-				} elseif ( 'date' === ( $cell['s'] ?? '' ) && is_string( $v ) && self::serial( $v ) ) {
+				} elseif ( ! empty( $this->styles[ $name ]['date'] ) && is_string( $v ) && self::serial( $v ) ) {
 					$xml .= '<c r="' . $ref . '"' . $s . '><v>' . self::serial( $v ) . '</v></c>';
 				} elseif ( is_int( $v ) || is_float( $v ) ) {
 					$xml .= '<c r="' . $ref . '"' . $s . '><v>' . $v . '</v></c>';
+				} elseif ( '' === $v ) {
+					if ( $style ) {
+						$xml .= '<c r="' . $ref . '"' . $s . '/>';
+					}
 				} else {
 					$xml .= '<c r="' . $ref . '"' . $s . ' t="inlineStr"><is><t xml:space="preserve">' . self::x( $v ) . '</t></is></c>';
 				}
 			}
 			$xml .= '</row>';
 		}
-		return $xml . '</sheetData><pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/><pageSetup orientation="landscape" paperSize="9" fitToWidth="1" fitToHeight="0"/></worksheet>';
+		$xml   .= '</sheetData>';
+		$merges = (array) ( $options['merges'] ?? array() );
+		if ( $merges ) {
+			$xml .= '<mergeCells count="' . count( $merges ) . '">';
+			foreach ( $merges as $m ) {
+				$xml .= '<mergeCell ref="' . self::x( $m ) . '"/>';
+			}
+			$xml .= '</mergeCells>';
+		}
+		$page = empty( $options['portrait'] ) ? '<pageSetup orientation="landscape" paperSize="9" fitToWidth="1" fitToHeight="0"/>' : '<pageSetup orientation="portrait" paperSize="9" fitToWidth="1" fitToHeight="0"/>';
+		return $xml . '<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/>' . $page . '</worksheet>';
 	}
 
 	/**
-	 * The styles part.
+	 * The styles part, built from every style in use.
 	 */
 	private function styles() {
+		$fonts   = array( '<font><sz val="11"/><name val="Calibri"/></font>' );
+		$fills   = array( '<fill><patternFill patternType="none"/></fill>', '<fill><patternFill patternType="gray125"/></fill>' );
+		$borders = array( '<border><left/><right/><top/><bottom/><diagonal/></border>' );
+		$fmts    = array();
+		$xfs     = array();
+		$id      = function ( array &$list, $xml ) {
+			$i = array_search( $xml, $list, true );
+			if ( false === $i ) {
+				$list[] = $xml;
+				$i      = count( $list ) - 1;
+			}
+			return $i;
+		};
+		foreach ( $this->styles as $def ) {
+			$f    = (array) ( $def['font'] ?? array() );
+			$font = '<font>' . ( empty( $f['b'] ) ? '' : '<b/>' ) . ( empty( $f['i'] ) ? '' : '<i/>' ) . '<sz val="' . (float) ( $f['sz'] ?? 11 ) . '"/>' . ( empty( $f['color'] ) ? '' : '<color rgb="FF' . self::x( $f['color'] ) . '"/>' ) . '<name val="' . self::x( $f['name'] ?? 'Calibri' ) . '"/></font>';
+			$fo   = $id( $fonts, $font );
+			$fi   = empty( $def['fill'] ) ? 0 : $id( $fills, '<fill><patternFill patternType="solid"><fgColor rgb="FF' . self::x( $def['fill'] ) . '"/><bgColor indexed="64"/></patternFill></fill>' );
+			$b    = (array) ( $def['border'] ?? array() );
+			$side = function ( $tag, $k ) use ( $b ) {
+				return empty( $b[ $k ] ) ? '<' . $tag . '/>' : '<' . $tag . ' style="' . self::x( $b[ $k ] ) . '"><color auto="1"/></' . $tag . '>';
+			};
+			$bo   = $b ? $id( $borders, '<border>' . $side( 'left', 'l' ) . $side( 'right', 'r' ) . $side( 'top', 't' ) . $side( 'bottom', 'b' ) . '<diagonal/></border>' ) : 0;
+			$nf   = 0;
+			if ( ! empty( $def['fmt'] ) ) {
+				$nf = 164 + $id( $fmts, (string) $def['fmt'] );
+			}
+			$align = '';
+			if ( ! empty( $def['h'] ) || ! empty( $def['v'] ) || ! empty( $def['wrap'] ) ) {
+				$align = '<alignment' . ( empty( $def['h'] ) ? '' : ' horizontal="' . self::x( $def['h'] ) . '"' ) . ( empty( $def['v'] ) ? '' : ' vertical="' . self::x( $def['v'] ) . '"' ) . ( empty( $def['wrap'] ) ? '' : ' wrapText="1"' ) . '/>';
+			}
+			$xfs[] = '<xf numFmtId="' . $nf . '" fontId="' . $fo . '" fillId="' . $fi . '" borderId="' . $bo . '" xfId="0"' . ( $nf ? ' applyNumberFormat="1"' : '' ) . ( $fo ? ' applyFont="1"' : '' ) . ( $fi ? ' applyFill="1"' : '' ) . ( $bo ? ' applyBorder="1"' : '' ) . ( $align ? ' applyAlignment="1">' . $align . '</xf>' : '/>' );
+		}
+		$numfmts = '';
+		foreach ( $fmts as $i => $code ) {
+			$numfmts .= '<numFmt numFmtId="' . ( 164 + $i ) . '" formatCode="' . self::x( $code ) . '"/>';
+		}
 		return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-			. '<numFmts count="2"><numFmt numFmtId="164" formatCode="&quot;£&quot;#,##0.00"/><numFmt numFmtId="165" formatCode="d mmm yyyy"/></numFmts>'
-			. '<fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="15"/><name val="Calibri"/></font></fonts>'
-			. '<fills count="5"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'
-			. '<fill><patternFill patternType="solid"><fgColor rgb="FFDED4CA"/><bgColor indexed="64"/></patternFill></fill>'
-			. '<fill><patternFill patternType="solid"><fgColor rgb="FFFBEFD5"/><bgColor indexed="64"/></patternFill></fill>'
-			. '<fill><patternFill patternType="solid"><fgColor rgb="FFF3DCD6"/><bgColor indexed="64"/></patternFill></fill></fills>'
-			. '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+			. ( $fmts ? '<numFmts count="' . count( $fmts ) . '">' . $numfmts . '</numFmts>' : '' )
+			. '<fonts count="' . count( $fonts ) . '">' . implode( '', $fonts ) . '</fonts>'
+			. '<fills count="' . count( $fills ) . '">' . implode( '', $fills ) . '</fills>'
+			. '<borders count="' . count( $borders ) . '">' . implode( '', $borders ) . '</borders>'
 			. '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-			. '<cellXfs count="10">'
-			. '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"><alignment vertical="top"/></xf>'
-			. '<xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"><alignment vertical="top"/></xf>'
-			. '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"><alignment vertical="top"/></xf>'
-			. '<xf numFmtId="164" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"><alignment vertical="top"/></xf>'
-			. '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
-			. '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"><alignment vertical="top" wrapText="1"/></xf>'
-			. '<xf numFmtId="164" fontId="0" fillId="3" borderId="0" xfId="0" applyNumberFormat="1" applyFill="1"><alignment vertical="top"/></xf>'
-			. '<xf numFmtId="0" fontId="0" fillId="4" borderId="0" xfId="0" applyFill="1"><alignment vertical="top"/></xf>'
-			. '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"><alignment vertical="top" horizontal="left"/></xf>'
-			. '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'
-			. '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+			. '<cellXfs count="' . count( $xfs ) . '">' . implode( '', $xfs ) . '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
 	}
 
 	/**
@@ -188,7 +315,7 @@ class Exf_Xlsx {
 		$rels   = '';
 		foreach ( $this->sheets as $i => $sheet ) {
 			$n = $i + 1;
-			$zip->addFromString( 'xl/worksheets/sheet' . $n . '.xml', $this->sheet_xml( $sheet[1], $sheet[2] ) );
+			$zip->addFromString( 'xl/worksheets/sheet' . $n . '.xml', $this->sheet_xml( $sheet[1], $sheet[2], $sheet[3] ) );
 			$types  .= '<Override PartName="/xl/worksheets/sheet' . $n . '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
 			$sheets .= '<sheet name="' . self::x( $sheet[0] ) . '" sheetId="' . $n . '" r:id="rId' . $n . '"/>';
 			$rels   .= '<Relationship Id="rId' . $n . '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' . $n . '.xml"/>';
