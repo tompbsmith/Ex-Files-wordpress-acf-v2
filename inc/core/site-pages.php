@@ -88,7 +88,7 @@ function exf_page_sections_content( $key ) {
 					'background'    => 'cream',
 					'heading_tag'   => 'h1',
 					'heading'       => __( 'About', 'exfiles' ),
-					'text'          => exf_paras( array( __( 'Founded by family law specialist Rachael Amelia Harwin, The Ex Files was born from seeing first-hand the disconnect between what separating couples actually need and the way traditional family law is often delivered. People are told that solicitors can help them protect their finances, minimise conflict and resolve matters swiftly, yet the hourly-rate model can make accessing that advice feel like a financial risk in itself.', 'exfiles' ) ) ),
+					'text'          => exf_paras( array( __( 'Founded by family law specialist Rachael Amelia Harwin, The Ex Files was born from seeing first-hand the disconnect between what separating couples actually need and the way traditional family law is often delivered. People are told that solicitors can help them protect their finances, minimise conflict and resolve matters swiftly - yet the hourly-rate model presents a financial risk in itself, and opposing legal arguments presented by professionals who are not directly living the reality can increase temperatures and shatter any common ground left between the parties.', 'exfiles' ) ) ),
 				),
 				array(
 					'acf_fc_layout' => 'split',
@@ -198,20 +198,19 @@ function exf_page_sections_content( $key ) {
 						array(
 							'image' => $img( 'service-know-your-position.jpg', __( 'A statue of Lady Justice holding scales', 'exfiles' ) ),
 							'title' => __( 'Know Your Position', 'exfiles' ),
-							// The Wix screenshot cuts this text off; the rest is still to come from the client.
-							'text'  => __( 'Our in-house specialist family law solicitor reviews the information provided in your Ex File and prepares a personalised written report explaining the relevant legal considerations and what you could be…', 'exfiles' ),
+							'text'  => __( 'After completing an online questionnaire about you and your financial circumstances, attend a virtual meeting with our in-house specialist family law solicitor who will advise you on your legal position, the options available to you and the relevant considerations in your case.', 'exfiles' ),
 							'link'  => $link( 'know_your_position' ),
 						),
 						array(
 							'image' => $img( 'service-check-your-deal-original.jpg', __( 'A magnifying glass on a printed agreement', 'exfiles' ) ),
 							'title' => __( 'Check Your Deal', 'exfiles' ),
-							'text'  => __( "Already agreed? Let's check it. We'll review the financial agreement you've reached with your ex and provide a written report highlighting anything that may need further consideration before you make it legal.", 'exfiles' ),
+							'text'  => __( 'Already agreed or thinking about making/accepting settlement proposals? Let’s check it. Complete our online questionnaire and provide details of the agreement or prospective agreement and we will provide you with a written report highlighting anything that may need further consideration before you make it legal.', 'exfiles' ),
 							'link'  => $link( 'check_your_deal' ),
 						),
 						array(
 							'image' => $img( 'service-make-it-legal.jpg', __( 'Two people shaking hands over a signed document', 'exfiles' ) ),
 							'title' => __( 'Make it Legal', 'exfiles' ),
-							'text'  => __( "You've agreed. Now make it binding. Any agreement you reach with your ex will only be legally binding once it has been incorporated into a financial order and sent to the court for approval. We'll prepare your…", 'exfiles' ),
+							'text'  => __( "You’ve agreed. Now make it binding. Any agreement reached about the treatment of your finances post-divorce will only be binding upon the courts once it has been incorporated into a financial order and approved by a judge. Complete our online questionnaire and we’ll convert your agreement into a draft financial order for court-submission, along with the accompanying statement of financial information.\n\nNot separating? We can assist in drafting nuptial agreements about the treatment of your finances in divorce. For more information, please submit an online enquiry where we will tell you more.", 'exfiles' ),
 							'link'  => $link( 'make_it_legal' ),
 						),
 					),

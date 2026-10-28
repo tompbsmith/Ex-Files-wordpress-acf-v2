@@ -246,7 +246,7 @@ function exf_default_services() {
 				'addon_name'             => __( 'Written report of the advice', 'exfiles' ),
 				'addon_price'            => 125,
 				'addon_type'             => 'report',
-				'intro'                  => __( 'Gain clarity on your financial claims with a 1-hour virtual consultation and the option to receive a written advisory report.', 'exfiles' ),
+				'intro'                  => __( 'Gain clarity on your legal position post-separation with a 1-hour virtual consultation with our in-house specialist family law solicitor. For a small additional fee, you will be provided with the option of receiving their advice in a written report, which will be provided both by email and by upload to your Ex File shortly after your meeting.', 'exfiles' ),
 			),
 		),
 		'svc_cyd'  => array(
@@ -263,7 +263,7 @@ function exf_default_services() {
 				'addon_price'            => 200,
 				'addon_type'             => 'consultation',
 				'addon_minutes'          => 60,
-				'intro'                  => __( 'Review your existing agreement to ensure it is a fair and legally sound resolution for your specific circumstances.', 'exfiles' ),
+				'intro'                  => __( "We will review any settlement proposals you are considering making or accepting, or any agreement you have already reached about the treatment of your finances post-separation, and provide you with a written report that highlights anything that may need further consideration before you make it legal.\n\nFor a small additional fee, you will be provided with the option of attending a virtual meeting with our in-house solicitor after you have received your report to go through anything that requires further explanation.", 'exfiles' ),
 			),
 		),
 		'svc_mil'  => array(
@@ -357,7 +357,7 @@ add_action(
  * usual document, but the service may cover other court documents in future.
  */
 function exf_make_it_legal_intro() {
-	return __( 'Make your agreement legally binding. We prepare the documents the court needs to approve it, such as a financial consent order.', 'exfiles' );
+	return __( 'Transform your agreement into a draft financial consent order for submission to the court for a judge’s approval. We will prepare all of the supporting documentation required for submission for you to sign and date, including the Statement of Financial Information in D81. We do not submit paperwork to the court on your behalf, but we will provide details on how you can do this yourself.', 'exfiles' );
 }
 
 /*
