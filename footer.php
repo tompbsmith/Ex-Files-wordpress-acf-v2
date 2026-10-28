@@ -53,11 +53,15 @@ $exf_socials = array_filter(
 					if ( get_privacy_policy_url() ) {
 						$exf_out[] = sprintf( '<a href="%s">%s</a>', esc_url( get_privacy_policy_url() ), esc_html__( 'Privacy Policy', 'exfiles' ) );
 					}
-					foreach ( array( 'terms-and-conditions', 'terms', 'terms-of-business' ) as $exf_slug ) {
-						$exf_terms = get_page_by_path( $exf_slug );
-						if ( $exf_terms && 'publish' === $exf_terms->post_status ) {
-							$exf_out[] = sprintf( '<a href="%s">%s</a>', esc_url( get_permalink( $exf_terms ) ), esc_html__( 'Terms & Conditions', 'exfiles' ) );
-							break;
+					// Website terms of use, then the terms of business for paid services: each
+					// links once its page is published, labelled with the page's title.
+					foreach ( array( array( 'terms-of-use', 'website-terms' ), array( 'terms-of-business', 'terms-and-conditions', 'terms' ) ) as $exf_slugs ) {
+						foreach ( $exf_slugs as $exf_slug ) {
+							$exf_terms = get_page_by_path( $exf_slug );
+							if ( $exf_terms && 'publish' === $exf_terms->post_status ) {
+								$exf_out[] = sprintf( '<a href="%s">%s</a>', esc_url( get_permalink( $exf_terms ) ), esc_html( get_the_title( $exf_terms ) ) );
+								break;
+							}
 						}
 					}
 				}
