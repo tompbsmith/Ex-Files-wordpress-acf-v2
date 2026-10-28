@@ -235,3 +235,65 @@ add_action(
 		}
 	}
 );
+
+/*
+ * One-off (October 2026): the client's updated guide wording. Saved content that
+ * still has the previous default wording is brought up to date; anything she has
+ * edited herself is left alone.
+ */
+add_action(
+	'init',
+	function () {
+		if ( get_option( 'exf_guide_wording_2026_10' ) || ! function_exists( 'update_field' ) ) {
+			return;
+		}
+		update_option( 'exf_guide_wording_2026_10', 1, false );
+		$same = function ( $a, $b ) {
+			$n = function ( $s ) {
+				$s = html_entity_decode( wp_strip_all_tags( str_replace( '<', ' <', (string) $s ) ), ENT_QUOTES, 'UTF-8' );
+				return strtolower( preg_replace( '/\s+/', ' ', trim( str_replace( array( '’', '‘' ), "'", $s ) ) ) );
+			};
+			return $n( $a ) === $n( $b );
+		};
+		$new = exf_guide_default_copy();
+		$old = array(
+			'pdf_point'     => 'To explain the divorce process and the financial steps relevant to the answers provided in the online questionnaire. You can find the answers you provided to the questionnaire at Annex A.',
+			'pdf_important' => 'This guide gives general information based on the answers supplied. It does not constitute legal advice and should be treated as guidance rather than a substitute. The Ex Files has not reviewed financial disclosure or independently verified the answers.',
+		);
+		foreach ( $old as $key => $was ) {
+			if ( $same( get_field( $key, EXF_GUIDE_ID ), $was ) ) {
+				update_field( $key, $new[ $key ], EXF_GUIDE_ID );
+			}
+		}
+
+		$rows = get_field( 'guide_paragraphs', EXF_GUIDE_ID, false );
+		if ( ! is_array( $rows ) || ! $rows ) {
+			return;
+		}
+		$defaults = exf_guide_default_paragraphs();
+		$old      = array(
+			'P01' => array( null, '<p>You can generally apply for a divorce in England &amp; Wales if:</p><ul><li>you have been married for more than one year;</li><li>your marriage has permanently broken down; and</li><li>your marriage is legally recognised in the UK.</li></ul><p>There must also be a sufficient legal connection with England &amp; Wales for the courts here to have jurisdiction. The jurisdiction rules can be technical, particularly where either spouse has lived or been domiciled outside England &amp; Wales. If your circumstances are international, you should obtain specific legal advice rather than relying solely on this guide.</p>' ),
+			'P05' => array( null, '<p>Under the current divorce procedure, the process broadly involves:</p><ol><li>making a sole or joint application;</li><li>the application being issued by the court;</li><li>a 20-week period before an application can be made for the Conditional Order;</li><li>the Conditional Order being granted;</li><li>waiting at least 43 days before applying for the Final Order; and</li><li>the Final Order ending the marriage.</li></ol><p>The precise steps can differ depending on whether the application is sole or joint and whether the other spouse responds.</p>' ),
+			'P10' => array( 'Divorce does not, by itself, settle the finances', null ),
+		);
+		$changed  = false;
+		foreach ( $rows as $i => $row ) {
+			$id = strtoupper( trim( (string) ( $row['field_exf_gp_id'] ?? '' ) ) );
+			if ( ! isset( $old[ $id ] ) ) {
+				continue;
+			}
+			if ( null !== $old[ $id ][0] && $same( $row['field_exf_gp_heading'] ?? '', $old[ $id ][0] ) ) {
+				$rows[ $i ]['field_exf_gp_heading'] = $defaults[ $id ][0];
+				$changed                             = true;
+			}
+			if ( null !== $old[ $id ][1] && $same( $row['field_exf_gp_body'] ?? '', $old[ $id ][1] ) ) {
+				$rows[ $i ]['field_exf_gp_body'] = $defaults[ $id ][1];
+				$changed                          = true;
+			}
+		}
+		if ( $changed ) {
+			update_field( 'field_exf_guide_paragraphs', $rows, EXF_GUIDE_ID );
+		}
+	},
+	40
+);

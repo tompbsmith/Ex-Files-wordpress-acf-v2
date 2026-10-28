@@ -1,7 +1,7 @@
 <?php
 /**
  * Default Free Divorce Guide content, taken from the client's precedent document
- * ("The Ex Files Free Divorce Guide Precedent.docx") and the conditional form sheet
+ * ("The Ex Files Free Divorce Guide Precedent", updated October 2026) and the conditional form sheet
  * ("Free Divorce Guide - Conditional Form.xlsx").
  *
  * The wording below is only a starting point: everything except the questions and
@@ -168,7 +168,7 @@ function exf_guide_default_paragraphs() {
 	return array(
 		'P01' => array(
 			'Can you get divorced in England & Wales?',
-			'<p>You can generally apply for a divorce in England &amp; Wales if:</p><ul><li>you have been married for more than one year;</li><li>your marriage has permanently broken down; and</li><li>your marriage is legally recognised in the UK.</li></ul><p>There must also be a sufficient legal connection with England &amp; Wales for the courts here to have jurisdiction. The jurisdiction rules can be technical, particularly where either spouse has lived or been domiciled outside England &amp; Wales. If your circumstances are international, you should obtain specific legal advice rather than relying solely on this guide.</p>',
+			'<p>You can generally apply for a divorce in England &amp; Wales if:</p><ol style="list-style-type: lower-alpha;"><li>you have been married for more than one year;</li><li>your marriage has permanently broken down; and</li><li>your marriage is legally recognised in the UK.</li></ol><p>There must also be a sufficient legal connection with England &amp; Wales for the courts here to have jurisdiction. The jurisdiction rules can be technical, particularly where either spouse has lived or been domiciled outside England &amp; Wales. If your circumstances are international, you should obtain specific legal advice rather than relying solely on this guide.</p>',
 		),
 		'P02' => array(
 			'The jurisdiction questions',
@@ -184,7 +184,7 @@ function exf_guide_default_paragraphs() {
 		),
 		'P05' => array(
 			'The divorce process at a glance',
-			'<p>Under the current divorce procedure, the process broadly involves:</p><ol><li>making a sole or joint application;</li><li>the application being issued by the court;</li><li>a 20-week period before an application can be made for the Conditional Order;</li><li>the Conditional Order being granted;</li><li>waiting at least 43 days before applying for the Final Order; and</li><li>the Final Order ending the marriage.</li></ol><p>The precise steps can differ depending on whether the application is sole or joint and whether the other spouse responds.</p>',
+			'<p>Under the current divorce procedure, the process broadly involves:</p><p>(1) making a sole or joint application;</p><p>(2) the application being issued by the court;</p><p>(3) a 20-week period before an application can be made for the Conditional Order;</p><p>(4) the Conditional Order being granted;</p><p>(5) waiting at least 43 days before applying for the Final Order; and</p><p>(6) the Final Order ending the marriage.</p><p>The precise steps can differ depending on whether the application is sole or joint and whether the other spouse responds.</p>',
 		),
 		'P06' => array(
 			'Sole or joint application',
@@ -203,7 +203,7 @@ function exf_guide_default_paragraphs() {
 			'<p>You have reached the Conditional Order stage. The Final Order can generally be applied for once at least 43 days have passed from the date of the Conditional Order. If you are the sole applicant, you can apply yourself; if you started with a joint application, either party can ultimately proceed as a sole applicant where the procedure permits. If you are dealing with finances, however, do not assume that obtaining the Final Order is simply an administrative step with no financial implications.</p>',
 		),
 		'P10' => array(
-			'Divorce does not, by itself, settle the finances',
+			'IMPORTANT - Divorce does not, by itself, settle the finances',
 			'<p>Ending the marriage does not automatically end the financial claims that arise from the marriage. A divorce and a financial settlement are separate matters. If you and your spouse reach agreement about money and property, you will normally need a financial consent order approved by the court if you want the agreement to become legally binding. Where financial claims have not been dealt with, there can be circumstances in which claims remain available after the divorce has been finalised.</p>',
 		),
 		'P11' => array(
@@ -282,8 +282,8 @@ function exf_guide_default_copy() {
 		// Answered No to eligibility (or No to all the eligibility questions): the guide ends here.
 		'q3n_text'           => '<p>The Ex Files’ Divorce Guide is intended for people who are eligible to apply for a divorce in England &amp; Wales. If you are not eligible to apply here, but may be eligible to divorce in another jurisdiction, you should seek advice from a lawyer qualified in that jurisdiction.</p>',
 		'pdf_title'          => 'Your guide to divorce',
-		'pdf_point'          => 'To explain the divorce process and the financial steps relevant to the answers provided in the online questionnaire. You can find the answers you provided to the questionnaire at Annex A.',
-		'pdf_important'      => 'This guide gives general information based on the answers supplied. It does not constitute legal advice and should be treated as guidance rather than a substitute. The Ex Files has not reviewed financial disclosure or independently verified the answers.',
+		'pdf_point'          => 'To explain the divorce process and the financial steps relevant to the answers provided in the online questionnaire.',
+		'pdf_important'      => 'This guide gives general information and does not constitute legal advice and should be treated as guidance rather than a substitute. The Ex Files has not reviewed financial disclosure or received case-specific information prior to the preparation of this guide.',
 		'pdf_footer'         => 'The Ex Files • Making separation less alien',
 		'email_subject'      => 'Your free divorce guide from The Ex Files',
 		'email_body'         => "Hello,\n\nThank you for using The Ex Files’ free divorce guide. Your personalised guide is attached as a PDF. Your answers to the questionnaire are included at Annex A.\n\nThis guide is general information based on your answers. It is not legal advice.\n\n{services}Best wishes,\nThe Ex Files",
