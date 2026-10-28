@@ -107,6 +107,9 @@ function exf_order_set_status( $order_id, $status, $note = '' ) {
 	if ( 'cancelled' === $status ) {
 		delete_post_meta( $order_id, 'hold_expires' );
 	}
+	if ( $old !== $status ) {
+		do_action( 'exf_order_status_changed', $order_id, $status, $old );
+	}
 	exf_order_log( $order_id, ( $old !== $status ? exf_order_status_label( $status ) : '' ) . ( $note ? ( $old !== $status ? ': ' : '' ) . $note : '' ) );
 }
 
@@ -310,6 +313,10 @@ function exf_order_fulfil( $order_id ) {
 		}
 	}
 
+	// e.g. create the appointment's Teams meeting, so its link is in these emails (teams.php).
+	if ( get_post_meta( $order_id, 'booking_start', true ) ) {
+		do_action( 'exf_before_order_emails', $order_id );
+	}
 	$vars = exf_order_email_vars( $order_id );
 	// No calendar invite for a time that has to be rearranged.
 	$ics  = get_post_meta( $order_id, 'booking_start', true ) && ! get_post_meta( $order_id, 'needs_reschedule', true ) ? exf_booking_ics( $order_id ) : '';
@@ -397,7 +404,7 @@ function exf_order_email_vars( $order_id ) {
 			? sprintf( __( 'To be rearranged. The time you chose (%s) was booked by someone else while you were paying, so we’ll contact you to arrange a new time.', 'exfiles' ), exf_booking_label( $start, $end ) )
 			: exf_booking_label( $start, $end ) ),
 		// How the appointment works: only relevant when there is one.
-		'meeting_details' => $start ? exf_meeting_details() : '',
+		'meeting_details' => $start ? exf_meeting_details( $order_id ) : '',
 		'next_steps'      => $next,
 		'link'            => exf_page_url( 'account' ),
 		'admin_link'      => admin_url( 'post.php?post=' . $order_id . '&action=edit' ),
@@ -675,6 +682,21 @@ function exf_order_box( $post ) {
 				<?php endif; ?>
 			</td></tr>
 		<?php endif; ?>
+		<?php if ( $start && function_exists( 'exf_teams_link' ) ) : ?>
+			<tr><th><?php esc_html_e( 'Video call', 'exfiles' ); ?></th><td>
+				<?php if ( exf_teams_link( $id ) ) : ?>
+					<a href="<?php echo esc_url( exf_teams_link( $id ) ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Join this appointment’s Teams meeting', 'exfiles' ); ?></a>
+				<?php elseif ( exf_meeting_link() ) : ?>
+					<?php esc_html_e( 'Uses the fixed meeting link from Settings → Bookings.', 'exfiles' ); ?>
+					<?php if ( exf_teams_connected() && exf_order_is_live( $id ) ) : ?>
+						<a class="button button-small" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=exf_teams_retry&order=' . $id ), 'exf_teams_retry_' . $id ) ); ?>"><?php esc_html_e( 'Create a Teams meeting now', 'exfiles' ); ?></a>
+						<br><span class="description"><?php esc_html_e( 'The client isn’t emailed automatically: send them the new link, or move the appointment to the same time to send an updated invite.', 'exfiles' ); ?></span>
+					<?php endif; ?>
+				<?php else : ?>
+					<?php esc_html_e( 'No meeting link.', 'exfiles' ); ?>
+				<?php endif; ?>
+			</td></tr>
+		<?php endif; ?>
 		<?php $qdl = function_exists( 'exf_order_q_deadline' ) ? exf_order_q_deadline( $id ) : 0; ?>
 		<?php if ( $qdl && exf_order_is_live( $id ) && exf_order_q_outstanding( $id ) ) : ?>
 			<tr><th><?php esc_html_e( 'Questionnaire needed by', 'exfiles' ); ?></th><td>
@@ -751,6 +773,7 @@ add_action(
 		if ( ! exf_user_can_manage() || 'exf_order' !== get_post_type( $id ) ) {
 			wp_die( '', '', array( 'response' => 403 ) );
 		}
+		do_action( 'exf_appointment_cancelled', $id );
 		delete_post_meta( $id, 'booking_start' );
 		delete_post_meta( $id, 'booking_end' );
 		exf_order_log( $id, 'Appointment cancelled by ' . wp_get_current_user()->display_name );

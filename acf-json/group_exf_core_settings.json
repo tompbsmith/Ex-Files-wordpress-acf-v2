@@ -452,7 +452,7 @@
             "name": "meeting_link",
             "aria-label": "",
             "type": "url",
-            "instructions": "Your Teams meeting link (https://teams.microsoft.com/…). Sent with every booking confirmation and reminder, and added to the calendar invite. Use a meeting with the lobby turned on, so you admit each client yourself.",
+            "instructions": "Used when Microsoft Teams isn’t connected (see the Microsoft Teams tab), or if a meeting can’t be created. Once Teams is connected, each appointment gets its own meeting instead.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -695,6 +695,100 @@
             ],
             "wrapper": {
                 "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "sk_test_…"
+        },
+        {
+            "key": "field_exf_set_tab_teams",
+            "label": "Microsoft Teams",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "top",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_set_teams_help",
+            "label": "",
+            "name": "",
+            "aria-label": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_exf_set_teams_client_id",
+            "label": "Application (client) ID",
+            "name": "teams_client_id",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "From the app registration’s Overview page. Or define EXF_MS_CLIENT_ID in wp-config.php.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_set_teams_tenant",
+            "label": "Directory (tenant) ID",
+            "name": "teams_tenant",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "From the same Overview page. Leave empty to allow any work or school account. Or define EXF_MS_TENANT in wp-config.php.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "33",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": ""
+        },
+        {
+            "key": "field_exf_set_teams_client_secret",
+            "label": "Client secret",
+            "name": "teams_client_secret",
+            "aria-label": "",
+            "type": "password",
+            "instructions": "The secret’s Value (not its ID), from Certificates & secrets. Microsoft secrets expire (up to 2 years): make a new one before then and paste it here. Or define EXF_MS_CLIENT_SECRET in wp-config.php.",
+            "required": 0,
+            "conditional_logic": [
+                [
+                    {
+                        "field": "field_exf_set_stripe_mode",
+                        "operator": "==",
+                        "value": "test"
+                    }
+                ]
+            ],
+            "wrapper": {
+                "width": "33",
                 "class": "",
                 "id": ""
             },
@@ -980,5 +1074,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792497328
+    "modified": 1793183535
 }

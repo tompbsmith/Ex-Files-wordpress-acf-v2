@@ -280,6 +280,7 @@ add_action(
 			exf_audit( 'appointment_moved', sprintf( 'Moved appointment for order %d to %s', $id, exf_booking_label( $start ) ), 'post', $id );
 		}
 		do_action( 'exf_appointment_moved', $id );
+		do_action( 'exf_before_appointment_moved_emails', $id ); // e.g. move the Teams meeting (teams.php).
 
 		$vars = exf_order_email_vars( $id ) + array( 'old_appointment' => $old_start ? exf_booking_label( $old_start, $old_end ) : __( 'none', 'exfiles' ) );
 		exf_appointment_send( $id, 'appointment_moved', $vars, exf_booking_ics( $id ), ! empty( $_POST['notify'] ) );
@@ -333,6 +334,7 @@ add_action(
 			)
 		);
 		exf_appointment_send( $id, 'appointment_cancelled', $vars, exf_booking_ics( $id, 'CANCEL', $start, $end ), ! empty( $_POST['notify'] ) );
+		do_action( 'exf_appointment_cancelled', $id ); // e.g. delete the Teams meeting (teams.php).
 
 		wp_safe_redirect( add_query_arg( 'done', 'cancelled', $back ) );
 		exit;

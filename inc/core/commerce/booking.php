@@ -67,13 +67,15 @@ function exf_calendar_urls( $text ) {
 /**
  * How appointments work, for confirmations, reminders and calendar invites: the
  * "Appointment details" text, then the meeting link on its own line.
+ *
+ * @param int $order_id Order, for its own Teams meeting link (teams.php), or 0.
  */
-function exf_meeting_details() {
+function exf_meeting_details( $order_id = 0 ) {
 	$text = trim( (string) exf_setting( 'meeting_details', '' ) );
 	if ( '' === $text ) {
 		$text = __( 'Your appointment will take place by video call on Microsoft Teams. Please note that meetings may be recorded.', 'exfiles' );
 	}
-	$link = exf_meeting_link();
+	$link = exf_meeting_link( $order_id );
 	if ( $link ) {
 		$text .= "\n\n" . __( 'Join the meeting at your appointment time:', 'exfiles' ) . "\n" . $link;
 	}
@@ -81,9 +83,15 @@ function exf_meeting_details() {
 }
 
 /**
- * The video meeting link sent with every booking, or ''.
+ * The video meeting link for an appointment: its own Teams meeting if it has one
+ * (teams.php), otherwise the fixed link in Settings → Bookings, or ''.
+ *
+ * @param int $order_id Order, or 0 for the fixed link.
  */
-function exf_meeting_link() {
+function exf_meeting_link( $order_id = 0 ) {
+	if ( $order_id && function_exists( 'exf_teams_link' ) && exf_teams_link( $order_id ) ) {
+		return esc_url_raw( exf_teams_link( $order_id ) );
+	}
 	$link = trim( (string) exf_setting( 'meeting_link', '' ) );
 	return preg_match( '#^https://#i', $link ) ? esc_url_raw( $link ) : '';
 }
@@ -405,8 +413,8 @@ function exf_booking_ics( $order_id, $method = 'REQUEST', $start = 0, $end = 0 )
 	$client  = get_userdata( (int) get_post_meta( $order_id, 'client_id', true ) );
 	$service = (string) get_post_meta( $order_id, 'service_name', true );
 	$org     = exf_notify_emails()[0];
-	$details = exf_meeting_details();
-	$link    = exf_meeting_link();
+	$details = exf_meeting_details( $order_id );
+	$link    = exf_meeting_link( $order_id );
 	$host    = (string) wp_parse_url( home_url(), PHP_URL_HOST );
 	$fmt     = function ( $ts ) {
 		return gmdate( 'Ymd\THis\Z', $ts );

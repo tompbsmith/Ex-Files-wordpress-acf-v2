@@ -54,6 +54,10 @@ $exf_details   = (string) exf_setting( 'meeting_details', '' );
 			<?php endif; ?>
 			<?php if ( ! $exf_resched ) : ?>
 			<p class="portal-actions">
+				<?php $exf_join = exf_meeting_link( $exf_o ); ?>
+				<?php if ( $exf_join ) : ?>
+					<a class="btn small" href="<?php echo esc_url( $exf_join ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Join the video call', 'exfiles' ); ?></a>
+				<?php endif; ?>
 				<a class="btn small outline" href="<?php echo esc_url( exf_appointment_ics_url( $exf_o ) ); ?>"><?php esc_html_e( 'Add to calendar', 'exfiles' ); ?></a>
 			</p>
 			<?php endif; ?>

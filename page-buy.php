@@ -78,7 +78,7 @@ get_header();
 			<?php if ( get_post_meta( $exf_order, 'addon_name', true ) ) : ?>
 				<p><strong><?php esc_html_e( 'Add-on:', 'exfiles' ); ?></strong> <?php echo esc_html( (string) get_post_meta( $exf_order, 'addon_name', true ) ); ?></p>
 			<?php endif; ?>
-			<?php if ( $exf_start && exf_order_is_live( $exf_order ) && exf_meeting_link() ) : ?>
+			<?php if ( $exf_start && exf_order_is_live( $exf_order ) && exf_meeting_link( $exf_order ) ) : ?>
 				<p><strong><?php esc_html_e( 'Meeting link:', 'exfiles' ); ?></strong> <?php esc_html_e( "it's in your confirmation email and calendar invite.", 'exfiles' ); ?></p>
 			<?php endif; ?>
 			<?php if ( exf_order_is_live( $exf_order ) && $exf_osvc && $exf_osvc['questionnaire'] && ! get_post_meta( $exf_order, 'parent_order', true ) ) : ?>
