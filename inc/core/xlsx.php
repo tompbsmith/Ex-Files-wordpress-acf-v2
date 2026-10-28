@@ -176,6 +176,16 @@ class Exf_Xlsx {
 	}
 
 	/**
+	 * A number for a <v> element.
+	 *
+	 * @param float $n Number.
+	 */
+	private static function num( $n ) {
+		$n = round( $n, 10 );
+		return ( floor( $n ) === $n && abs( $n ) < 1e15 ) ? (string) (int) $n : rtrim( rtrim( sprintf( '%.10F', $n ), '0' ), '.' );
+	}
+
+	/**
 	 * One worksheet's XML.
 	 *
 	 * @param array $rows    Rows.
@@ -199,6 +209,7 @@ class Exf_Xlsx {
 			}
 			$xml .= '</cols>';
 		}
+		$calc    = new Exf_Xlsx_Calc( $rows );
 		$heights = (array) ( $options['heights'] ?? array() );
 		$xml    .= '<sheetData>';
 		foreach ( array_values( $rows ) as $r => $row ) {
@@ -215,7 +226,9 @@ class Exf_Xlsx {
 				$s     = $style ? ' s="' . $style . '"' : '';
 				$v     = $cell['v'] ?? '';
 				if ( isset( $cell['f'] ) ) {
-					$xml .= '<c r="' . $ref . '"' . $s . '><f>' . self::x( $cell['f'] ) . '</f></c>';
+					// Store the result too, so viewers that don't calculate (previews) show it.
+					$val  = $calc->value( $ref );
+					$xml .= '<c r="' . $ref . '"' . $s . '><f>' . self::x( $cell['f'] ) . '</f>' . ( is_float( $val ) ? '<v>' . self::num( $val ) . '</v>' : '' ) . '</c>';
 				} elseif ( ! empty( $this->styles[ $name ]['date'] ) && is_string( $v ) && self::serial( $v ) ) {
 					$xml .= '<c r="' . $ref . '"' . $s . '><v>' . self::serial( $v ) . '</v></c>';
 				} elseif ( is_int( $v ) || is_float( $v ) ) {
@@ -330,5 +343,256 @@ class Exf_Xlsx {
 		$bytes = file_get_contents( $tmp ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		wp_delete_file( $tmp );
 		return false === $bytes ? new WP_Error( 'exf_zip', 'Could not read the file.' ) : $bytes;
+	}
+}
+
+/**
+ * Works out the formulas the schedule uses, so the file can carry their results:
+ * cell references, ranges, numbers, + - * / and %, brackets, SUM() and N(), all
+ * within one sheet. Anything else (or an error, such as text in a sum) gives no
+ * stored result, and the spreadsheet app calculates it when the file is opened.
+ */
+class Exf_Xlsx_Calc {
+
+	/**
+	 * Cells by reference: number, text or [ 'f' => formula ].
+	 *
+	 * @var array
+	 */
+	private $cells = array();
+
+	/**
+	 * Results worked out so far.
+	 *
+	 * @var array
+	 */
+	private $done = array();
+
+	/**
+	 * Tokens of the formula being read, and the position.
+	 *
+	 * @var array
+	 */
+	private $t = array();
+
+	/**
+	 * Position in $t.
+	 *
+	 * @var int
+	 */
+	private $i = 0;
+
+	/**
+	 * Set up from a sheet's rows.
+	 *
+	 * @param array $rows Rows of cells.
+	 */
+	public function __construct( array $rows ) {
+		foreach ( array_values( $rows ) as $r => $row ) {
+			foreach ( array_values( (array) $row ) as $c => $cell ) {
+				if ( null === $cell || '' === $cell ) {
+					continue;
+				}
+				$cell = is_array( $cell ) ? $cell : array( 'v' => $cell );
+				$ref  = Exf_Xlsx::col( $c ) . ( $r + 1 );
+				if ( isset( $cell['f'] ) ) {
+					$this->cells[ $ref ] = array( 'f' => (string) $cell['f'] );
+				} elseif ( isset( $cell['v'] ) && '' !== $cell['v'] ) {
+					$this->cells[ $ref ] = is_int( $cell['v'] ) || is_float( $cell['v'] ) ? (float) $cell['v'] : (string) $cell['v'];
+				}
+			}
+		}
+	}
+
+	/**
+	 * A cell's value: a float, a string, null if empty, or false for an error.
+	 *
+	 * @param string $ref Cell, e.g. E55.
+	 */
+	public function value( $ref ) {
+		if ( array_key_exists( $ref, $this->done ) ) {
+			return $this->done[ $ref ];
+		}
+		$cell = $this->cells[ $ref ] ?? null;
+		if ( ! is_array( $cell ) ) {
+			return $cell;
+		}
+		$this->done[ $ref ] = false; // Guards against a formula that refers to itself.
+		$saved              = array( $this->t, $this->i );
+		$result             = false;
+		if ( preg_match_all( '/\s*([A-Z]+[0-9]+(?::[A-Z]+[0-9]+)?|[0-9]*\.?[0-9]+(?:E[+-]?[0-9]+)?|[A-Z]+(?=\()|[-+*\/(),%])/i', $cell['f'], $m ) && strlen( preg_replace( '/\s+/', '', implode( '', $m[1] ) ) ) === strlen( preg_replace( '/\s+/', '', $cell['f'] ) ) ) {
+			$this->t = array_map( 'strtoupper', $m[1] );
+			$this->i = 0;
+			$v       = $this->expr();
+			if ( is_float( $v ) && count( $this->t ) === $this->i && is_finite( $v ) ) {
+				$result = $v;
+			}
+		}
+		list( $this->t, $this->i ) = $saved;
+		$this->done[ $ref ]        = $result;
+		return $result;
+	}
+
+	/**
+	 * The next token.
+	 */
+	private function peek() {
+		return $this->t[ $this->i ] ?? '';
+	}
+
+	/**
+	 * A number from a value used in arithmetic (empty is 0; text is an error).
+	 *
+	 * @param mixed $v Value.
+	 */
+	private static function arith( $v ) {
+		if ( null === $v ) {
+			return 0.0;
+		}
+		return is_float( $v ) ? $v : false;
+	}
+
+	/**
+	 * expr := term (( + | - ) term)*
+	 */
+	private function expr() {
+		$v = $this->term();
+		while ( in_array( $this->peek(), array( '+', '-' ), true ) ) {
+			$op = $this->t[ $this->i++ ];
+			$w  = $this->term();
+			if ( false === $v || false === $w ) {
+				return false;
+			}
+			$v = '+' === $op ? $v + $w : $v - $w;
+		}
+		return $v;
+	}
+
+	/**
+	 * term := factor (( * | / ) factor)*
+	 */
+	private function term() {
+		$v = $this->factor();
+		while ( in_array( $this->peek(), array( '*', '/' ), true ) ) {
+			$op = $this->t[ $this->i++ ];
+			$w  = $this->factor();
+			if ( false === $v || false === $w || ( '/' === $op && 0.0 === $w ) ) {
+				return false;
+			}
+			$v = '*' === $op ? $v * $w : $v / $w;
+		}
+		return $v;
+	}
+
+	/**
+	 * factor := ( - | + ) factor | primary [%]
+	 */
+	private function factor() {
+		$tok = $this->peek();
+		if ( '-' === $tok || '+' === $tok ) {
+			$this->i++;
+			$v = $this->factor();
+			return false === $v ? false : ( '-' === $tok ? -$v : $v );
+		}
+		$v = $this->primary();
+		while ( '%' === $this->peek() ) {
+			$this->i++;
+			$v = false === $v ? false : $v / 100;
+		}
+		return $v;
+	}
+
+	/**
+	 * A number, a cell, a bracketed expression, or SUM() / N().
+	 */
+	private function primary() {
+		$tok = $this->peek();
+		$this->i++;
+		if ( '(' === $tok ) {
+			$v = $this->expr();
+			if ( ')' !== $this->peek() ) {
+				return false;
+			}
+			$this->i++;
+			return $v;
+		}
+		if ( is_numeric( $tok ) ) {
+			return (float) $tok;
+		}
+		if ( in_array( $tok, array( 'SUM', 'N' ), true ) && '(' === $this->peek() ) {
+			$this->i++;
+			$args = array();
+			while ( ')' !== $this->peek() ) {
+				if ( '' === $this->peek() ) {
+					return false;
+				}
+				$args[] = $this->arg();
+				if ( ',' === $this->peek() ) {
+					$this->i++;
+				}
+			}
+			$this->i++;
+			if ( 'N' === $tok ) {
+				$first = $args[0] ?? array();
+				$x     = is_array( $first ) ? ( $first[0] ?? null ) : $first;
+				return false === $x ? false : ( is_float( $x ) ? $x : 0.0 );
+			}
+			$sum = 0.0;
+			foreach ( $args as $a ) {
+				if ( is_array( $a ) ) {
+					foreach ( $a as $x ) {
+						if ( false === $x ) {
+							return false;
+						}
+						$sum += is_float( $x ) ? $x : 0.0; // A range's text is ignored.
+					}
+				} elseif ( false === $a || is_string( $a ) ) {
+					return false;
+				} else {
+					$sum += (float) $a;
+				}
+			}
+			return $sum;
+		}
+		if ( preg_match( '/^[A-Z]+[0-9]+$/', $tok ) ) {
+			return self::arith( $this->value( $tok ) );
+		}
+		return false;
+	}
+
+	/**
+	 * A function argument: a range or cell (as a list of values), or an expression.
+	 */
+	private function arg() {
+		$tok  = $this->peek();
+		$next = $this->t[ $this->i + 1 ] ?? '';
+		if ( preg_match( '/^([A-Z]+)([0-9]+)(?::([A-Z]+)([0-9]+))?$/', $tok, $m ) && in_array( $next, array( ',', ')' ), true ) ) {
+			$this->i++;
+			$c1  = self::index( $m[1] );
+			$c2  = isset( $m[3] ) ? self::index( $m[3] ) : $c1;
+			$r1  = (int) $m[2];
+			$r2  = isset( $m[4] ) ? (int) $m[4] : $r1;
+			$out = array();
+			for ( $r = min( $r1, $r2 ); $r <= max( $r1, $r2 ); $r++ ) {
+				for ( $c = min( $c1, $c2 ); $c <= max( $c1, $c2 ); $c++ ) {
+					$out[] = $this->value( Exf_Xlsx::col( $c ) . $r );
+				}
+			}
+			return $out;
+		}
+		return $this->expr();
+	}
+
+	/**
+	 * Column index (0-based) for letters.
+	 *
+	 * @param string $letters e.g. AB.
+	 */
+	private static function index( $letters ) {
+		$n = 0;
+		foreach ( str_split( $letters ) as $ch ) {
+			$n = $n * 26 + ord( $ch ) - 64;
+		}
+		return $n - 1;
 	}
 }
