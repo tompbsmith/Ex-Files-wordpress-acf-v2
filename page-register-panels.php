@@ -119,6 +119,7 @@ if ( exf_acf_ready() && get_field( 'sections' ) ) {
 					$exf_pf( 'ex_phone', __( 'Telephone Number (if known)', 'exfiles' ), array( 'type' => 'tel' ) );
 					$exf_pf( 'ex_address_full', __( 'Address & Postcode (if known)', 'exfiles' ) );
 					$exf_pf( 'relationship', __( 'Are you married or in a civil partnership?', 'exfiles' ), array( 'type' => 'select', 'required' => true, 'options' => array( '' => __( 'Please choose', 'exfiles' ) ) + exf_relationship_options() ) );
+					$exf_pf( 'marriage_date', __( 'Date of Marriage or Civil Partnership (if married)', 'exfiles' ), array( 'type' => 'date' ) );
 					?>
 				</fieldset>
 			</div>
@@ -132,8 +133,8 @@ if ( exf_acf_ready() && get_field( 'sections' ) ) {
 						echo wp_kses(
 							$exf_privacy
 								/* translators: %s: privacy policy URL */
-								? sprintf( __( 'I confirm that the details provided are accurate and I agree to the terms of business and the <a href="%s" target="_blank">privacy notice</a>.', 'exfiles' ), esc_url( $exf_privacy ) )
-								: __( 'I confirm that the details provided are accurate and I agree to the terms of business and the privacy notice.', 'exfiles' ),
+								? sprintf( __( 'I confirm that the details I’ve given are accurate, and I have read the <a href="%s" target="_blank">privacy notice</a>.', 'exfiles' ), esc_url( $exf_privacy ) )
+								: __( 'I confirm that the details I’ve given are accurate, and I have read the privacy notice.', 'exfiles' ),
 							array( 'a' => array( 'href' => array(), 'target' => array() ) )
 						);
 						?>

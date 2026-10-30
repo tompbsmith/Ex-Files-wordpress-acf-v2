@@ -35,7 +35,7 @@ $exf_consult  = isset( $_GET['consult'] ) ? absint( $_GET['consult'] ) : ( isset
  * @param int   $minutes Length.
  */
 $exf_slot_picker = function ( $slots, $minutes ) use ( $exf_slot, $exf_ferrors ) {
-	exf_render_slot_picker( $slots, $minutes, $exf_slot, $exf_ferrors['slot'] ?? '' );
+	exf_render_slot_picker( $slots, $minutes, $exf_slot, $exf_ferrors['slot'] ?? '', exf_cooling_off_end() );
 };
 
 // Visitors who aren't logged in see the basket instead (template-parts/checkout/).
@@ -211,12 +211,27 @@ get_header();
 			</fieldset>
 			<div class="field-row" style="margin-top:22px">
 				<?php
-				exf_form_field( 'marriage_date', __( 'Date of marriage or civil partnership', 'exfiles' ), $exf_a + array( 'type' => 'date' ) );
+				exf_form_field( 'marriage_date', __( 'Date of marriage or civil partnership', 'exfiles' ), $exf_a + array( 'type' => 'date', 'class' => 'reg-if-married', 'required' => true ) );
 				exf_form_field( 'separation_date', __( 'Date you separated', 'exfiles' ), $exf_a + array( 'type' => 'date' ) );
 				?>
 			</div>
 			<div class="guide-nav"><button type="submit" class="btn"><?php esc_html_e( 'Open a new Ex File', 'exfiles' ); ?></button></div>
 		</form>
+		<script>
+		( function () {
+			// The marriage date is needed (and only shown) if they're married or in a civil partnership.
+			var form = document.currentScript.previousElementSibling;
+			var box = form && form.querySelector( '.reg-if-married' );
+			if ( ! box ) { return; }
+			function toggle() {
+				var r = form.querySelector( '[name="relationship"]:checked' );
+				box.hidden = ! r || 'not_married' === r.value;
+				box.querySelectorAll( 'input' ).forEach( function ( i ) { i.disabled = box.hidden; } );
+			}
+			form.querySelectorAll( '[name="relationship"]' ).forEach( function ( r ) { r.addEventListener( 'change', toggle ); } );
+			toggle();
+		}() );
+		</script>
 
 	<?php elseif ( ! $exf_service ) : ?>
 		<header class="guide-form-head">
@@ -322,6 +337,8 @@ get_header();
 			</fieldset>
 
 			<?php
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			exf_checkout_start_html( $exf_service, ! empty( $_POST['immediate_consent'] ), $exf_ferrors );
 			if ( $exf_service['booking'] ) {
 				$exf_slot_picker( $exf_slots, $exf_service['minutes'] );
 			}
@@ -350,18 +367,7 @@ get_header();
 				</fieldset>
 			<?php endif; ?>
 
-			<?php if ( ! $exf_service['free'] ) : ?>
-				<fieldset class="gq-services buy-step buy-terms">
-					<legend class="gq-label"><?php esc_html_e( 'Cancellations', 'exfiles' ); ?></legend>
-					<p class="field-note"><?php echo esc_html( exf_cancellation_text( $exf_service ) ); ?></p>
-					<?php if ( $exf_service['immediate'] ) : ?>
-						<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="immediate_consent" value="1" required <?php checked( ! empty( $_POST['immediate_consent'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing ?>><span><?php echo esc_html( exf_portal_copy( 'immediate_consent' ) ); ?></span></label>
-						<?php if ( isset( $exf_ferrors['immediate_consent'] ) ) : ?>
-							<p class="field-error"><?php echo esc_html( $exf_ferrors['immediate_consent'] ); ?></p>
-						<?php endif; ?>
-					<?php endif; ?>
-				</fieldset>
-			<?php endif; ?>
+			<?php exf_checkout_terms_html( array( 'accept_terms' => ! empty( $_POST['accept_terms'] ) ), $exf_ferrors ); // phpcs:ignore WordPress.Security.NonceVerification.Missing ?>
 
 			<div class="buy-summary" data-buy-summary data-base-pence="<?php echo (int) $exf_service['pence']; ?>">
 				<p><strong><?php echo esc_html( $exf_service['name'] ); ?></strong> — <?php echo esc_html( exf_service_price_label( $exf_service ) ); ?></p>

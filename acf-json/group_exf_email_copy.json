@@ -259,6 +259,56 @@
             "new_lines": ""
         },
         {
+            "key": "field_exf_em_tab_unpaid_reminder",
+            "label": "Didn’t finish booking",
+            "name": "",
+            "aria-label": "",
+            "type": "tab",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placement": "left",
+            "endpoint": 0,
+            "selected": 0
+        },
+        {
+            "key": "field_exf_em_unpaid_reminder_subject",
+            "label": "Subject",
+            "name": "unpaid_reminder_subject",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Merge tags: {first_name}. Sent when a sign-up at checkout needs checking by hand. There's no link: they're emailed one when you clear the check or ask for more information. Never mention conflicts.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_em_unpaid_reminder_body",
+            "label": "Body",
+            "name": "unpaid_reminder_body",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Sent once, a day after someone gives their details at checkout but doesn’t pay (unless they ticked not to be reminded). Tags: {first_name}, {service}, {link} (back to their basket), {delete_date}.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 10,
+            "new_lines": ""
+        },
+        {
             "key": "field_exf_em_tab_review_checkout",
             "label": "Checking details (at checkout)",
             "name": "",
@@ -1577,5 +1627,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1793123823
+    "modified": 1793363548
 }

@@ -199,10 +199,12 @@ function exf_nav_links() {
 		}
 		$classes = (array) $item->classes;
 		$active  = in_array( 'current-menu-item', $classes, true ) || ( '#top' === $item->url && is_front_page() );
+		// "Create Your Ex File" is the action, so it looks like a button.
+		$css = array_filter( array( $active ? 'active' : '', exf_is_register_link( $item ) ? 'nav-button' : '' ) );
 		printf(
 			'<a href="%1$s"%2$s%3$s>%4$s</a>',
 			esc_url( exf_url( $item->url ) ),
-			$active ? ' class="active" aria-current="page"' : '',
+			( $css ? ' class="' . esc_attr( implode( ' ', $css ) ) . '"' : '' ) . ( $active ? ' aria-current="page"' : '' ),
 			! empty( $item->target ) ? ' target="' . esc_attr( $item->target ) . '" rel="noopener"' : '',
 			esc_html( $item->title )
 		);

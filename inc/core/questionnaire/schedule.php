@@ -1053,10 +1053,11 @@ class Exf_Asset_Schedule {
 					}
 				}
 				foreach ( (array) ( $g['dividends'] ?? array() ) as $e ) {
-					$add( self::join( array( __( 'Dividends', 'exfiles' ), empty( $e['business'] ) ? '' : '(' . $e['business'] . ')' ) ), '', $e['amount'] ?? null );
+					$gn = (string) ( $e['gross_net'] ?? '' );
+					$add( self::join( array( __( 'Dividends', 'exfiles' ), empty( $e['business'] ) ? '' : '(' . $e['business'] . ')' ) ), 0 === strpos( $gn, 'Gross' ) ? __( 'Gross', 'exfiles' ) : ( 0 === strpos( $gn, 'Net' ) ? __( 'Net', 'exfiles' ) : '' ), $e['amount'] ?? null, "Don't know" === $gn ? __( 'Client doesn\'t know if gross or net.', 'exfiles' ) : '' );
 				}
 				foreach ( (array) ( $g['benefits'] ?? array() ) as $e ) {
-					$add( (string) ( $e['benefit'] ?? __( 'Benefit', 'exfiles' ) ), '', $e['amount'] ?? null );
+					$add( (string) ( $e['benefit'] ?? __( 'State benefit', 'exfiles' ) ), '', $e['amount'] ?? null );
 				}
 				if ( ! empty( $g['maintenance']['certainty'] ) && 'None' !== $g['maintenance']['certainty'] ) {
 					$add( __( 'Child maintenance received', 'exfiles' ), '', $g['maintenance'] );

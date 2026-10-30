@@ -112,6 +112,17 @@ function exf_register_panels_map( array $post ) {
 }
 
 /**
+ * Whether a relationship answer means they're married or in a civil partnership,
+ * so the date of marriage is needed (the solicitor works out the length of the
+ * marriage from it).
+ *
+ * @param string $relationship Answer.
+ */
+function exf_relationship_is_married( $relationship ) {
+	return in_array( (string) $relationship, array( 'married', 'civil_partnership' ), true );
+}
+
+/**
  * Relationship options.
  */
 function exf_relationship_options() {
@@ -237,7 +248,7 @@ function exf_handle_register( array $post ) {
 		}
 		if ( $f[1] && empty( $v[ $name ] ) ) {
 			if ( 'terms' === $name ) {
-				$e[ $name ] = __( 'Please accept the terms and privacy notice.', 'exfiles' );
+				$e[ $name ] = __( 'Please tick to confirm your details and that you have read the privacy notice.', 'exfiles' );
 			} elseif ( 'relationship' === $name ) {
 				$e[ $name ] = __( 'Please choose an option.', 'exfiles' );
 			} else {
@@ -283,6 +294,12 @@ function exf_handle_register( array $post ) {
 	}
 	if ( $v['relationship'] && ! isset( exf_relationship_options()[ $v['relationship'] ] ) ) {
 		$e['relationship'] = __( 'Please choose an option.', 'exfiles' );
+	}
+	if ( exf_relationship_is_married( $v['relationship'] ) && ! $v['marriage_date'] && ! isset( $e['marriage_date'] ) ) {
+		$e['marriage_date'] = __( 'Please enter the date of your marriage or civil partnership.', 'exfiles' );
+	}
+	if ( ! exf_relationship_is_married( $v['relationship'] ) ) {
+		$v['marriage_date'] = '';
 	}
 	if ( ! in_array( $v['title'], exf_title_options(), true ) ) {
 		$v['title'] = '';
@@ -380,6 +397,19 @@ function exf_register_after_create( $user_id, array $basket ) {
 	// Not exf_conflict_notify(): the account emails are for after payment.
 	$outcome = $ex_file ? exf_conflict_run( $ex_file, false ) : 'review';
 	$vars    = $ex_file ? exf_ex_file_email_vars( $ex_file ) : array();
+
+	// What they chose, for the reminder email if they don't pay (see commerce/terms.php).
+	update_user_meta(
+		$user_id,
+		'exf_pending_basket',
+		array(
+			'service'      => (int) $basket['service'],
+			'slot'         => (int) $basket['slot'],
+			'addon'        => ! empty( $basket['addon'] ),
+			'consent'      => ! empty( $basket['consent'] ),
+			'no_reminders' => ! empty( $basket['no_reminders'] ),
+		)
+	);
 
 	if ( 'clear' === $outcome ) {
 		$basket['user_id'] = $user_id;

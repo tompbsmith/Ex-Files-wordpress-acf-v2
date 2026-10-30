@@ -147,11 +147,8 @@ function exf_vat_note() {
  * @param array|null $service Service, or null for the general policy only.
  */
 function exf_cancellation_text( $service = null ) {
-	$text = exf_portal_copy( 'cancel_policy' );
-	if ( $service && ! empty( $service['immediate'] ) ) {
-		$text .= ' ' . str_replace( '{service}', $service['name'], exf_portal_copy( 'cancel_immediate' ) );
-	}
-	return trim( $text );
+	// What starting early means is shown with the early-start box (commerce/terms.php).
+	return trim( exf_portal_copy( 'cancel_policy' ) );
 }
 
 /**

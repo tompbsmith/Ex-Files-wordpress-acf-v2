@@ -46,6 +46,10 @@ function exf_email_defaults() {
 			'Confirm your email to access your Ex File',
 			"Hello {first_name},\n\nThank you for your order. To finish creating your Ex File, please confirm your email address using this link:\n\n{link}\n\nYou'll then be logged in to your Ex File, where you'll find your booking and anything we need from you next. We've sent your order confirmation separately.\n\nThe link works for 48 hours. If it runs out, you can ask for a new one on the log in page.\n\nBest wishes,\nThe Ex Files",
 		),
+		'unpaid_reminder' => array(
+			'You haven’t finished booking {service}',
+			"Hello {first_name},\n\nYou started booking {service} with The Ex Files but didn't complete payment, so nothing has been booked and you haven't been charged.\n\nIf you'd still like to go ahead, this link takes you back to your basket with your details saved:\n\n{link}\n\nIf you don't complete your booking, we'll delete the details you gave us on {delete_date}.\n\nThis is the only reminder we'll send. If you'd rather not hear from us, you don't need to do anything, or you can reply to let us know.\n\nBest wishes,\nThe Ex Files",
+		),
 		'review_checkout' => array(
 			"We're just checking a few details",
 			"Hello {first_name},\n\nThank you for choosing The Ex Files. Before we can take your booking, we need to check a few details. This is done within one working day, and we'll email you as soon as it's finished so you can complete your booking.\n\nYou haven't been charged.\n\nBest wishes,\nThe Ex Files",

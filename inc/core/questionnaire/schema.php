@@ -134,16 +134,21 @@ function exf_q_income_fields( $spouse ) {
 					'label' => __( 'Business', 'exfiles' ),
 				),
 				'amount'   => exf_q_money( __( 'Amount', 'exfiles' ), array( 'freq' => true ) ),
+				'gross_net' => array(
+					'type'    => 'radio',
+					'label'   => __( 'Is this amount gross or net?', 'exfiles' ),
+					'options' => array( 'Gross (before tax)', 'Net (after tax)', "Don't know" ),
+				),
 			),
 		),
 		'benefits'    => array(
 			'type'   => 'repeater',
-			'label'  => __( 'Benefits', 'exfiles' ),
-			'item'   => __( 'benefit', 'exfiles' ),
+			'label'  => __( 'State benefits', 'exfiles' ),
+			'item'   => __( 'state benefit', 'exfiles' ),
 			'fields' => array(
 				'benefit' => array(
 					'type'  => 'text',
-					'label' => __( 'Benefit', 'exfiles' ),
+					'label' => __( 'State benefit', 'exfiles' ),
 				),
 				'amount'  => exf_q_money( __( 'Amount', 'exfiles' ), array( 'freq' => true ) ),
 			),
@@ -164,8 +169,8 @@ function exf_q_income_fields( $spouse ) {
 		),
 		'other_inc'   => array(
 			'type'   => 'repeater',
-			'label'  => __( 'Other income', 'exfiles' ),
-			'item'   => __( 'income', 'exfiles' ),
+			'label'  => __( 'Other income not already listed', 'exfiles' ),
+			'item'   => __( 'other income', 'exfiles' ),
 			'fields' => array(
 				'source' => array(
 					'type'  => 'text',

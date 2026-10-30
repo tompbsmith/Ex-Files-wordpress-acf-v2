@@ -1,15 +1,22 @@
 <?php
 /**
- * A Microsoft Teams meeting for each appointment (October 2026).
+ * Microsoft 365: Outlook calendar and Teams meetings for appointments.
  *
- * The solicitor keeps her diary in Google Calendar but holds appointments on
- * Teams. Once Microsoft 365 is connected (Ex Files → Settings → Microsoft Teams),
- * every appointment that's paid for or confirmed gets its own Teams meeting, and its
- * link goes in the confirmation email, the calendar invite, the reminder and the
- * client's Appointments page. Moving the appointment moves the meeting; cancelling it
- * deletes the meeting. Nothing is added to her Outlook or Teams calendar: the meeting
- * is "standalone" (Microsoft Graph onlineMeetings), and the calendar invite the site
- * already sends puts it in her Google Calendar.
+ * Once Microsoft 365 is connected (Ex Files → Settings → Microsoft Teams):
+ *
+ *  - Every appointment that's paid for or confirmed is added to the solicitor's
+ *    Outlook calendar as a Teams meeting (Microsoft Graph /me/events with
+ *    isOnlineMeeting). Its link goes in the client's confirmation email, calendar
+ *    invite and reminder, and on their Appointments page. Moving the appointment
+ *    moves the event (the link stays the same); cancelling it deletes the event.
+ *    The client gets the site's own calendar invite as before; her copy isn't emailed
+ *    to her as well, as the event is already in her calendar.
+ *  - Busy times in her Outlook calendar are taken out of the times offered online,
+ *    alongside any calendar addresses in Settings → Bookings (exf_outlook_busy()).
+ *
+ * Connections made before the calendar was added (October 2026, Teams only) keep
+ * creating standalone Teams meetings (/me/onlineMeetings) until she connects again;
+ * the settings tab asks her to.
  *
  * If Teams isn't connected, or Microsoft returns an error, the fixed meeting link in
  * Settings → Bookings is used instead and the problem is shown in the admin.
@@ -25,7 +32,7 @@
 defined( 'ABSPATH' ) || exit;
 
 const EXF_TEAMS_OPTION = 'exf_teams';
-const EXF_TEAMS_SCOPE  = 'offline_access User.Read OnlineMeetings.ReadWrite';
+const EXF_TEAMS_SCOPE  = 'offline_access User.Read OnlineMeetings.ReadWrite Calendars.ReadWrite';
 const EXF_GRAPH        = 'https://graph.microsoft.com/v1.0';
 
 /* -------------------------------------------------------------------------
@@ -68,6 +75,15 @@ function exf_teams_save( array $changes ) {
  */
 function exf_teams_connected() {
 	return ! empty( exf_teams_state()['refresh_token'] );
+}
+
+/**
+ * Whether the connection includes her Outlook calendar (connected since the calendar
+ * was added). Older connections only make standalone Teams meetings.
+ */
+function exf_outlook_calendar_on() {
+	$s = exf_teams_state();
+	return ! empty( $s['refresh_token'] ) && false !== stripos( (string) ( $s['scope'] ?? '' ), 'Calendars.ReadWrite' );
 }
 
 /**
@@ -147,6 +163,7 @@ function exf_teams_token() {
 			'access_token'  => $body['access_token'],
 			'refresh_token' => $body['refresh_token'] ?? $s['refresh_token'],
 			'expires'       => time() + (int) ( $body['expires_in'] ?? 3600 ),
+			'scope'         => isset( $body['scope'] ) ? (string) $body['scope'] : ( $s['scope'] ?? '' ),
 		)
 	);
 	return $body['access_token'];
@@ -215,6 +232,11 @@ function exf_teams_sync_meeting( $order_id ) {
 	if ( ! $start || ! exf_teams_connected() ) {
 		return (string) get_post_meta( $order_id, 'teams_join_url', true );
 	}
+	// An Outlook calendar event with a Teams meeting, unless this appointment already
+	// has a standalone meeting from before the calendar was connected.
+	if ( exf_outlook_calendar_on() && ! get_post_meta( $order_id, 'teams_meeting_id', true ) ) {
+		return exf_outlook_sync_event( $order_id, $start, $end > $start ? $end : $start + HOUR_IN_SECONDS );
+	}
 	$id    = (string) get_post_meta( $order_id, 'teams_meeting_id', true );
 	$times = array(
 		'startDateTime' => exf_graph_time( $start ),
@@ -270,6 +292,10 @@ function exf_teams_sync_meeting( $order_id ) {
  * @param int $order_id Order.
  */
 function exf_teams_delete_meeting( $order_id ) {
+	if ( get_post_meta( $order_id, 'teams_event_id', true ) ) {
+		exf_outlook_delete_event( $order_id );
+		return;
+	}
 	$id = (string) get_post_meta( $order_id, 'teams_meeting_id', true );
 	if ( ! $id ) {
 		return;
@@ -285,6 +311,233 @@ function exf_teams_delete_meeting( $order_id ) {
 	foreach ( array( 'teams_meeting_id', 'teams_join_url', 'teams_start', 'teams_end' ) as $k ) {
 		delete_post_meta( $order_id, $k );
 	}
+}
+
+/* -------------------------------------------------------------------------
+ * Outlook calendar events
+ * ---------------------------------------------------------------------- */
+
+/**
+ * A Graph date-time in UTC.
+ *
+ * @param int $ts Timestamp.
+ */
+function exf_graph_datetime( $ts ) {
+	return array(
+		'dateTime' => gmdate( 'Y-m-d\TH:i:s', (int) $ts ),
+		'timeZone' => 'UTC',
+	);
+}
+
+/**
+ * Make sure an appointment is in her Outlook calendar, as a Teams meeting, at the
+ * right time.
+ *
+ * @param int $order_id Order.
+ * @param int $start    Start.
+ * @param int $end      End.
+ * @return string The join link, or '' (the fixed link is used).
+ */
+function exf_outlook_sync_event( $order_id, $start, $end ) {
+	$id   = (string) get_post_meta( $order_id, 'teams_event_id', true );
+	$link = (string) get_post_meta( $order_id, 'teams_join_url', true );
+	if ( $id ) {
+		if ( (int) get_post_meta( $order_id, 'teams_start', true ) === $start && (int) get_post_meta( $order_id, 'teams_end', true ) === $end && $link ) {
+			return $link;
+		}
+		$r = exf_graph_request(
+			'PATCH',
+			'/me/events/' . rawurlencode( $id ),
+			array(
+				'start' => exf_graph_datetime( $start ),
+				'end'   => exf_graph_datetime( $end ),
+			)
+		);
+		if ( ! is_wp_error( $r ) ) {
+			update_post_meta( $order_id, 'teams_start', $start );
+			update_post_meta( $order_id, 'teams_end', $end );
+			exf_outlook_busy_flush();
+			exf_order_log( $order_id, 'Outlook calendar event moved to ' . exf_booking_label( $start ) );
+			$link = $link ? $link : exf_outlook_event_link( $r, $id );
+			return $link;
+		}
+		if ( 404 !== (int) ( $r->get_error_data()['status'] ?? 0 ) ) {
+			exf_order_log( $order_id, 'Could not move the Outlook calendar event: ' . $r->get_error_message() );
+			exf_teams_problem( $r->get_error_message() );
+			return $link;
+		}
+		// Deleted in Outlook meanwhile: make a new one below.
+	}
+
+	$client  = get_userdata( (int) get_post_meta( $order_id, 'client_id', true ) );
+	$service = (string) get_post_meta( $order_id, 'service_name', true );
+	$body    = array(
+		/* translators: 1: site name, 2: order number */
+		sprintf( __( 'Booked through the %1$s website (order %2$d).', 'exfiles' ), exf_site_name(), $order_id ),
+		$client ? $client->display_name . ' – ' . $client->user_email : '',
+		admin_url( 'post.php?post=' . $order_id . '&action=edit' ),
+	);
+	$r       = exf_graph_request(
+		'POST',
+		'/me/events',
+		array(
+			'subject'               => $service . ( $client ? ' – ' . $client->display_name : '' ),
+			'body'                  => array(
+				'contentType' => 'text',
+				'content'     => implode( "\n", array_filter( $body ) ),
+			),
+			'start'                 => exf_graph_datetime( $start ),
+			'end'                   => exf_graph_datetime( $end ),
+			'showAs'                => 'busy',
+			'isOnlineMeeting'       => true,
+			'onlineMeetingProvider' => 'teamsForBusiness',
+			'transactionId'         => 'exf-order-' . $order_id . '-' . time(),
+		)
+	);
+	if ( is_wp_error( $r ) || empty( $r['id'] ) ) {
+		$why = is_wp_error( $r ) ? $r->get_error_message() : 'no event returned';
+		exf_order_log( $order_id, 'Could not add the appointment to the Outlook calendar (the fixed meeting link was used instead): ' . $why );
+		exf_teams_problem( $why );
+		return '';
+	}
+	$link = exf_outlook_event_link( $r, (string) $r['id'] );
+	update_post_meta( $order_id, 'teams_event_id', (string) $r['id'] );
+	update_post_meta( $order_id, 'teams_start', $start );
+	update_post_meta( $order_id, 'teams_end', $end );
+	if ( $link ) {
+		update_post_meta( $order_id, 'teams_join_url', esc_url_raw( $link ) );
+	}
+	exf_outlook_busy_flush();
+	exf_order_log( $order_id, 'Added to the Outlook calendar' . ( $link ? ' with a Teams meeting' : ' (no Teams link came back: the fixed meeting link was used)' ) );
+	exf_teams_save(
+		array(
+			'problem'    => null,
+			'problem_at' => null,
+		)
+	);
+	return $link ? esc_url_raw( $link ) : '';
+}
+
+/**
+ * An event's Teams join link. Microsoft usually returns it straight away; if not, ask once more.
+ *
+ * @param array  $event Event from Graph.
+ * @param string $id    Event id.
+ */
+function exf_outlook_event_link( array $event, $id ) {
+	$link = (string) ( $event['onlineMeeting']['joinUrl'] ?? '' );
+	if ( ! $link && $id ) {
+		$again = exf_graph_request( 'GET', '/me/events/' . rawurlencode( $id ) . '?$select=onlineMeeting' );
+		$link  = is_wp_error( $again ) ? '' : (string) ( $again['onlineMeeting']['joinUrl'] ?? '' );
+	}
+	return preg_match( '#^https://#i', $link ) ? $link : '';
+}
+
+/**
+ * Delete an appointment's Outlook calendar event (its Teams meeting goes with it).
+ *
+ * @param int $order_id Order.
+ */
+function exf_outlook_delete_event( $order_id ) {
+	$id = (string) get_post_meta( $order_id, 'teams_event_id', true );
+	if ( $id && exf_teams_connected() ) {
+		$r = exf_graph_request( 'DELETE', '/me/events/' . rawurlencode( $id ) );
+		if ( is_wp_error( $r ) && 404 !== (int) ( $r->get_error_data()['status'] ?? 0 ) ) {
+			exf_order_log( $order_id, 'Could not delete the Outlook calendar event (please delete it in Outlook): ' . $r->get_error_message() );
+			return;
+		}
+		exf_order_log( $order_id, 'Removed from the Outlook calendar' );
+	}
+	foreach ( array( 'teams_event_id', 'teams_join_url', 'teams_start', 'teams_end' ) as $k ) {
+		delete_post_meta( $order_id, $k );
+	}
+	exf_outlook_busy_flush();
+}
+
+/**
+ * Whether an appointment is already in her Outlook calendar, so her emailed copy of
+ * the client's calendar invite would only duplicate it.
+ *
+ * @param int $order_id Order.
+ */
+function exf_outlook_has_event( $order_id ) {
+	return $order_id && (bool) get_post_meta( $order_id, 'teams_event_id', true );
+}
+
+/**
+ * Busy periods in her Outlook calendar, for the times offered online. Cached for 10
+ * minutes; if Microsoft can't be reached, the last good copy is used.
+ *
+ * @param int $from   From.
+ * @param int $to     To.
+ * @param int $ignore Order whose own event shouldn't count (moving it).
+ * @return int[][] [ [start, end], … ].
+ */
+function exf_outlook_busy( $from, $to, $ignore = 0 ) {
+	if ( ! exf_outlook_calendar_on() ) {
+		return array();
+	}
+	$tz    = wp_timezone();
+	$day0  = ( new DateTimeImmutable( '@' . (int) $from ) )->setTimezone( $tz )->setTime( 0, 0 )->getTimestamp();
+	$day1  = ( new DateTimeImmutable( '@' . (int) $to ) )->setTimezone( $tz )->setTime( 0, 0 )->modify( '+1 day' )->getTimestamp();
+	$key   = 'exf_outlook_busy_' . md5( $day0 . '-' . $day1 . '-' . get_option( 'exf_outlook_busy_v', '' ) );
+	$items = get_transient( $key );
+	if ( ! is_array( $items ) ) {
+		$items = array();
+		$path  = '/me/calendarView?startDateTime=' . rawurlencode( exf_graph_time( $day0 ) ) . '&endDateTime=' . rawurlencode( exf_graph_time( $day1 ) ) . '&$select=id,start,end,showAs,isCancelled&$top=250';
+		$ok    = true;
+		for ( $page = 0; $path && $page < 10; $page++ ) {
+			$r = exf_graph_request( 'GET', $path );
+			if ( is_wp_error( $r ) ) {
+				$ok = false;
+				exf_teams_problem( __( 'Couldn’t read the Outlook calendar: ', 'exfiles' ) . $r->get_error_message() );
+				break;
+			}
+			foreach ( (array) ( $r['value'] ?? array() ) as $e ) {
+				if ( ! empty( $e['isCancelled'] ) || in_array( $e['showAs'] ?? 'busy', array( 'free', 'workingElsewhere' ), true ) ) {
+					continue;
+				}
+				$s = strtotime( (string) ( $e['start']['dateTime'] ?? '' ) . ' ' . ( $e['start']['timeZone'] ?? 'UTC' ) );
+				$f = strtotime( (string) ( $e['end']['dateTime'] ?? '' ) . ' ' . ( $e['end']['timeZone'] ?? 'UTC' ) );
+				if ( $s && $f > $s ) {
+					$items[] = array( $s, $f, (string) ( $e['id'] ?? '' ) );
+				}
+			}
+			$next = (string) ( $r['@odata.nextLink'] ?? '' );
+			$path = 0 === strpos( $next, EXF_GRAPH ) ? substr( $next, strlen( EXF_GRAPH ) ) : '';
+		}
+		$good = (array) get_option( 'exf_outlook_busy_last_good', array() );
+		if ( $ok ) {
+			set_transient( $key, $items, 10 * MINUTE_IN_SECONDS );
+			update_option(
+				'exf_outlook_busy_last_good',
+				array(
+					'from'  => $day0,
+					'to'    => $day1,
+					'items' => $items,
+				),
+				false
+			);
+		} elseif ( isset( $good['items'] ) ) {
+			$items = (array) $good['items'];
+		}
+	}
+	$skip = $ignore ? (string) get_post_meta( $ignore, 'teams_event_id', true ) : '';
+	$out  = array();
+	foreach ( $items as $i ) {
+		if ( '' !== $skip && $skip === $i[2] ) {
+			continue;
+		}
+		$out[] = array( (int) $i[0], (int) $i[1] );
+	}
+	return $out;
+}
+
+/**
+ * Forget the cached Outlook busy times (after the site changes an event).
+ */
+function exf_outlook_busy_flush() {
+	update_option( 'exf_outlook_busy_v', (string) microtime( true ), false );
 }
 
 /**
@@ -414,6 +667,7 @@ add_action(
 				'refresh_token' => $body['refresh_token'],
 				'access_token'  => $body['access_token'],
 				'expires'       => time() + (int) ( $body['expires_in'] ?? 3600 ),
+				'scope'         => (string) ( $body['scope'] ?? '' ),
 				'problem'       => null,
 				'problem_at'    => null,
 			)
@@ -429,7 +683,7 @@ add_action(
 		}
 		$email = exf_teams_state()['email'] ?? '';
 		exf_audit( 'teams_connect', 'Connected Microsoft Teams' . ( $email ? ' (' . $email . ')' : '' ) );
-		set_transient( 'exf_teams_notice_' . get_current_user_id(), 'ok:' . __( 'Microsoft Teams connected. New appointments will each get their own Teams meeting.', 'exfiles' ), MINUTE_IN_SECONDS );
+		set_transient( 'exf_teams_notice_' . get_current_user_id(), 'ok:' . ( exf_outlook_calendar_on() ? __( 'Microsoft 365 connected. New appointments will go into your Outlook calendar, each with its own Teams meeting.', 'exfiles' ) : __( 'Microsoft 365 connected, but without calendar access, so appointments get a Teams meeting only. Check the Calendars.ReadWrite permission and connect again.', 'exfiles' ) ), MINUTE_IN_SECONDS );
 		wp_safe_redirect( $back );
 		exit;
 	}
@@ -521,10 +775,13 @@ add_filter(
 	'acf/load_field/key=field_exf_set_teams_help',
 	function ( $field ) {
 		$s    = exf_teams_state();
-		$html = '<p>' . esc_html__( 'Give every appointment its own Microsoft Teams meeting. When a booking is paid for (or confirmed), the site creates a Teams meeting for that time and sends its link in the confirmation email, the calendar invite and the reminder, and shows it on the client’s Appointments page. Moving an appointment moves the meeting; cancelling it deletes the meeting. Your diary stays in Google Calendar: nothing is added to Outlook.', 'exfiles' ) . '</p>';
-		$html .= '<p>' . esc_html__( 'Until this is connected, or if Microsoft is unavailable, the fixed meeting link in the Bookings tab is used.', 'exfiles' ) . '</p>';
+		$html = '<p>' . esc_html__( 'Connect your Microsoft 365 account so appointments go straight into your Outlook calendar, each with its own Teams meeting. When a booking is paid for (or confirmed), the site adds it to your calendar and sends the Teams link in the client’s confirmation email, calendar invite and reminder, and shows it on their Appointments page. Moving an appointment moves the event; cancelling it deletes it. Times when your Outlook calendar shows you as busy aren’t offered for booking.', 'exfiles' ) . '</p>';
+		$html .= '<p>' . esc_html__( 'Until this is connected, or if Microsoft is unavailable, the fixed meeting link in the Bookings tab is used, and you’re emailed a calendar invite for each booking instead.', 'exfiles' ) . '</p>';
 		$html .= '<p><strong>' . esc_html__( 'One-off setup', 'exfiles' ) . '</strong> ' . esc_html__( 'In the Microsoft Entra admin centre (entra.microsoft.com) → App registrations → New registration: any name; supported accounts “Accounts in this organizational directory only”; redirect URI type “Web”:', 'exfiles' ) . '<br><code>' . esc_html( exf_teams_redirect_uri() ) . '</code><br>';
-		$html .= esc_html__( 'Then API permissions → Add → Microsoft Graph → Delegated: OnlineMeetings.ReadWrite, User.Read and offline_access (and Grant admin consent if your organisation requires it). Certificates & secrets → New client secret. Paste the Application (client) ID, Directory (tenant) ID and the secret’s Value below, save, then Connect.', 'exfiles' ) . '</p>';
+		$html .= esc_html__( 'Then API permissions → Add → Microsoft Graph → Delegated: Calendars.ReadWrite, OnlineMeetings.ReadWrite, User.Read and offline_access (and Grant admin consent if your organisation requires it). Certificates & secrets → New client secret. Paste the Application (client) ID, Directory (tenant) ID and the secret’s Value below, save, then Connect.', 'exfiles' ) . '</p>';
+		if ( ! empty( $s['refresh_token'] ) && ! exf_outlook_calendar_on() ) {
+			$html .= '<p style="color:#b32d2e"><strong>' . esc_html__( 'This connection was made before the Outlook calendar was added, so it only creates Teams meetings. Add the Calendars.ReadWrite permission to the app registration (above), then connect again.', 'exfiles' ) . '</strong> <a class="button button-primary" href="' . esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=exf_teams_connect' ), 'exf_teams_connect' ) ) . '">' . esc_html__( 'Connect again', 'exfiles' ) . '</a></p>';
+		}
 		if ( ! empty( $s['refresh_token'] ) ) {
 			$who   = trim( ( $s['name'] ?? '' ) . ( ! empty( $s['email'] ) ? ' (' . $s['email'] . ')' : '' ) );
 			$html .= '<p><strong>' . esc_html( $who ? sprintf( /* translators: %s: account */ __( 'Connected as %s.', 'exfiles' ), $who ) : __( 'Connected.', 'exfiles' ) ) . '</strong> ';

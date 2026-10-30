@@ -38,11 +38,21 @@ $exf_client = get_userdata( (int) get_post_meta( $exf_order, 'client_id', true )
 			<?php endif; ?>
 		</header>
 		<div class="guide-card account-card">
+			<?php
+			// Everything in the order, so a client who didn't pay sees what they chose.
+			$exf_intro = $exf_osvc ? trim( (string) preg_split( '/\R\s*\R/', (string) $exf_osvc['intro'] )[0] ) : '';
+			$exf_base  = (int) get_post_meta( $exf_order, 'base_pence', true );
+			$exf_addp  = (int) get_post_meta( $exf_order, 'addon_pence', true );
+			?>
+			<p><strong><?php echo esc_html( (string) get_post_meta( $exf_order, 'service_name', true ) ); ?></strong><?php echo $exf_base ? ' — ' . esc_html( exf_money( $exf_base ) ) : ''; ?></p>
+			<?php if ( $exf_intro ) : ?>
+				<p class="field-note"><?php echo esc_html( $exf_intro ); ?></p>
+			<?php endif; ?>
 			<?php if ( $exf_start ) : ?>
 				<p><strong><?php esc_html_e( 'Appointment:', 'exfiles' ); ?></strong> <?php echo esc_html( exf_booking_label( $exf_start, (int) get_post_meta( $exf_order, 'booking_end', true ) ) ); ?></p>
 			<?php endif; ?>
 			<?php if ( get_post_meta( $exf_order, 'addon_name', true ) ) : ?>
-				<p><strong><?php esc_html_e( 'Add-on:', 'exfiles' ); ?></strong> <?php echo esc_html( (string) get_post_meta( $exf_order, 'addon_name', true ) ); ?></p>
+				<p><strong><?php esc_html_e( 'Add-on:', 'exfiles' ); ?></strong> <?php echo esc_html( (string) get_post_meta( $exf_order, 'addon_name', true ) ); ?><?php echo $exf_addp ? ' — ' . esc_html( exf_money( $exf_addp ) ) : ''; ?></p>
 			<?php endif; ?>
 			<?php if ( exf_order_is_live( $exf_order ) ) : ?>
 				<p><?php esc_html_e( "We've also emailed you your order confirmation, and Stripe will send a receipt.", 'exfiles' ); ?></p>

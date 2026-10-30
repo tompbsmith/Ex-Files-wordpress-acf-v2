@@ -416,7 +416,7 @@
             "name": "calendar_ical_url",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "So clients can't book times you're busy. One address per line; add more than one if your appointments are spread across calendars. Apple Calendar (iCloud): on a Mac, Calendar → right-click the calendar → Share Calendar → tick Public Calendar → copy the webcal:// address. Google Calendar: Settings → the calendar → Integrate calendar → Secret address in iCal format. Keep these addresses private. Events marked “Free” are ignored.",
+            "instructions": "So clients can't book times you're busy. Not needed for your Outlook calendar once Microsoft 365 is connected (see the Microsoft 365 tab): that is read automatically. For other calendars, one address per line. Apple Calendar (iCloud): on a Mac, Calendar → right-click the calendar → Share Calendar → tick Public Calendar → copy the webcal:// address. Google Calendar: Settings → the calendar → Integrate calendar → Secret address in iCal format. Keep these addresses private. Events marked “Free” are ignored.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -452,7 +452,7 @@
             "name": "meeting_link",
             "aria-label": "",
             "type": "url",
-            "instructions": "Used when Microsoft Teams isn’t connected (see the Microsoft Teams tab), or if a meeting can’t be created. Once Teams is connected, each appointment gets its own meeting instead.",
+            "instructions": "Used when Microsoft 365 isn’t connected (see the Microsoft 365 tab), or if a meeting can’t be created. Once it’s connected, each appointment gets its own Teams meeting instead.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -702,7 +702,7 @@
         },
         {
             "key": "field_exf_set_tab_teams",
-            "label": "Microsoft Teams",
+            "label": "Microsoft 365",
             "name": "",
             "aria-label": "",
             "type": "tab",
@@ -1074,5 +1074,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1793183535
+    "modified": 1793363928
 }

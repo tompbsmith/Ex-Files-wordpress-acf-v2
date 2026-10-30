@@ -179,6 +179,13 @@ function exf_order_create( $client_id, $ex_file_id, array $service, $start = 0, 
 	if ( ! empty( $args['consent'] ) ) {
 		$meta['immediate_consent'] = time();
 	}
+	if ( ! empty( $args['terms'] ) ) {
+		$meta['terms_accepted'] = time();
+		$terms                  = function_exists( 'exf_terms_page' ) ? exf_terms_page() : null;
+		if ( $terms ) {
+			$meta['terms_version'] = $terms->post_modified_gmt;
+		}
+	}
 	if ( $start ) {
 		$meta['booking_start'] = (int) $start;
 		$meta['booking_end']   = (int) $start + $minutes * MINUTE_IN_SECONDS;
@@ -187,7 +194,7 @@ function exf_order_create( $client_id, $ex_file_id, array $service, $start = 0, 
 	foreach ( $meta as $k => $v ) {
 		update_post_meta( $id, $k, $v );
 	}
-	exf_order_log( $id, sprintf( 'Created for %s%s%s%s', $service['name'], $addon ? ' with ' . $addon['name'] . ' (' . exf_money( $addon['pence'] ) . ')' : '', $start ? ', appointment ' . exf_booking_label( $start ) : '', ! empty( $args['consent'] ) ? '; client asked for work to start straight away' : '' ) );
+	exf_order_log( $id, sprintf( 'Created for %s%s%s%s', $service['name'], $addon ? ' with ' . $addon['name'] . ' (' . exf_money( $addon['pence'] ) . ')' : '', $start ? ', appointment ' . exf_booking_label( $start ) : '', ! empty( $args['consent'] ) ? '; client asked for work to start within the cancellation period' : '' ) . ( ! empty( $args['terms'] ) ? '; Terms of Business accepted' : '' ) );
 	return (int) $id;
 }
 
@@ -324,7 +331,8 @@ function exf_order_fulfil( $order_id ) {
 	if ( $user ) {
 		exf_send_email_with_ics( 'order_confirmed', $user->user_email, $vars, $ics );
 	}
-	exf_send_email_with_ics( 'admin_order', exf_notify_emails(), $vars, $ics );
+	// Already in her Outlook calendar (teams.php): her copy of the invite would duplicate it.
+	exf_send_email_with_ics( 'admin_order', exf_notify_emails(), $vars, function_exists( 'exf_outlook_has_event' ) && exf_outlook_has_event( $order_id ) ? '' : $ics );
 }
 
 /**
@@ -398,7 +406,7 @@ function exf_order_email_vars( $order_id ) {
 		'order_items'     => $items,
 		'amount'          => $amount,
 		'total'           => $pence ? exf_money( $pence ) : __( 'Free', 'exfiles' ),
-		'cancellation'    => ( $service && $service['free'] ) ? '' : exf_cancellation_text( $parent ? null : $service ),
+		'cancellation'    => ( $service && $service['free'] ) || ! $pence ? '' : ( function_exists( 'exf_order_cancellation_text' ) ? exf_order_cancellation_text( $order_id ) : exf_cancellation_text( $parent ? null : $service ) ),
 		'appointment'     => ! $start ? __( 'No appointment needed', 'exfiles' ) : ( get_post_meta( $order_id, 'needs_reschedule', true )
 			/* translators: %s: the time they chose */
 			? sprintf( __( 'To be rearranged. The time you chose (%s) was booked by someone else while you were paying, so we’ll contact you to arrange a new time.', 'exfiles' ), exf_booking_label( $start, $end ) )
@@ -748,7 +756,22 @@ function exf_order_box( $post ) {
 			<tr><th><?php esc_html_e( 'Cancellation', 'exfiles' ); ?></th><td>
 				<?php
 				/* translators: %s: date and time */
-				echo esc_html( sprintf( __( 'The client asked for work to start straight away (%s).', 'exfiles' ), wp_date( 'j M Y H:i', (int) get_post_meta( $id, 'immediate_consent', true ) ) ) );
+				echo esc_html( sprintf( __( 'The client asked for work to start within the 14-day cancellation period (%s).', 'exfiles' ), wp_date( 'j M Y H:i', (int) get_post_meta( $id, 'immediate_consent', true ) ) ) );
+				?>
+			</td></tr>
+		<?php elseif ( function_exists( 'exf_order_cooling_off_end' ) && exf_order_cooling_off_end( $id ) && exf_order_is_live( $id ) ) : ?>
+			<tr><th><?php esc_html_e( 'Cancellation', 'exfiles' ); ?></th><td>
+				<?php
+				/* translators: %s: date */
+				echo esc_html( sprintf( __( 'No early start: the client can cancel until the end of %s, so work shouldn’t start before then.', 'exfiles' ), wp_date( 'l j F Y', exf_order_cooling_off_end( $id ) - DAY_IN_SECONDS ) ) );
+				?>
+			</td></tr>
+		<?php endif; ?>
+		<?php if ( get_post_meta( $id, 'terms_accepted', true ) ) : ?>
+			<tr><th><?php esc_html_e( 'Terms of Business', 'exfiles' ); ?></th><td>
+				<?php
+				/* translators: %s: date and time */
+				echo esc_html( sprintf( __( 'Accepted at checkout (%s).', 'exfiles' ), wp_date( 'j M Y H:i', (int) get_post_meta( $id, 'terms_accepted', true ) ) ) );
 				?>
 			</td></tr>
 		<?php endif; ?>

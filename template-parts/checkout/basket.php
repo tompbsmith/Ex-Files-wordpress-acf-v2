@@ -17,6 +17,8 @@ $exf_posted  = isset( $_POST['exf_basket'] );
 $exf_slot    = $exf_posted ? absint( $_POST['slot'] ?? 0 ) : ( $exf_same ? (int) $exf_basket['slot'] : 0 );
 $exf_addon_v = $exf_posted ? ! empty( $_POST['addon'] ) : ( $exf_same && ! empty( $exf_basket['addon'] ) );
 $exf_cons_v  = $exf_posted ? ! empty( $_POST['immediate_consent'] ) : ( $exf_same && ! empty( $exf_basket['consent'] ) );
+$exf_terms_v = $exf_posted ? ! empty( $_POST['accept_terms'] ) : ( $exf_same && ! empty( $exf_basket['terms'] ) );
+$exf_norem_v = $exf_posted ? ! empty( $_POST['no_reminders'] ) : ( $exf_same && ! empty( $exf_basket['no_reminders'] ) );
 // phpcs:enable
 $exf_resume = exf_basket_user( $exf_basket );
 
@@ -79,8 +81,9 @@ if ( $exf_basket && ! empty( $exf_basket['error'] ) && ! $exf_errors ) {
 				<input type="hidden" name="service" value="<?php echo (int) $exf_service['id']; ?>">
 
 				<?php
+				exf_checkout_start_html( $exf_service, $exf_cons_v, $exf_errors );
 				if ( $exf_service['booking'] ) {
-					exf_render_slot_picker( $exf_slots, $exf_service['minutes'], $exf_slot, $exf_errors['slot'] ?? '' );
+					exf_render_slot_picker( $exf_slots, $exf_service['minutes'], $exf_slot, $exf_errors['slot'] ?? '', exf_service_has_cooling_off( $exf_service ) ? exf_cooling_off_end() : 0 );
 				}
 				?>
 
@@ -107,17 +110,18 @@ if ( $exf_basket && ! empty( $exf_basket['error'] ) && ! $exf_errors ) {
 					</fieldset>
 				<?php endif; ?>
 
-				<?php if ( ! $exf_service['free'] ) : ?>
-					<fieldset class="gq-services buy-step buy-terms">
-						<legend class="gq-label"><?php esc_html_e( 'Cancellations', 'exfiles' ); ?></legend>
-						<p class="field-note"><?php echo esc_html( exf_cancellation_text( $exf_service ) ); ?></p>
-						<?php if ( $exf_service['immediate'] ) : ?>
-							<label class="gq-option gq-option--check gq-consent"><input type="checkbox" name="immediate_consent" value="1" required <?php checked( $exf_cons_v ); ?>><span><?php echo esc_html( exf_portal_copy( 'immediate_consent' ) ); ?></span></label>
-							<?php if ( isset( $exf_errors['immediate_consent'] ) ) : ?>
-								<p class="field-error"><?php echo esc_html( $exf_errors['immediate_consent'] ); ?></p>
-							<?php endif; ?>
-						<?php endif; ?>
-					</fieldset>
+				<?php
+				exf_checkout_terms_html(
+					array(
+						'accept_terms' => $exf_terms_v,
+						'no_reminders' => $exf_norem_v,
+					),
+					$exf_errors,
+					! $exf_resume && ! $exf_service['free']
+				);
+				?>
+				<?php if ( ! $exf_resume && ! $exf_service['free'] ) : ?>
+					<input type="hidden" name="exf_reminder_shown" value="1">
 				<?php endif; ?>
 
 				<?php if ( function_exists( 'exf_service_deadline_note' ) && exf_service_deadline_note( $exf_service ) ) : ?>

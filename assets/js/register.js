@@ -87,11 +87,13 @@
     return ok;
   }
 
-  // Marriage date only matters if they're married or in a civil partnership.
+  // Marriage date is needed (and only shown) if they're married or in a civil partnership.
   var marriage = form.querySelector('.reg-if-married');
   function toggleMarriage() {
     var r = form.querySelector('[name="relationship"]:checked');
-    if (marriage) { marriage.hidden = !r || r.value === 'not_married'; }
+    if (!marriage) { return; }
+    marriage.hidden = !r || r.value === 'not_married';
+    marriage.querySelectorAll('input').forEach(function (i) { i.disabled = marriage.hidden; });
   }
   form.querySelectorAll('[name="relationship"]').forEach(function (r) { r.addEventListener('change', toggleMarriage); });
   toggleMarriage();

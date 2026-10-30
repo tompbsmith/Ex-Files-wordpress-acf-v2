@@ -96,9 +96,12 @@ function exf_portal_copy( $key ) {
 		'q_review'        => __( "Please check everything before you submit. Answers you've estimated are highlighted in yellow, and answers you don't know in red. Use Edit to change a section.", 'exfiles' ),
 		'q_submitted'     => __( "Thank you. We've received your answers and will be in touch. Receiving them doesn't mean we have checked your financial disclosure yet.", 'exfiles' ),
 		'vat_note'        => __( 'No VAT is payable: The Ex Files is not VAT registered.', 'exfiles' ),
-		'cancel_policy'   => __( "You have the right to cancel within 14 days, unless you ask us to begin work before that period ends. If you don't attend your appointment, you won't be eligible for a refund.", 'exfiles' ),
-		'cancel_immediate' => __( '{service} is an instruction for us to begin work straight away, before the 14-day cancellation period ends. If you wish to cancel, please let us know as soon as possible: we may charge a reasonable amount for any work already undertaken.', 'exfiles' ),
-		'immediate_consent' => __( 'I ask The Ex Files to begin work straight away, and I understand how this affects my right to cancel.', 'exfiles' ),
+		'cancel_policy'   => __( 'You can cancel without giving a reason within 14 days of your booking being confirmed. We won’t start work during that time unless you ask us to below.', 'exfiles' ),
+		'cancel_immediate' => __( 'If you ask us to start early and then cancel, you pay only for the work done up to then. Once the service has been fully provided, you can no longer cancel.', 'exfiles' ),
+		'immediate_consent' => __( 'I ask The Ex Files to start my service within the 14-day cancellation period, and I understand that I lose my right to cancel once the service has been fully provided.', 'exfiles' ),
+		'terms_accept'    => __( 'I have read and accept the Terms of Business. I understand that if I wish to cancel, I can email {email}, or download the Terms of Business from the Terms of Business page and return the cancellation form at the end to {email}.', 'exfiles' ),
+		'reminder_notice' => __( 'If you don’t complete your purchase, we may send you one email reminding you about it.', 'exfiles' ),
+		'reminder_optout' => __( 'Please don’t send me a reminder email about this booking.', 'exfiles' ),
 		'locked_details'  => __( 'Your name and date of birth are part of the checks we carry out before acting for you, so please contact us if they need changing.', 'exfiles' ),
 	);
 	return (string) exf_get_option_field( $key, EXF_PORTAL_ID, $defaults[ $key ] ?? '' );

@@ -85,6 +85,7 @@ function exf_buy_route() {
 			array(
 				'addon'   => ! empty( $_POST['addon'] ),
 				'consent' => ! empty( $_POST['immediate_consent'] ),
+				'terms'   => ! empty( $_POST['accept_terms'] ),
 			)
 		);
 		$GLOBALS['exf_buy_errors'] = $errors;
@@ -118,7 +119,8 @@ function exf_buy_blocker( $user_id ) {
  * @param int $service_id Service page.
  * @param int $ex_file    Ex File.
  * @param int   $slot       Appointment start.
- * @param array $opts       addon (bool), consent (bool: asked for work to start straight away).
+ * @param array $opts       addon (bool), consent (bool: asked for work to start within the
+ *                          cancellation period), terms (bool: accepted the Terms of Business).
  * @return array Errors (redirects on success).
  */
 function exf_handle_buy( $service_id, $ex_file, $slot, array $opts = array() ) {
@@ -140,9 +142,7 @@ function exf_handle_buy( $service_id, $ex_file, $slot, array $opts = array() ) {
 	if ( $service['booking'] && ! $slot ) {
 		$errors['slot'] = __( 'Please choose a time for your appointment.', 'exfiles' );
 	}
-	if ( $service['immediate'] && empty( $opts['consent'] ) ) {
-		$errors['immediate_consent'] = __( 'Please tick to confirm, so we can start work straight away.', 'exfiles' );
-	}
+	$errors += array_diff_key( exf_checkout_check( $service, exf_checkout_choices( $opts ), $service['booking'] ? $slot : 0 ), $errors );
 	if ( ! $service['free'] && ! exf_stripe_ready() ) {
 		$errors['_form'] = __( "Online payment isn't set up yet. Please contact us to book.", 'exfiles' );
 	}
@@ -214,7 +214,8 @@ function exf_purchase_start( $user_id, $ex_file, array $service, $slot, array $o
 		$service['booking'] ? $slot : 0,
 		array(
 			'addon'   => $service['addon'] && ! empty( $opts['addon'] ),
-			'consent' => $service['immediate'] && ! empty( $opts['consent'] ),
+			'consent' => exf_service_has_cooling_off( $service ) && ! empty( $opts['consent'] ),
+			'terms'   => ! empty( $opts['terms'] ),
 		)
 	);
 	if ( $service['booking'] ) {
@@ -298,6 +299,12 @@ function exf_handle_new_separation( array $post ) {
 	}
 	if ( ! isset( exf_relationship_options()[ $v['relationship'] ] ) && '' !== $v['relationship'] ) {
 		$e['relationship'] = __( 'Please choose an option.', 'exfiles' );
+	}
+	if ( exf_relationship_is_married( $v['relationship'] ) && '' === $v['marriage_date'] ) {
+		$e['marriage_date'] = __( 'Please enter the date of your marriage or civil partnership.', 'exfiles' );
+	}
+	if ( ! exf_relationship_is_married( $v['relationship'] ) ) {
+		$v['marriage_date'] = '';
 	}
 	foreach ( array( 'ex_dob', 'marriage_date', 'separation_date' ) as $date ) {
 		if ( $v[ $date ] ) {

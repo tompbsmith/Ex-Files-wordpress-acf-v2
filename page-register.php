@@ -193,7 +193,7 @@ get_header();
 				</fieldset>
 				<div class="field-row" style="margin-top:22px">
 					<?php
-					exf_form_field( 'marriage_date', __( 'Date of marriage or civil partnership', 'exfiles' ), $exf_args( array( 'type' => 'date', 'class' => 'reg-if-married' ) ) );
+					exf_form_field( 'marriage_date', __( 'Date of marriage or civil partnership', 'exfiles' ), $exf_args( array( 'type' => 'date', 'class' => 'reg-if-married', 'required' => true ) ) );
 					exf_form_field( 'separation_date', __( 'Date you separated', 'exfiles' ), $exf_args( array( 'type' => 'date', 'note' => __( "Leave blank if you haven't separated yet.", 'exfiles' ) ) ) );
 					?>
 				</div>
@@ -214,8 +214,8 @@ get_header();
 							$exf_f( 'terms_label' ) ? $exf_f( 'terms_label' ) : (
 								$exf_privacy
 									/* translators: %s: privacy policy URL */
-									? sprintf( __( 'I agree to the terms of business and the <a href="%s" target="_blank">privacy notice</a>.', 'exfiles' ), esc_url( $exf_privacy ) )
-									: __( 'I agree to the terms of business and the privacy notice.', 'exfiles' )
+									? sprintf( __( 'I confirm that the details I’ve given are accurate, and I have read the <a href="%s" target="_blank">privacy notice</a>.', 'exfiles' ), esc_url( $exf_privacy ) )
+									: __( 'I confirm that the details I’ve given are accurate, and I have read the privacy notice.', 'exfiles' )
 							),
 							array( 'a' => array( 'href' => array(), 'target' => array() ) )
 						);

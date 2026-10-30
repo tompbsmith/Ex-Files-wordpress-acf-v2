@@ -167,6 +167,13 @@ function exf_basket_route( $service ) {
 		exf_basket_route_order( absint( $_GET['order'] ) );
 		return;
 	}
+	if ( isset( $_GET['resume'] ) ) {
+		// The link in the "you didn't finish booking" reminder.
+		$ok     = exf_basket_resume( sanitize_text_field( wp_unslash( $_GET['resume'] ) ) );
+		$basket = exf_basket_get();
+		wp_safe_redirect( $ok && exf_basket_service( $basket ) ? add_query_arg( 'service', (int) $basket['service'], exf_page_url( 'buy' ) ) : exf_page_url( 'choose_service' ) );
+		exit;
+	}
 	// phpcs:enable
 
 	if ( 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) && isset( $_POST['exf_basket'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
@@ -233,7 +240,8 @@ function exf_handle_basket( array $post ) {
 	}
 	$slot    = absint( $post['slot'] ?? 0 );
 	$addon   = $service['addon'] && ! empty( $post['addon'] );
-	$consent = $service['immediate'] && ! empty( $post['immediate_consent'] );
+	$choices = exf_checkout_choices( $post );
+	$consent = exf_service_has_cooling_off( $service ) && $choices['consent'];
 	$errors  = array();
 
 	if ( $service['booking'] && ! $slot ) {
@@ -241,8 +249,10 @@ function exf_handle_basket( array $post ) {
 	} elseif ( $service['booking'] && ! exf_slot_is_free( $slot, $service['minutes'] ) ) {
 		$errors['slot'] = __( 'Sorry, that time has just been taken. Please choose another.', 'exfiles' );
 	}
-	if ( $service['immediate'] && ! $consent ) {
-		$errors['immediate_consent'] = __( 'Please tick to confirm, so we can start work straight away.', 'exfiles' );
+	if ( ! isset( $errors['slot'] ) ) {
+		$errors += exf_checkout_check( $service, $choices, $service['booking'] ? $slot : 0 );
+	} else {
+		$errors += array_diff_key( exf_checkout_check( $service, $choices, 0 ), array( 'slot' => 1 ) );
 	}
 	if ( ! $service['free'] && ! exf_stripe_ready() ) {
 		$errors['_form'] = __( "Online payment isn't set up yet. Please contact us to book.", 'exfiles' );
@@ -259,6 +269,9 @@ function exf_handle_basket( array $post ) {
 			'slot'    => $service['booking'] ? $slot : 0,
 			'addon'   => $addon,
 			'consent' => $consent,
+			'terms'   => $choices['terms'],
+			// Only for visitors who haven't given their details yet (see terms.php).
+			'no_reminders' => isset( $post['exf_reminder_shown'] ) ? $choices['no_reminders'] : ! empty( $basket['no_reminders'] ),
 			// Details already given in this browser carry over, whatever the service.
 			'user_id' => (int) ( $basket['user_id'] ?? 0 ),
 			'ex_file' => (int) ( $basket['ex_file'] ?? 0 ),
@@ -296,6 +309,7 @@ function exf_basket_checkout( array $basket ) {
 		array(
 			'addon'   => ! empty( $basket['addon'] ),
 			'consent' => ! empty( $basket['consent'] ),
+			'terms'   => ! empty( $basket['terms'] ),
 		)
 	);
 	if ( isset( $result['errors'] ) ) {

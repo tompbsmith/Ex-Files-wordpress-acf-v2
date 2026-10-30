@@ -65,6 +65,10 @@ function exf_order_report_due( $order_id ) {
 	} else {
 		$base = $paid;
 	}
+	// Without an early start, work begins once the 14-day cancellation period ends.
+	if ( function_exists( 'exf_order_cooling_off_end' ) ) {
+		$base = max( $base, exf_order_cooling_off_end( $order_id ) );
+	}
 	return $base + $service['report_days'] * DAY_IN_SECONDS;
 }
 

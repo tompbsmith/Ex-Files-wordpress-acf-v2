@@ -162,11 +162,11 @@
         },
         {
             "key": "field_exf_pc_cancel_immediate",
-            "label": "Cancellations: services that start straight away",
+            "label": "Checkout: under the early-start box",
             "name": "cancel_immediate",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "Added for services with “Work starts straight away” ticked. {service} is replaced with the service name. Leave empty to use the default.",
+            "instructions": "What starting early means for cancelling. {service} is replaced with the service name. Leave blank for the default.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -182,11 +182,71 @@
         },
         {
             "key": "field_exf_pc_immediate_consent",
-            "label": "Cancellations: tick-box for services that start straight away",
+            "label": "Checkout: early-start box",
             "name": "immediate_consent",
             "aria-label": "",
             "type": "textarea",
-            "instructions": "The client must tick this to buy a service that starts straight away. Leave empty to use the default.",
+            "instructions": "The optional box asking to start within the 14-day cancellation period. Leave blank for the default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "I ask The Ex Files to begin work straight away, and I understand how this affects my right to cancel.",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_terms_accept",
+            "label": "Checkout: Terms of Business tick",
+            "name": "terms_accept",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "The required tick under the Terms of Business scroll box. {email} is replaced with the contact email. Leave blank for the default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "I ask The Ex Files to begin work straight away, and I understand how this affects my right to cancel.",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_reminder_notice",
+            "label": "Checkout: reminder email notice",
+            "name": "reminder_notice",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "Shown to new visitors at checkout. Leave blank for the default.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "I ask The Ex Files to begin work straight away, and I understand how this affects my right to cancel.",
+            "maxlength": "",
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_pc_reminder_optout",
+            "label": "Checkout: reminder opt-out box",
+            "name": "reminder_optout",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "The unticked box for people who don't want a reminder. Leave blank for the default.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -319,5 +379,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792455407
+    "modified": 1793363486
 }

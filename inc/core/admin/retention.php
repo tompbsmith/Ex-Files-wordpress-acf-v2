@@ -193,6 +193,55 @@ add_action(
 	}
 );
 
+/**
+ * Conflict Register entries due for review: added (or last reviewed) longer ago
+ * than the retention period. The privacy policy says entries are reviewed every
+ * 6 years and kept only while there's still a confidentiality or conflict risk.
+ *
+ * @return array[] [ id, last ] oldest first.
+ */
+function exf_conflict_records_due() {
+	$years = exf_retention_years();
+	if ( ! $years ) {
+		return array();
+	}
+	$cutoff = strtotime( '-' . $years . ' years' );
+	$ids    = get_posts(
+		array(
+			'post_type'      => 'conflict_record',
+			'post_status'    => 'any',
+			'posts_per_page' => 500,
+			'fields'         => 'ids',
+			'orderby'        => 'date',
+			'order'          => 'ASC',
+			'date_query'     => array(
+				array(
+					'before' => gmdate( 'Y-m-d H:i:s', $cutoff ),
+					'column' => 'post_date_gmt',
+				),
+			),
+		)
+	);
+	$out = array();
+	foreach ( $ids as $id ) {
+		$last = max( (int) get_post_timestamp( $id ), (int) get_post_meta( $id, 'reviewed_at', true ) );
+		if ( $last < $cutoff ) {
+			$out[] = array(
+				'id'   => (int) $id,
+				'last' => $last,
+			);
+		}
+	}
+	return $out;
+}
+
+/**
+ * How many things the Retention review page needs looking at (for the menu badge).
+ */
+function exf_retention_due_count() {
+	return count( exf_matters_past_retention() ) + count( exf_conflict_records_due() );
+}
+
 /* -------------------------------------------------------------------------
  * Admin page
  * ---------------------------------------------------------------------- */
@@ -210,7 +259,7 @@ add_action(
 add_action(
 	'exf_daily_cleanup',
 	function () {
-		set_transient( 'exf_retention_due', count( exf_matters_past_retention() ), 2 * DAY_IN_SECONDS );
+		set_transient( 'exf_retention_due', exf_retention_due_count(), 2 * DAY_IN_SECONDS );
 	}
 );
 
@@ -223,7 +272,10 @@ function exf_retention_page() {
 	}
 	$years   = exf_retention_years();
 	$matters = exf_matters_past_retention();
-	set_transient( 'exf_retention_due', count( $matters ), 2 * DAY_IN_SECONDS );
+	$records = exf_conflict_records_due();
+	set_transient( 'exf_retention_due', count( $matters ) + count( $records ), 2 * DAY_IN_SECONDS );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$reviewed = isset( $_GET['reviewed'] ) ? sanitize_text_field( wp_unslash( $_GET['reviewed'] ) ) : '';
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$done = isset( $_GET['deleted'] ) ? absint( $_GET['deleted'] ) : -1;
 	?>
@@ -270,9 +322,80 @@ function exf_retention_page() {
 		<?php elseif ( $years ) : ?>
 			<p><strong><?php esc_html_e( 'Nothing is past the retention period.', 'exfiles' ); ?></strong></p>
 		<?php endif; ?>
+
+		<h2 style="margin-top:36px"><?php esc_html_e( 'Conflict Register', 'exfiles' ); ?></h2>
+		<?php if ( '' !== $reviewed ) : ?>
+			<div class="notice notice-success"><p><?php echo esc_html( $reviewed ); ?></p></div>
+		<?php endif; ?>
+		<p>
+			<?php
+			echo $years
+				/* translators: %d: years */
+				? esc_html( sprintf( __( 'Entries added or last reviewed %d or more years ago. Keep an entry only while there is still a confidentiality or conflict risk: choose Keep to mark it reviewed today (it comes back here in another %d years), or delete it.', 'exfiles' ), $years, $years ) )
+				: esc_html__( 'The retention period is set to 0 (keep forever), so nothing is listed.', 'exfiles' );
+			?>
+		</p>
+		<?php if ( $records ) : ?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<?php wp_nonce_field( 'exf_conflict_review' ); ?>
+				<input type="hidden" name="action" value="exf_conflict_review">
+				<table class="widefat striped">
+					<thead><tr><td class="check-column"><input type="checkbox" onclick="document.querySelectorAll('.exf-cr').forEach(c=>c.checked=this.checked)"></td><th><?php esc_html_e( 'Name', 'exfiles' ); ?></th><th><?php esc_html_e( 'Role', 'exfiles' ); ?></th><th><?php esc_html_e( 'Source', 'exfiles' ); ?></th><th><?php esc_html_e( 'Added or last reviewed', 'exfiles' ); ?></th></tr></thead>
+					<tbody>
+						<?php $exf_roles = exf_conflict_record_roles(); ?>
+						<?php foreach ( $records as $r ) : ?>
+							<tr>
+								<th class="check-column"><input type="checkbox" class="exf-cr" name="records[]" value="<?php echo (int) $r['id']; ?>"></th>
+								<td><a href="<?php echo esc_url( get_edit_post_link( $r['id'] ) ); ?>"><?php echo esc_html( get_the_title( $r['id'] ) ); ?></a></td>
+								<td><?php echo esc_html( $exf_roles[ (string) get_post_meta( $r['id'], 'record_role', true ) ] ?? $exf_roles['former_client'] ); ?></td>
+								<td><?php echo esc_html( (string) get_post_meta( $r['id'], 'source', true ) ); ?></td>
+								<td><?php echo esc_html( wp_date( 'j M Y', $r['last'] ) ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+				<p>
+					<button type="submit" name="do" value="keep" class="button button-primary"><?php esc_html_e( 'Keep selected (reviewed today)', 'exfiles' ); ?></button>
+					<button type="submit" name="do" value="delete" class="button" onclick="return confirm('<?php echo esc_js( __( 'Permanently delete the selected Conflict Register entries? Future conflict checks will no longer find them.', 'exfiles' ) ); ?>')"><?php esc_html_e( 'Delete selected permanently', 'exfiles' ); ?></button>
+				</p>
+			</form>
+		<?php elseif ( $years ) : ?>
+			<p><strong><?php esc_html_e( 'No Conflict Register entries are due for review.', 'exfiles' ); ?></strong></p>
+		<?php endif; ?>
 	</div>
 	<?php
 }
+
+add_action(
+	'admin_post_exf_conflict_review',
+	function () {
+		check_admin_referer( 'exf_conflict_review' );
+		if ( ! exf_user_can_manage() ) {
+			wp_die( '', '', array( 'response' => 403 ) );
+		}
+		$due   = wp_list_pluck( exf_conflict_records_due(), 'id' );
+		$asked = array_intersect( array_map( 'absint', (array) ( $_POST['records'] ?? array() ) ), $due );
+		$do    = isset( $_POST['do'] ) && 'delete' === $_POST['do'] ? 'delete' : 'keep';
+		foreach ( $asked as $id ) {
+			if ( 'delete' === $do ) {
+				wp_delete_post( $id, true );
+			} else {
+				update_post_meta( $id, 'reviewed_at', time() );
+			}
+		}
+		if ( $asked && function_exists( 'exf_audit' ) ) {
+			exf_audit( 'conflict_review', sprintf( 'Conflict Register review: %d %s.', count( $asked ), 'delete' === $do ? 'deleted' : 'kept (marked reviewed)' ) );
+		}
+		delete_transient( 'exf_retention_due' );
+		$msg = 'delete' === $do
+			/* translators: %d: number */
+			? sprintf( _n( '%d entry deleted.', '%d entries deleted.', count( $asked ), 'exfiles' ), count( $asked ) )
+			/* translators: %d: number */
+			: sprintf( _n( '%d entry kept and marked reviewed today.', '%d entries kept and marked reviewed today.', count( $asked ), 'exfiles' ), count( $asked ) );
+		wp_safe_redirect( add_query_arg( 'reviewed', rawurlencode( $msg ), admin_url( 'edit.php?post_type=ex_file&page=exf-retention' ) ) );
+		exit;
+	}
+);
 
 add_action(
 	'admin_post_exf_retention_delete',

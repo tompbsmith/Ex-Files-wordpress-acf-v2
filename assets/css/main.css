@@ -86,6 +86,12 @@
   }
   nav.links a.active{border-bottom:1.5px solid var(--brown-dark);}
   nav.links a:hover{opacity:.7;}
+  nav.links a.nav-button{
+    background:var(--brown-btn); color:var(--white);
+    padding:9px 18px; border-radius:999px; border-bottom:none;
+  }
+  nav.links a.nav-button:hover{opacity:1; background:#3f331f;}
+  nav.links a.nav-button.active{border-bottom:none; box-shadow:0 0 0 2px var(--cream), 0 0 0 3.5px var(--brown-btn);}
   .nav-cta{display:none;}
   .burger{display:none; background:none; border:none; cursor:pointer; padding:6px;}
   .burger span{display:block; width:24px; height:2px; background:var(--brown-dark); margin:5px 0;}
@@ -437,6 +443,24 @@ section[id]{scroll-margin-top:70px;}
 .slot input:focus-visible + span{outline:2px solid var(--brown-mid); outline-offset:2px;}
 .buy-summary{border-top:1px solid rgba(49,25,15,.15); padding-top:20px;}
 .buy-terms .field-note{margin-bottom:14px;}
+.slot.is-disabled span{opacity:.4; cursor:not-allowed; text-decoration:line-through;}
+/* Terms of Business at checkout: read in a scroll box, then ticked. */
+.tob-scroll{max-height:320px; overflow:auto; padding:18px 20px; background:var(--white); border:1px solid rgba(49,25,15,.25); border-radius:8px; font-size:14px; line-height:1.55;}
+.tob-scroll h2{font-size:18px; margin:1.4em 0 .5em;}
+.tob-scroll h2:first-child{margin-top:0;}
+.tob-scroll p{font-size:14px;}
+.tob-scroll p + p{margin-top:.6em;}
+.tob-scroll .legal-print{display:none;}
+.tob-scroll:focus-visible{outline:2px solid var(--brown-mid); outline-offset:2px;}
+.buy-tob .field-note{margin:10px 0 0;}
+.buy-reminder{margin-top:18px;}
+/* Printing (or saving as PDF) a page such as the Terms of Business: just the text. */
+@media print{
+  header, footer, nav, .no-print, .legal-print, #wpadminbar{display:none !important;}
+  body{background:#fff; color:#000;}
+  .entry{max-width:none;}
+  a{text-decoration:none;}
+}
 .account-orders{margin:16px 0 0; padding-left:18px; font-size:15px;}
 .account-orders li{margin-bottom:6px;}
 .account-new-sep{margin-top:24px; font-size:15px;}

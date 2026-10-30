@@ -214,8 +214,10 @@ function exf_appointment_send( $order_id, $key, array $vars, $ics, $client ) {
 	if ( $client && $user ) {
 		exf_send_email_with_ics( $key, $user->user_email, $vars, $ics );
 	}
-	// Always to you, so the event in your calendar updates too.
-	exf_send_email_with_ics( 'admin_appointment_changed', exf_notify_emails(), $vars + array( 'what' => 'appointment_moved' === $key ? __( 'moved', 'exfiles' ) : __( 'cancelled', 'exfiles' ) ), $ics );
+	// Always to you, so the event in your calendar updates too (unless the site keeps
+	// your Outlook calendar up to date itself, teams.php).
+	$own = function_exists( 'exf_outlook_has_event' ) && exf_outlook_has_event( $order_id );
+	exf_send_email_with_ics( 'admin_appointment_changed', exf_notify_emails(), $vars + array( 'what' => 'appointment_moved' === $key ? __( 'moved', 'exfiles' ) : __( 'cancelled', 'exfiles' ) ), $own ? '' : $ics );
 }
 
 add_action(

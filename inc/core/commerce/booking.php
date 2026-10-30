@@ -227,6 +227,10 @@ function exf_slot_is_free( $start, $minutes, $ignore_order = 0 ) {
  */
 function exf_busy_periods( $from, $to, $ignore = 0, $calendar = true ) {
 	$busy = $calendar ? exf_calendar_busy( $from, $to ) : array();
+	// Her Outlook calendar, when Microsoft 365 is connected (teams.php).
+	if ( $calendar && function_exists( 'exf_outlook_busy' ) ) {
+		$busy = array_merge( $busy, exf_outlook_busy( $from, $to, $ignore ) );
+	}
 
 	$orders = get_posts(
 		array(
@@ -469,8 +473,15 @@ function exf_booking_ics( $order_id, $method = 'REQUEST', $start = 0, $end = 0 )
  * @param int    $minutes  Length.
  * @param int    $selected Chosen start, or 0.
  * @param string $error    Error message, or ''.
+ * @param int    $early_before Times before this are in the cancellation period (0: none).
  */
-function exf_render_slot_picker( $slots, $minutes, $selected = 0, $error = '' ) {
+function exf_render_slot_picker( $slots, $minutes, $selected = 0, $error = '', $early_before = 0 ) {
+	$early_count = 0;
+	foreach ( (array) $slots as $exf_day_times ) {
+		foreach ( $exf_day_times as $exf_t ) {
+			$early_count += $early_before && $exf_t < $early_before ? 1 : 0;
+		}
+	}
 	?>
 				<fieldset class="buy-step slot-picker" data-slot-picker>
 					<legend class="gq-label">
@@ -482,6 +493,14 @@ function exf_render_slot_picker( $slots, $minutes, $selected = 0, $error = '' ) 
 					<?php if ( ! $slots ) : ?>
 						<p><?php esc_html_e( 'Sorry, there are no times available online at the moment. Please contact us and we’ll find a time.', 'exfiles' ); ?></p>
 					<?php else : ?>
+						<?php if ( $early_count ) : ?>
+							<p class="field-note" data-early-note>
+								<?php
+								/* translators: %s: date */
+								echo esc_html( sprintf( __( 'Times before %s are within your 14-day cancellation period, so you can only choose them if you ask us to start early (above).', 'exfiles' ), wp_date( 'l j F', $early_before ) ) );
+								?>
+							</p>
+						<?php endif; ?>
 						<div class="slot-days">
 							<?php $exf_n = 0; ?>
 							<?php foreach ( $slots as $exf_times ) : ?>
@@ -494,7 +513,7 @@ function exf_render_slot_picker( $slots, $minutes, $selected = 0, $error = '' ) 
 									</span></summary>
 									<div class="slot-times">
 										<?php foreach ( $exf_times as $exf_t ) : ?>
-											<label class="slot"><input type="radio" name="slot" value="<?php echo (int) $exf_t; ?>" <?php checked( (int) $selected, $exf_t ); ?>><span><?php echo esc_html( wp_date( 'g:ia', $exf_t ) ); ?></span></label>
+											<label class="slot"><input type="radio" name="slot" value="<?php echo (int) $exf_t; ?>" <?php checked( (int) $selected, $exf_t ); ?><?php echo $early_before && $exf_t < $early_before ? ' data-early' : ''; ?>><span><?php echo esc_html( wp_date( 'g:ia', $exf_t ) ); ?></span></label>
 										<?php endforeach; ?>
 									</div>
 								</details>

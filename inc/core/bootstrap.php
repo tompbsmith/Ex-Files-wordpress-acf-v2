@@ -54,6 +54,7 @@ require EXF_CORE_DIR . '/commerce/stripe.php';
 require EXF_CORE_DIR . '/commerce/orders.php';
 require EXF_CORE_DIR . '/commerce/buy.php';
 require EXF_CORE_DIR . '/commerce/basket.php';
+require EXF_CORE_DIR . '/commerce/terms.php';
 require EXF_CORE_DIR . '/commerce/consult.php';
 require EXF_CORE_DIR . '/commerce/teams.php';
 
