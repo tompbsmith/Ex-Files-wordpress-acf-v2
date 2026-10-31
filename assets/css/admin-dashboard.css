@@ -9,12 +9,12 @@ body.index-php #wpcontent, body.index-php #wpbody, body.index-php #wpbody-conten
 body.index-php #wpbody-content{font-family:'Jost',sans-serif; color:var(--brown-dark);}
 body.index-php #wpbody-content .wrap{max-width:1100px; margin:0 32px 0 12px;}
 
-/* WordPress's "Dashboard" heading becomes a small label; the greeting below is the visual title. */
-body.index-php .wrap > h1{font-family:'Jost',sans-serif; font-size:13px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); padding:0; margin:6px 0 10px;}
+/* WordPress's "Dashboard" heading is kept for screen readers; the greeting above is the visual title. */
+body.index-php .wrap > h1{position:absolute !important; width:1px; height:1px; overflow:hidden; clip:rect(1px,1px,1px,1px); white-space:nowrap; padding:0; margin:0;}
 
 /* Welcome header */
 .exf-dash-hero{
-  max-width:1100px; margin:28px 32px 8px 12px; padding:34px 38px;
+  clear:both; box-sizing:border-box; max-width:1100px; margin:8px 32px 18px 12px; padding:34px 38px;
   background:var(--brown-dark); color:var(--cream); border-radius:18px;
   display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:22px 32px;
   font-family:'Jost',sans-serif;
