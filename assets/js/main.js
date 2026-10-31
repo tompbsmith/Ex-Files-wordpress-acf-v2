@@ -11,7 +11,19 @@
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
     burger.addEventListener('click', function () {
-      setOpen(!navLinks.classList.contains('open'));
+      var opening = !navLinks.classList.contains('open');
+      setOpen(opening);
+      // Take keyboard users straight into the menu (it sits before the button in the page).
+      if (opening && window.matchMedia('(max-width: 880px)').matches) {
+        var first = navLinks.querySelector('a');
+        if (first) { setTimeout(function () { first.focus(); }, 30); }
+      }
+    });
+    // If focus leaves the menu and its button (e.g. tabbing on), close the menu so focus is never hidden behind it.
+    document.addEventListener('focusin', function (e) {
+      if (navLinks.classList.contains('open') && !navLinks.contains(e.target) && e.target !== burger) {
+        setOpen(false);
+      }
     });
     navLinks.querySelectorAll('a').forEach(function (a) {
       a.addEventListener('click', function () { setOpen(false); });

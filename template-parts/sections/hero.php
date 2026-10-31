@@ -34,9 +34,6 @@ $exf_buttons   = get_sub_field( 'buttons' );
 		<?php endif; ?>
 	</div>
 	<div class="hero-overlay" aria-hidden="true"></div>
-	<?php if ( $exf_video_desktop || $exf_video_mobile ) : ?>
-		<button type="button" class="hero-pause" aria-pressed="false" hidden data-pause="<?php esc_attr_e( 'Pause video', 'exfiles' ); ?>" data-play="<?php esc_attr_e( 'Play video', 'exfiles' ); ?>"><span class="ico" aria-hidden="true"></span><span class="label"><?php esc_html_e( 'Pause video', 'exfiles' ); ?></span></button>
-	<?php endif; ?>
 	<div class="wrap">
 		<?php if ( $exf_eyebrow ) : ?>
 			<p class="eyebrow"><?php echo esc_html( $exf_eyebrow ); ?></p>
@@ -61,4 +58,7 @@ $exf_buttons   = get_sub_field( 'buttons' );
 			</div>
 		<?php endif; ?>
 	</div>
+	<?php if ( $exf_video_desktop || $exf_video_mobile ) : ?>
+		<button type="button" class="hero-pause" aria-pressed="false" hidden data-pause="<?php esc_attr_e( 'Pause video', 'exfiles' ); ?>" data-play="<?php esc_attr_e( 'Play video', 'exfiles' ); ?>"><span class="ico" aria-hidden="true"></span><span class="label"><?php esc_html_e( 'Pause video', 'exfiles' ); ?></span></button>
+	<?php endif; ?>
 </section>
