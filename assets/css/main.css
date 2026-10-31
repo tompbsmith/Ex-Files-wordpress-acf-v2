@@ -750,7 +750,11 @@ summary.link-button::-webkit-details-marker{display:none;}
 .service-list-text.is-open{display:block; -webkit-line-clamp:unset;}
 .service-list-text p{font-size:15px; line-height:1.6;}
 .service-list-more{margin-top:10px; background:none; border:0; padding:0; font:inherit; font-size:15px; text-decoration:underline; color:var(--brown-dark); cursor:pointer;}
-.service-list-link{margin-top:22px;}
+.service-list-card{display:flex; flex-direction:column;}
+.service-list-card > *{align-self:flex-start; width:100%;}
+.service-list-card > .service-list-more{width:auto;}
+/* The buttons line up across the row, whether or not a card has "Show more". */
+.service-list-link{margin-top:auto; padding-top:22px;}
 .service-list-link .btn{font-size:17px; padding:11px 22px;}
 
 /* ----- Service enquiry form ----- */
