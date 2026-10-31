@@ -154,6 +154,15 @@ add_filter(
 add_filter(
 	'wp_robots',
 	function ( $robots ) {
+		// The basket and internal test/preview pages are never listed.
+		$always = is_page_template( array( 'page-buy.php', 'page-questionnaire-preview.php' ) )
+			|| ( is_page() && in_array( get_queried_object_id(), array( (int) get_option( 'exf_section_test_page' ), (int) get_option( 'exf_questionnaire_preview_page' ) ), true ) );
+		if ( $always ) {
+			$robots['noindex']  = true;
+			$robots['nofollow'] = true;
+			unset( $robots['max-image-preview'] );
+			return $robots;
+		}
 		$id = exf_seo_enabled() ? exf_seo_post_id() : 0;
 		if ( $id && get_field( 'seo_noindex', $id ) ) {
 			$robots['noindex']  = true;
