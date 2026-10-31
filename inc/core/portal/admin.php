@@ -120,7 +120,13 @@ add_action(
 	999
 );
 remove_action( 'welcome_panel', 'wp_welcome_panel' );
-add_filter( 'get_user_option_screen_layout_dashboard', fn() => 1 ); // one full-width column
+// One full-width column for The Ex Files box.
+add_action(
+	'admin_head-index.php',
+	function () {
+		echo '<style>#dashboard-widgets .postbox-container{width:100% !important;float:none}#dashboard-widgets #postbox-container-1{max-width:1100px}#dashboard-widgets .postbox-container:not(#postbox-container-1){display:none}</style>';
+	}
+);
 
 /**
  * Upcoming appointments across all clients.
