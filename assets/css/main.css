@@ -170,7 +170,7 @@
     padding:44px;
     box-shadow:0 18px 40px rgba(49,25,15,.22);
   }
-  .guide-card h3{font-size:26px; line-height:1.15; margin-bottom:16px;}
+  .guide-card h3, .guide-card .guide-card-heading{font-size:26px; line-height:1.15; margin-bottom:16px;}
   .guide-card p{margin:0 0 26px;}
   .btn.btn-block{display:block; width:100%; margin:0 auto; text-align:center;}
 

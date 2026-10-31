@@ -25,7 +25,8 @@ $exf_card_button  = get_sub_field( 'card_button' );
 		<?php if ( $exf_card_heading || $exf_card_text || ! empty( $exf_card_button['url'] ) ) : ?>
 			<div class="guide-card">
 				<?php if ( $exf_card_heading ) : ?>
-					<h3><?php echo esc_html( $exf_card_heading ); ?></h3>
+					<?php $exf_ctag = ( isset( $exf_htag ) && 'h1' === $exf_htag ) ? 'h2' : 'h3'; ?>
+					<<?php echo $exf_ctag; // phpcs:ignore ?> class="guide-card-heading"><?php echo esc_html( $exf_card_heading ); ?></<?php echo $exf_ctag; // phpcs:ignore ?>>
 				<?php endif; ?>
 				<?php if ( $exf_card_text ) : ?>
 					<p><?php echo exf_lines( $exf_card_text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
