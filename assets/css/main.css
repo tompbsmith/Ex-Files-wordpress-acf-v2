@@ -924,6 +924,9 @@ summary.link-button::-webkit-details-marker{display:none;}
   .guide-form-section{padding:36px 0 64px;}
   /* Cards (free guide, appointments, checkout) were 44px inside, leaving ~240px for text. */
   .guide-card{padding:28px 22px;}
+  /* Back / Next pairs: a long label ("Submit my answers") gets the room it needs, wrapping to its own row if it must. */
+  .guide-nav{flex-wrap:wrap;}
+  .guide-nav .btn{flex:1 1 auto; display:inline-flex; align-items:center; justify-content:center;}
   /* Day / month / year share the width instead of running past narrow cards. */
   .date-parts{max-width:100%;}
   .date-part{flex:1 1 4.2em; min-width:0;}
