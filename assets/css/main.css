@@ -438,12 +438,14 @@ section[id]{scroll-margin-top:70px;}
 .slot-day{border:1px solid rgba(49,25,15,.2); border-radius:8px; background:var(--white);}
 .slot-day summary{cursor:pointer; padding:12px 16px; font-size:15px; display:flex; justify-content:space-between; gap:12px;}
 .slot-count{color:var(--muted); font-size:13px;}
-.slot-times{display:flex; flex-wrap:wrap; gap:8px; padding:4px 16px 16px;}
+.slot-times{display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px; padding:4px 16px 16px;}
+.slot{display:block;}
+.slot span{display:block; text-align:center;}
 .slot input{position:absolute; opacity:0; pointer-events:none;}
-.slot span{display:inline-block; padding:8px 14px; border:1px solid rgba(49,25,15,.3); border-radius:6px; font-size:15px; cursor:pointer;}
+.slot span{padding:8px 10px; border:1px solid rgba(49,25,15,.3); border-radius:6px; font-size:15px; cursor:pointer;}
 .slot input:checked + span{background:var(--brown-btn); border-color:var(--brown-btn); color:var(--white);}
 .slot input:focus-visible + span{outline:2px solid var(--brown-mid); outline-offset:2px;}
-.buy-summary{border-top:1px solid rgba(49,25,15,.15); padding-top:20px;}
+.buy-summary{border-top:1px solid rgba(49,25,15,.15); padding-top:20px; margin-top:22px;}
 .buy-terms .field-note{margin-bottom:14px;}
 .slot.is-disabled span{opacity:.4; cursor:not-allowed; text-decoration:line-through;}
 /* Terms of Business at checkout: read in a scroll box, then ticked. */
@@ -895,6 +897,11 @@ summary.link-button::-webkit-details-marker{display:none;}
 /* ----- Small screens: buttons and long words (visual test, 31 Oct 2026) ----- */
 /* A button straight after a list of services needs a gap (it was touching the card). */
 .portal-list + p{margin-top:18px;}
+/* Content straight after a page heading, and a message above one, need room (they were touching). */
+.portal-head + :is(.portal-files, .portal-list, .portal-table){margin-top:28px;}
+.portal-main > .notice-box:first-child{margin-top:0; margin-bottom:24px;}
+/* No extra space under the last line of a card. */
+.guide-card > :last-child, .guide-card > :last-child > p:last-child{margin-bottom:0;}
 /* Questionnaire key: each dot stays with its words. */
 .q-key-item{display:inline-flex; align-items:center; white-space:nowrap; margin-right:8px;}
 .q-progress .q-progress-key .q-key-item .k{margin:0 6px 0 0;}
