@@ -1,9 +1,9 @@
 @use "../_admin.scss" with (
 	$scheme-name: "exfiles",
 	$text-color: #f1e9de,
-	$base-color: #31190f,
+	$base-color: #5a4e38,
 	$icon-color: #d9cbb6,
-	$highlight-color: #5a4e38,
+	$highlight-color: #3f331f,
 	$notification-color: #b19a7a,
 	$body-background: #f1e9de,
 	$link: #5b4a34,
@@ -11,7 +11,7 @@
 	$button-color: #5a4e38,
 	$form-checked: #5a4e38,
 	$menu-submenu-text: #e3d6c3,
-	$menu-submenu-background: #24120a,
-	$menu-submenu-focus-text: #d9c3a3,
+	$menu-submenu-background: #4a3f2c,
+	$menu-submenu-focus-text: #ecdcc2,
 	$menu-bubble-text: #31190f
 );

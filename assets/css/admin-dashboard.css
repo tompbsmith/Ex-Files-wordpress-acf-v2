@@ -15,7 +15,7 @@ body.index-php .wrap > h1{position:absolute !important; width:1px; height:1px; o
 /* Welcome header */
 .exf-dash-hero{
   clear:both; box-sizing:border-box; max-width:1100px; margin:8px 32px 18px 12px; padding:34px 38px;
-  background:var(--brown-dark); color:var(--cream); border-radius:18px;
+  background:var(--brown-btn); color:var(--cream); border-radius:18px;
   display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:22px 32px;
   font-family:'Jost',sans-serif;
 }
@@ -28,7 +28,7 @@ body.index-php .wrap > h1{position:absolute !important; width:1px; height:1px; o
   color:var(--cream); text-decoration:none; font-family:'Petrona',serif; font-size:16px; line-height:1.2;
   transition:background .15s ease, color .15s ease;
 }
-.exf-dash-btn:hover, .exf-dash-btn:focus{background:var(--cream); color:var(--brown-dark);}
+.exf-dash-btn:hover, .exf-dash-btn:focus{background:var(--cream); color:var(--brown-btn);}
 .exf-dash-btn:focus-visible{outline:2px solid var(--cream); outline-offset:3px; box-shadow:none;}
 
 /* One full-width card */

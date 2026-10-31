@@ -16,7 +16,7 @@ add_action(
 			'exfiles',
 			__( 'The Ex Files', 'exfiles' ),
 			EXF_URI . '/assets/css/admin/colors.css?ver=' . EXF_VERSION,
-			array( '#31190f', '#5a4e38', '#b19a7a', '#f1e9de' ),
+			array( '#5a4e38', '#3f331f', '#b19a7a', '#f1e9de' ),
 			array(
 				'base'    => '#d9cbb6',
 				'focus'   => '#f1e9de',

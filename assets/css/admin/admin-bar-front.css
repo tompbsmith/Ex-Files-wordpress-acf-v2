@@ -1,10 +1,10 @@
 /* The admin bar on the website (logged-in staff), in the site's dark brown to match wp-admin. */
-#wpadminbar{background:#31190f;}
+#wpadminbar{background:#5a4e38;}
 #wpadminbar .ab-item, #wpadminbar a.ab-item, #wpadminbar > #wp-toolbar span.ab-label, #wpadminbar > #wp-toolbar span.noticon,
 #wpadminbar .ab-icon:before, #wpadminbar .ab-item:before, #wpadminbar .ab-item:after{color:#f1e9de;}
-#wpadminbar .menupop .ab-sub-wrapper, #wpadminbar .shortlink-input{background:#24120a;}
+#wpadminbar .menupop .ab-sub-wrapper, #wpadminbar .shortlink-input{background:#4a3f2c;}
 #wpadminbar .quicklinks .menupop ul li a, #wpadminbar .quicklinks .menupop ul li .ab-item{color:#e3d6c3;}
 #wpadminbar .ab-top-menu > li:hover > .ab-item, #wpadminbar .ab-top-menu > li > .ab-item:focus,
-#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus, #wpadminbar .ab-top-menu > li.hover > .ab-item{background:#24120a; color:#d9c3a3;}
+#wpadminbar.nojq .quicklinks .ab-top-menu > li > .ab-item:focus, #wpadminbar .ab-top-menu > li.hover > .ab-item{background:#4a3f2c; color:#ecdcc2;}
 #wpadminbar:not(.mobile) li:hover .ab-icon:before, #wpadminbar:not(.mobile) li:hover .ab-item:before,
-#wpadminbar .quicklinks .menupop ul li a:hover, #wpadminbar .quicklinks .menupop ul li a:focus{color:#d9c3a3;}
+#wpadminbar .quicklinks .menupop ul li a:hover, #wpadminbar .quicklinks .menupop ul li a:focus{color:#ecdcc2;}
