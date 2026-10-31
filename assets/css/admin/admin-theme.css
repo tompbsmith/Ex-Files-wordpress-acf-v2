@@ -29,17 +29,17 @@
 #screen-meta-links .show-settings{background:var(--exf-panel); border-color:var(--exf-line); color:#5a4e38;}
 
 /* Secondary buttons */
-.wp-core-ui .button, .wp-core-ui .button-secondary{
+.wp-core-ui .button:not(.button-primary), .wp-core-ui .button-secondary{
   color:#5a4e38; border-color:#5a4e38; background:var(--exf-panel);
 }
-.wp-core-ui .button:hover, .wp-core-ui .button-secondary:hover,
-.wp-core-ui .button.hover, .wp-core-ui .button-secondary.hover{
+.wp-core-ui .button:not(.button-primary):hover, .wp-core-ui .button-secondary:hover,
+.wp-core-ui .button:not(.button-primary).hover, .wp-core-ui .button-secondary.hover{
   color:#31190f; border-color:#31190f; background:#f1e9de;
 }
-.wp-core-ui .button:focus, .wp-core-ui .button-secondary:focus{
+.wp-core-ui .button:not(.button-primary):focus, .wp-core-ui .button-secondary:focus{
   color:#31190f; border-color:#31190f; box-shadow:0 0 0 1px #31190f; background:#f1e9de;
 }
-.wp-core-ui .button:active, .wp-core-ui .button-secondary:active{background:#ded4ca; border-color:#31190f;}
+.wp-core-ui .button:not(.button-primary):active, .wp-core-ui .button-secondary:active{background:#ded4ca; border-color:#31190f;}
 
 /* Form fields */
 input[type=text]:focus, input[type=search]:focus, input[type=email]:focus, input[type=url]:focus,
@@ -69,3 +69,8 @@ input[type=checkbox]:focus, input[type=radio]:focus{
 
 /* Footer text */
 #wpfooter{color:#655a49;}
+
+/* Primary buttons: the website's brown button */
+.wp-core-ui .button-primary{background:#5a4e38; border-color:#5a4e38; color:#f1e9de;}
+.wp-core-ui .button-primary:hover, .wp-core-ui .button-primary:focus{background:#3f331f; border-color:#3f331f; color:#fff;}
+.wp-core-ui .button-primary:focus{box-shadow:0 0 0 1px #f1e9de, 0 0 0 3px #3f331f;}
