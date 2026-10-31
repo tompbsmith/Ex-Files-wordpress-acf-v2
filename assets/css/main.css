@@ -895,6 +895,9 @@ summary.link-button::-webkit-details-marker{display:none;}
 /* ----- Small screens: buttons and long words (visual test, 31 Oct 2026) ----- */
 /* A button straight after a list of services needs a gap (it was touching the card). */
 .portal-list + p{margin-top:18px;}
+/* Questionnaire key: each dot stays with its words. */
+.q-key-item{display:inline-flex; align-items:center; white-space:nowrap; margin-right:8px;}
+.q-progress .q-progress-key .q-key-item .k{margin:0 6px 0 0;}
 /* Long email addresses and the like break rather than widen the page. */
 .portal-main :is(p, li, td, dd, h1, h2, h3), .notice-box p, .guide-card p{overflow-wrap:break-word;}
 @media (max-width:600px){
@@ -903,6 +906,11 @@ summary.link-button::-webkit-details-marker{display:none;}
   .guide-form-section{padding:36px 0 64px;}
   /* Cards (free guide, appointments, checkout) were 44px inside, leaving ~240px for text. */
   .guide-card{padding:28px 22px;}
+  /* Day / month / year share the width instead of running past narrow cards. */
+  .date-parts{max-width:100%;}
+  .date-part{flex:1 1 4.2em; min-width:0;}
+  .date-part--y{flex-grow:1.4;}
+  .date-part input, .pfield--date .date-part input{width:100%; min-width:0;}
 }
 @media (max-width:380px){
   .btn{font-size:17px; padding:13px 18px; letter-spacing:.02em;}

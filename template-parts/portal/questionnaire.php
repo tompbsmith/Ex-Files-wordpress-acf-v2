@@ -109,7 +109,7 @@ $exf_form_open = function ( $action ) use ( $exf_q ) {
 			<?php endforeach; ?>
 			<li class="<?php echo 'review' === $exf_view ? 'current' : ''; ?>"><a href="<?php echo esc_url( exf_q_url( $exf_q, 'review' ) ); ?>"><span>✓</span> <?php esc_html_e( 'Review and submit', 'exfiles' ); ?></a></li>
 		</ol>
-		<p class="q-progress-key" aria-hidden="true"><span class="k k--missing"></span><?php esc_html_e( 'Required answers missing', 'exfiles' ); ?> <span class="k k--partial"></span><?php esc_html_e( 'Some optional answers blank', 'exfiles' ); ?> <span class="k k--complete"></span><?php esc_html_e( 'Complete', 'exfiles' ); ?></p>
+		<p class="q-progress-key" aria-hidden="true"><span class="q-key-item"><span class="k k--missing"></span><?php esc_html_e( 'Required answers missing', 'exfiles' ); ?></span> <span class="q-key-item"><span class="k k--partial"></span><?php esc_html_e( 'Some optional answers blank', 'exfiles' ); ?></span> <span class="q-key-item"><span class="k k--complete"></span><?php esc_html_e( 'Complete', 'exfiles' ); ?></span></p>
 	</nav>
 
 	<?php if ( 'review' === $exf_view ) : ?>
