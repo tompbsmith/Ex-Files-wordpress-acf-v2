@@ -167,6 +167,12 @@ function exf_basket_route( $service ) {
 		exf_basket_route_order( absint( $_GET['order'] ) );
 		return;
 	}
+	if ( isset( $_GET['start_over'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ?? '' ) ), 'exf_start_over' ) ) {
+		// "Not you? Start again": forget the details saved in this browser (a shared computer).
+		exf_basket_clear();
+		wp_safe_redirect( $service && exf_service( $service ) ? add_query_arg( 'service', $service, exf_page_url( 'buy' ) ) : exf_page_url( 'choose_service' ) );
+		exit;
+	}
 	if ( isset( $_GET['resume'] ) ) {
 		// The link in the "you didn't finish booking" reminder.
 		$ok     = exf_basket_resume( sanitize_text_field( wp_unslash( $_GET['resume'] ) ) );

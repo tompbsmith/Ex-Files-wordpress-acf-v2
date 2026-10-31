@@ -62,7 +62,21 @@ if ( $exf_basket && ! empty( $exf_basket['error'] ) && ! $exf_errors ) {
 		</header>
 
 		<?php if ( $exf_resume ) : ?>
-			<div class="notice-box" role="status"><p><?php esc_html_e( "We've saved the details you gave us, so you can go straight to payment.", 'exfiles' ); ?></p></div>
+			<?php
+			$exf_resume_user = get_userdata( $exf_resume );
+			$exf_start_over  = wp_nonce_url( add_query_arg( array( 'service' => (int) $exf_service['id'], 'start_over' => 1 ), exf_page_url( 'buy' ) ), 'exf_start_over' );
+			?>
+			<div class="notice-box" role="status"><p>
+				<?php
+				echo esc_html(
+					$exf_resume_user
+						/* translators: %s: first name */
+						? sprintf( __( "We've saved the details you gave us, %s, so you can go straight to payment.", 'exfiles' ), $exf_resume_user->first_name )
+						: __( "We've saved the details you gave us, so you can go straight to payment.", 'exfiles' )
+				);
+				?>
+				<a href="<?php echo esc_url( $exf_start_over ); ?>"><?php esc_html_e( 'Not you? Start again', 'exfiles' ); ?></a>
+			</p></div>
 		<?php endif; ?>
 		<?php if ( isset( $exf_errors['_form'] ) ) : ?>
 			<div class="notice-box notice-box--error" role="alert"><p><?php echo esc_html( $exf_errors['_form'] ); ?></p></div>
