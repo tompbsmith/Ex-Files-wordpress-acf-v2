@@ -133,6 +133,16 @@ function exf_order_deadline_note( $order_id ) {
 		/* translators: %s: date */
 		return sprintf( __( "We'll send your written report by %s.", 'exfiles' ), wp_date( 'l j F Y', $due ) );
 	}
+	$cooling = function_exists( 'exf_order_cooling_off_end' ) ? exf_order_cooling_off_end( $order_id ) : 0;
+	if ( $cooling > time() && $service['report_days'] && exf_order_q_outstanding( $order_id ) ) {
+		// No early start: say when work starts, as the basket did.
+		return sprintf(
+			/* translators: 1: date, 2: days */
+			__( "We'll start once your cancellation period ends on %1\$s, and send your written report within %2\$d days of then (or of receiving your completed financial questionnaire, if later).", 'exfiles' ),
+			wp_date( 'l j F', $cooling ),
+			(int) $service['report_days']
+		);
+	}
 	return exf_order_q_outstanding( $order_id ) && $service['report_days'] ? exf_service_deadline_note( array_merge( $service, array( 'q_due_hours' => 0 ) ) ) : '';
 }
 
