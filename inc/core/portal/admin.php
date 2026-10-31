@@ -98,6 +98,30 @@ add_action(
 	}
 );
 
+// The dashboard shows only The Ex Files box: remove WordPress's own boxes
+// (At a Glance, Activity, Quick Draft, Events and News, Site Health) and any added by plugins.
+add_action(
+	'wp_dashboard_setup',
+	function () {
+		global $wp_meta_boxes;
+		if ( empty( $wp_meta_boxes['dashboard'] ) ) {
+			return;
+		}
+		foreach ( $wp_meta_boxes['dashboard'] as $context => $priorities ) {
+			foreach ( (array) $priorities as $priority => $boxes ) {
+				foreach ( array_keys( (array) $boxes ) as $id ) {
+					if ( 'exf_dashboard' !== $id ) {
+						remove_meta_box( $id, 'dashboard', $context );
+					}
+				}
+			}
+		}
+	},
+	999
+);
+remove_action( 'welcome_panel', 'wp_welcome_panel' );
+add_filter( 'get_user_option_screen_layout_dashboard', fn() => 1 ); // one full-width column
+
 /**
  * Upcoming appointments across all clients.
  *
