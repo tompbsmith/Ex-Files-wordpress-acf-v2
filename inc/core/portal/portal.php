@@ -182,6 +182,19 @@ function exf_portal_next_steps( $user_id ) {
 		}
 	}
 
+	// Questionnaire in: say when the written report is coming (e.g. Check Your Deal).
+	foreach ( function_exists( 'exf_order_report_due' ) ? exf_client_orders( $user_id ) : array() as $o ) {
+		$due = exf_order_is_live( $o ) && ! exf_order_completed( $o ) ? exf_order_report_due( $o ) : 0;
+		if ( $due ) {
+			$steps[] = array(
+				/* translators: 1: service, 2: date */
+				'text'  => sprintf( __( "Thank you for your questionnaire. We'll send your written report for %1\$s by %2\$s.", 'exfiles' ), get_post_meta( $o, 'service_name', true ), wp_date( 'l j F Y', $due ) ),
+				'url'   => '',
+				'label' => '',
+			);
+		}
+	}
+
 	foreach ( exf_consult_offers( $user_id ) as $o => $svc ) {
 		$prepaid = exf_consult_prepaid( $o );
 		$steps[] = array(
