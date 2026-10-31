@@ -83,7 +83,9 @@
     gsap.set(targets, { opacity: 0, y: 24 });
     // "Image and text" images glide in from their own side instead of rising.
     targets.forEach(function (el) {
-      if (el.classList.contains('split-image')) {
+      // (Side by side only: stacked on smaller screens they rise like everything else,
+      // so they never push past the edge of the screen.)
+      if (el.classList.contains('split-image') && window.matchMedia('(min-width: 881px)').matches) {
         var right = !!el.closest('.split--image-right');
         gsap.set(el, { y: 0, x: right ? 40 : -40, scale: 1.03 });
       }

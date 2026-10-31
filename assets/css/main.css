@@ -310,6 +310,8 @@ section[id]{scroll-margin-top:70px;}
 .entry article + article{margin-top:48px;}
 .entry-content > * + *{margin-top:1em;}
 .entry-content a{text-decoration:underline;}
+/* Long unbroken runs (the form's ______ lines, long links) wrap instead of widening the page. */
+.entry-content, .tob-scroll{overflow-wrap:break-word;}
 .entry-content h2{font-size:clamp(24px,2.6vw,30px); line-height:1.2;}
 .entry-content h3{font-size:20px; line-height:1.25;}
 .entry-content > h2:not(:first-child){margin-top:1.8em;}
@@ -700,7 +702,7 @@ summary.link-button::-webkit-details-marker{display:none;}
 }
 
 /* ----- Image and text ("split") ----- */
-.split{padding:100px 0;}
+.split{padding:100px 0; overflow-x:clip;}
 .split--sand{background:var(--cream-dark);}
 /* Two cream sections in a row share one gap rather than doubling it. */
 :is(.split--cream, .expertise--cream, .testimonials, .service-list) + :is(.split--cream, .expertise--cream, .testimonials, .service-list){padding-top:0;}
@@ -790,7 +792,7 @@ summary.link-button::-webkit-details-marker{display:none;}
 .pfield:focus-within{border-bottom-color:var(--cream);}
 .pfield input:focus-visible, .pfield select:focus-visible{outline:2px solid rgba(241,233,222,.6); outline-offset:3px;}
 .pfield--date .date-parts{gap:14px; margin-top:4px;}
-.pfield--date .date-part{display:flex; flex-direction:column; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:rgba(241,233,222,.6);}
+.pfield--date .date-part{display:flex; flex-direction:column; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:rgba(241,233,222,.6);}
 .pfield--date .date-part input{width:4.2em; border-bottom:1px solid rgba(241,233,222,.25); text-align:center;}
 .pfield--date .date-part--y input{width:6em;}
 .pfield.has-error{border-bottom-color:#e6a08f;}
@@ -889,3 +891,14 @@ summary.link-button::-webkit-details-marker{display:none;}
   .qp--dark .q-form{padding:30px 20px 26px;}
   .qp--dark .q-form .q-out-label{color:var(--q-soft);}
 }
+
+/* ----- Small screens: buttons and long words (visual test, 31 Oct 2026) ----- */
+/* Long email addresses and the like break rather than widen the page. */
+.portal-main :is(p, li, td, dd, h1, h2, h3), .notice-box p, .guide-card p{overflow-wrap:break-word;}
+@media (max-width:600px){
+  .btn{font-size:18px; padding:14px 22px; line-height:1.25;}
+}
+@media (max-width:380px){
+  .btn{font-size:17px; padding:13px 18px; letter-spacing:.02em;}
+}
+

@@ -65,6 +65,15 @@ get_header();
 						<li class="portal-nav-logout"><a href="<?php echo esc_url( wp_logout_url() ); ?>"><?php esc_html_e( 'Log out', 'exfiles' ); ?></a></li>
 					</ul>
 				</nav>
+				<script>
+				// On phones the menu is a sideways strip: start it with the current page in view.
+				( function () {
+					var nav = document.querySelector( '.portal-nav' ), a = nav && nav.querySelector( 'a.active' );
+					if ( a && nav.scrollWidth > nav.clientWidth ) {
+						nav.scrollLeft = Math.max( 0, a.getBoundingClientRect().left - nav.getBoundingClientRect().left - ( nav.clientWidth - a.offsetWidth ) / 2 );
+					}
+				} )();
+				</script>
 
 				<div class="portal-main">
 					<?php
