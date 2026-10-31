@@ -77,9 +77,9 @@
       var label = btn.querySelector('.label');
       btn.hidden = false;
       btn.addEventListener('click', function () {
-        var paused = btn.getAttribute('aria-pressed') !== 'true';
+        var paused = !btn.classList.contains('is-paused');
         if (paused) { video.pause(); } else { video.play(); }
-        btn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+        btn.classList.toggle('is-paused', paused);
         if (label) { label.textContent = paused ? (btn.dataset.play || 'Play video') : (btn.dataset.pause || 'Pause video'); }
       });
     }
