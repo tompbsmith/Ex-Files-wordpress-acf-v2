@@ -15,7 +15,7 @@ add_action(
 		wp_admin_css_color(
 			'exfiles',
 			__( 'The Ex Files', 'exfiles' ),
-			EXF_URI . '/assets/css/admin/colors.css?ver=' . EXF_VERSION,
+			EXF_URI . '/assets/css/admin/colors.css?v=' . (string) @filemtime( EXF_DIR . '/assets/css/admin/colors.css' ), // file time, so browsers pick up changes
 			array( '#5a4e38', '#3f331f', '#b19a7a', '#f1e9de' ),
 			array(
 				'base'    => '#d9cbb6',
