@@ -1,0 +1,71 @@
+/* The Ex Files: extra admin styling on top of the colour scheme (all admin screens).
+   Colours only: WordPress's own fonts and layout are kept. */
+:root, body.admin-color-exfiles{
+  --wp-admin-theme-color:#5a4e38;
+  --wp-admin-theme-color--rgb:90,78,56;
+  --wp-admin-theme-color-darker-10:#45392a;
+  --wp-admin-theme-color-darker-10--rgb:69,57,42;
+  --wp-admin-theme-color-darker-20:#31190f;
+  --wp-admin-theme-color-darker-20--rgb:49,25,15;
+  --exf-panel:#fbf8f3;
+  --exf-line:rgba(49,25,15,.18);
+}
+
+/* Panels, tables and cards: warm off-white instead of pure white, soft brown borders */
+.postbox, .stuffbox, .card, .widefat, .wp-list-table, .notice, div.updated, div.error,
+#screen-meta, #contextual-help-wrap, .plugin-card, .theme-browser .theme, .welcome-panel,
+.acf-postbox, .acf-box, .settings_page .form-table, .tablenav .actions select{
+  border-color:var(--exf-line);
+}
+.postbox, .stuffbox, .card, .widefat, #screen-meta, .notice, div.updated, div.error,
+.plugin-card, .acf-box, .acf-postbox .inside, .acf-fields{
+  background-color:var(--exf-panel);
+}
+.postbox .postbox-header, .widefat thead th, .widefat thead td, .widefat tfoot th, .widefat tfoot td{
+  border-color:var(--exf-line);
+}
+.striped > tbody > :nth-child(odd), ul.striped > :nth-child(odd), .alternate{background-color:#f4ede3;}
+.widefat tbody tr:hover{background-color:#efe6da;}
+#screen-meta-links .show-settings{background:var(--exf-panel); border-color:var(--exf-line); color:#5a4e38;}
+
+/* Secondary buttons */
+.wp-core-ui .button, .wp-core-ui .button-secondary{
+  color:#5a4e38; border-color:#5a4e38; background:var(--exf-panel);
+}
+.wp-core-ui .button:hover, .wp-core-ui .button-secondary:hover,
+.wp-core-ui .button.hover, .wp-core-ui .button-secondary.hover{
+  color:#31190f; border-color:#31190f; background:#f1e9de;
+}
+.wp-core-ui .button:focus, .wp-core-ui .button-secondary:focus{
+  color:#31190f; border-color:#31190f; box-shadow:0 0 0 1px #31190f; background:#f1e9de;
+}
+.wp-core-ui .button:active, .wp-core-ui .button-secondary:active{background:#ded4ca; border-color:#31190f;}
+
+/* Form fields */
+input[type=text]:focus, input[type=search]:focus, input[type=email]:focus, input[type=url]:focus,
+input[type=password]:focus, input[type=number]:focus, input[type=tel]:focus, input[type=date]:focus,
+input[type=datetime-local]:focus, input[type=time]:focus, textarea:focus, select:focus,
+input[type=checkbox]:focus, input[type=radio]:focus{
+  border-color:#5a4e38; box-shadow:0 0 0 1px #5a4e38;
+}
+.wp-core-ui select:hover{color:#31190f;}
+.wp-core-ui select:focus{border-color:#5a4e38;}
+
+/* Tabs, page-title buttons, pagination */
+.nav-tab{background:#e8dfd3; border-color:var(--exf-line); color:#31190f;}
+.nav-tab:hover, .nav-tab:focus{background:var(--exf-panel); color:#31190f;}
+.nav-tab-active, .nav-tab-active:hover, .nav-tab-active:focus{background:#f1e9de; border-bottom-color:#f1e9de;}
+.wrap .page-title-action, .wrap .add-new-h2{color:#5a4e38; border-color:#5a4e38; background:var(--exf-panel);}
+.wrap .page-title-action:hover, .wrap .add-new-h2:hover{color:#31190f; border-color:#31190f; background:#f1e9de;}
+.tablenav .tablenav-pages a{border-color:#5a4e38; color:#5a4e38; background:var(--exf-panel);}
+.tablenav .tablenav-pages a:hover, .tablenav .tablenav-pages a:focus{border-color:#31190f; color:#31190f; background:#f1e9de;}
+.subsubsub a .count, .subsubsub a.current .count{color:#655a49;}
+
+/* Notices keep their status colour on the left edge */
+.notice-success, div.updated{border-left-color:#3d6b3f;}
+.notice-error, div.error{border-left-color:#a3402c;}
+.notice-warning{border-left-color:#8f6612;}
+.notice-info{border-left-color:#5a4e38;}
+
+/* Footer text */
+#wpfooter{color:#655a49;}
