@@ -100,7 +100,7 @@ function exf_email_defaults() {
 		),
 		'admin_appointment_changed' => array(
 			'Appointment {what}: {client_name}, {service}',
-			"{client_name}'s {service} appointment has been {what}: {appointment}.\n\nThe calendar file attached updates the event in your calendar. Order details:\n{admin_link}",
+			"{client_name}'s {service} appointment has been {what}: {appointment}.\n\n{calendar_note} Order details:\n{admin_link}",
 		),
 		'admin_q_overdue' => array(
 			'Questionnaire not received: {client_name}',
@@ -195,6 +195,10 @@ function exf_email_render( $key, array $vars = array() ) {
 	}
 	$subject = (string) exf_get_option_field( $key . '_subject', EXF_EMAILS_ID, $defaults[ $key ][0] );
 	$body    = (string) exf_get_option_field( $key . '_body', EXF_EMAILS_ID, $defaults[ $key ][1] );
+	// Copy saved before {calendar_note} existed always said a calendar file was attached.
+	if ( 'admin_appointment_changed' === $key && isset( $vars['calendar_note'] ) ) {
+		$body = str_replace( 'The calendar file attached updates the event in your calendar.', '{calendar_note}', $body );
+	}
 
 	$vars += array( 'site_name' => exf_site_name() );
 	$tags  = array();

@@ -217,7 +217,18 @@ function exf_appointment_send( $order_id, $key, array $vars, $ics, $client ) {
 	// Always to you, so the event in your calendar updates too (unless the site keeps
 	// your Outlook calendar up to date itself, teams.php).
 	$own = function_exists( 'exf_outlook_has_event' ) && exf_outlook_has_event( $order_id );
-	exf_send_email_with_ics( 'admin_appointment_changed', exf_notify_emails(), $vars + array( 'what' => 'appointment_moved' === $key ? __( 'moved', 'exfiles' ) : __( 'cancelled', 'exfiles' ) ), $own ? '' : $ics );
+	$note = $own
+		? ( 'appointment_moved' === $key ? __( 'The event in your Outlook calendar has been moved, with the same Teams link.', 'exfiles' ) : __( 'The event has been removed from your Outlook calendar.', 'exfiles' ) )
+		: __( 'The calendar file attached updates the event in your calendar.', 'exfiles' );
+	exf_send_email_with_ics(
+		'admin_appointment_changed',
+		exf_notify_emails(),
+		$vars + array(
+			'what'          => 'appointment_moved' === $key ? __( 'moved', 'exfiles' ) : __( 'cancelled', 'exfiles' ),
+			'calendar_note' => $note,
+		),
+		$own ? '' : $ics
+	);
 }
 
 add_action(

@@ -882,7 +882,7 @@
             "name": "admin_appointment_changed_subject",
             "aria-label": "",
             "type": "text",
-            "instructions": "Merge tags: {client_name}, {service}, {what} (moved or cancelled), {appointment}, {admin_link}. Sent with the calendar file, so the event updates in your calendar.",
+            "instructions": "Merge tags: {client_name}, {service}, {what} (moved or cancelled), {appointment}, {calendar_note} (says whether Outlook was updated or a calendar file is attached), {admin_link}.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -1627,5 +1627,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1793363548
+    "modified": 1793454000
 }
