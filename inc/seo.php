@@ -106,11 +106,17 @@ function exf_seo_is_noindex( $id ) {
 	}
 	// Pages the theme always hides (account, basket, log-in…). The site-wide "discourage
 	// search engines" setting is left out so staging shows the same output as live.
-	$had = has_filter( 'wp_robots', 'wp_robots_no_robots' );
-	remove_filter( 'wp_robots', 'wp_robots_no_robots' );
+	$site_wide = array( 'wp_robots_noindex', 'wp_robots_no_robots' );
+	$had       = array();
+	foreach ( $site_wide as $fn ) {
+		$had[ $fn ] = has_filter( 'wp_robots', $fn );
+		remove_filter( 'wp_robots', $fn, (int) $had[ $fn ] );
+	}
 	$all = apply_filters( 'wp_robots', array() );
-	if ( false !== $had ) {
-		add_filter( 'wp_robots', 'wp_robots_no_robots', $had );
+	foreach ( $had as $fn => $priority ) {
+		if ( false !== $priority ) {
+			add_filter( 'wp_robots', $fn, $priority );
+		}
 	}
 	return ! empty( $all['noindex'] );
 }
