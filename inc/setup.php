@@ -31,6 +31,14 @@ add_action(
 	}
 );
 
+// The site is British English (WCAG 3.1.1): screen readers use this to pick the voice.
+add_filter(
+	'language_attributes',
+	function ( $output ) {
+		return str_replace( 'lang="en-US"', 'lang="en-GB"', $output );
+	}
+);
+
 add_filter(
 	'document_title_separator',
 	function () {

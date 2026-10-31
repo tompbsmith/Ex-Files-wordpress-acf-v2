@@ -14,6 +14,7 @@
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<a class="skip-link" href="#main"><?php esc_html_e( 'Skip to main content', 'exfiles' ); ?></a>
 
 <header class="site-header">
 	<div class="nav-inner">
@@ -27,4 +28,5 @@
 	</div>
 </header>
 
-<main id="top">
+<span id="top"></span>
+<main id="main" tabindex="-1">

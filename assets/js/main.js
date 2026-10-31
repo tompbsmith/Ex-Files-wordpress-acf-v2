@@ -16,6 +16,13 @@
     navLinks.querySelectorAll('a').forEach(function (a) {
       a.addEventListener('click', function () { setOpen(false); });
     });
+    // Escape closes the open menu and puts focus back on the menu button.
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && navLinks.classList.contains('open')) {
+        setOpen(false);
+        burger.focus();
+      }
+    });
   }
 
   /* ----- Hero video -----
@@ -51,6 +58,19 @@
     source.type = 'video/mp4';
     video.appendChild(source);
     video.load();
+
+    // Pause / play control (WCAG 2.2.2): the clip loops, so visitors must be able to stop it.
+    var btn = media.parentNode.querySelector('.hero-pause');
+    if (btn) {
+      var label = btn.querySelector('.label');
+      btn.hidden = false;
+      btn.addEventListener('click', function () {
+        var paused = btn.getAttribute('aria-pressed') !== 'true';
+        if (paused) { video.pause(); } else { video.play(); }
+        btn.setAttribute('aria-pressed', paused ? 'true' : 'false');
+        if (label) { label.textContent = paused ? (btn.dataset.play || 'Play video') : (btn.dataset.pause || 'Pause video'); }
+      });
+    }
   });
 
   /* ----- Contact form ----- */

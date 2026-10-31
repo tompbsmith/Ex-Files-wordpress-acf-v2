@@ -43,6 +43,15 @@ function exf_is_sections_page( $post_id ) {
 }
 
 /**
+ * Whether the section being rendered is the first on the page (so it can carry the page's H1).
+ *
+ * @return bool
+ */
+function exf_is_first_section() {
+	return 0 === ( $GLOBALS['exf_section_num'] ?? -1 );
+}
+
+/**
  * Render the flexible content sections for a page.
  *
  * @param int|null $post_id Page ID, defaults to the current page.
@@ -58,7 +67,8 @@ function exf_render_sections( $post_id = null ) {
 		return false;
 	}
 
-	$rendered = false;
+	$rendered                   = false;
+	$GLOBALS['exf_section_num'] = 0;
 	if ( have_rows( 'sections', $post_id ) ) {
 		while ( have_rows( 'sections', $post_id ) ) {
 			the_row();
@@ -69,6 +79,7 @@ function exf_render_sections( $post_id = null ) {
 			if ( locate_template( 'template-parts/sections/' . $layout . '.php' ) ) {
 				get_template_part( 'template-parts/sections/' . $layout );
 				$rendered = true;
+				++$GLOBALS['exf_section_num'];
 			}
 		}
 	}

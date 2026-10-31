@@ -15,7 +15,8 @@ $exf_card_button  = get_sub_field( 'card_button' );
 	<div class="wrap guide-grid">
 		<div>
 			<?php if ( $exf_heading ) : ?>
-				<h2><?php echo esc_html( $exf_heading ); ?></h2>
+				<?php $exf_htag = exf_is_first_section() && ! is_front_page() ? 'h1' : 'h2'; ?>
+				<<?php echo $exf_htag; // phpcs:ignore ?>><?php echo esc_html( $exf_heading ); ?></<?php echo $exf_htag; // phpcs:ignore ?>>
 			<?php endif; ?>
 			<?php if ( $exf_text ) : ?>
 				<p><?php echo exf_lines( $exf_text ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
