@@ -135,6 +135,37 @@ function exf_q_previous( $q ) {
 }
 
 /**
+ * Start "About you" with what the client told us when they created their Ex File
+ * (married or not, and the dates), so they don't type it twice. They can change it.
+ *
+ * @param int $q Questionnaire.
+ */
+function exf_q_prefill_about( $q ) {
+	$ex_file = (int) get_post_meta( $q, 'ex_file_id', true );
+	if ( ! $ex_file ) {
+		return;
+	}
+	$date  = function ( $v ) {
+		$v = preg_replace( '/\D/', '', (string) $v );
+		return 8 === strlen( $v ) ? substr( $v, 0, 4 ) . '-' . substr( $v, 4, 2 ) . '-' . substr( $v, 6, 2 ) : '';
+	};
+	$rel   = (string) get_post_meta( $ex_file, 'relationship', true );
+	$about = array_filter(
+		array(
+			'married'         => '' === $rel ? '' : ( function_exists( 'exf_relationship_is_married' ) && exf_relationship_is_married( $rel ) ? 'Yes' : 'No' ),
+			'marriage_date'   => $date( get_post_meta( $ex_file, 'marriage_date', true ) ),
+			'separation_date' => $date( get_post_meta( $ex_file, 'separation_date', true ) ),
+		)
+	);
+	if ( ! $about ) {
+		return;
+	}
+	$data          = exf_q_data( $q );
+	$data['about'] = exf_q_clean_section( 'about', array_merge( $about, (array) ( $data['about'] ?? array() ) ), $data );
+	update_post_meta( $q, 'q_data', $data );
+}
+
+/**
  * Handle the start screen: begin afresh or from the last answers.
  *
  * @param int   $q    Questionnaire.
@@ -150,6 +181,7 @@ function exf_q_handle_start( $q, array $post ) {
 		update_post_meta( $q, 'q_data', exf_q_data( $prev ) );
 		exf_q_log( $q, 'Started from the answers in an earlier questionnaire' );
 	} else {
+		exf_q_prefill_about( $q );
 		exf_q_log( $q, 'Started' );
 	}
 	update_post_meta( $q, 'q_status', 'in_progress' );
