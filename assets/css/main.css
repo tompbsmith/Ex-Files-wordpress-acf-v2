@@ -904,10 +904,13 @@ summary.link-button::-webkit-details-marker{display:none;}
 /* Content straight after a page heading, and a message above one, need room (they were touching). */
 .portal-head + :is(.portal-files, .portal-list, .portal-table){margin-top:28px;}
 .portal-main > .notice-box:first-child{margin-top:0; margin-bottom:24px;}
+/* Booking form: "Choose a time" matches the other section labels, and its note doesn't touch the days. */
+.buy-form .slot-picker > legend.gq-label{font-size:15px; margin-bottom:12px;}
+.slot-picker > .field-note{margin-bottom:12px;}
 /* No extra space under the last line of a card. */
 .guide-card > :last-child, .guide-card > :last-child > p:last-child{margin-bottom:0;}
 /* Questionnaire key: each dot stays with its words. */
-.q-key-item{display:inline-flex; align-items:center; white-space:nowrap; margin-right:8px;}
+.q-progress .q-progress-key .q-key-item{display:inline-flex; align-items:center; white-space:nowrap; margin-right:8px; background:none; min-width:0; height:auto; border-radius:0; font-size:13px; line-height:1.4; text-align:left;}
 .q-progress .q-progress-key .q-key-item .k{margin:0 6px 0 0;}
 /* Long email addresses and the like break rather than widen the page. */
 .portal-main :is(p, li, td, dd, h1, h2, h3), .notice-box p, .guide-card p{overflow-wrap:break-word;}
