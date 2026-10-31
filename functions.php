@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'EXF_VERSION', '1.12.28' );
+define( 'EXF_VERSION', '1.13.0' );
 define( 'EXF_DIR', get_template_directory() );
 define( 'EXF_URI', get_template_directory_uri() );
 
@@ -19,3 +19,4 @@ require EXF_DIR . '/inc/importer.php';
 require EXF_DIR . '/inc/core/bootstrap.php';
 require EXF_DIR . '/inc/motion-preview.php';
 require EXF_DIR . '/inc/admin-colours.php';
+require EXF_DIR . '/inc/seo.php';

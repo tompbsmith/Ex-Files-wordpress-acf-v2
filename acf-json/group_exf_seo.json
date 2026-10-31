@@ -1,0 +1,101 @@
+{
+    "key": "group_exf_seo",
+    "title": "Search & social",
+    "fields": [
+        {
+            "key": "field_exf_seo_title",
+            "label": "Title in search results",
+            "name": "seo_title",
+            "type": "text",
+            "instructions": "About 50–60 characters. The headline Google shows and the browser tab title. Leave blank to use the page title followed by the business name.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "maxlength": 70
+        },
+        {
+            "key": "field_exf_seo_description",
+            "label": "Description in search results",
+            "name": "seo_description",
+            "type": "textarea",
+            "instructions": "About 120–155 characters. The short summary under the title in Google and when the page is shared. Write it for a person: what's on the page and why they'd click.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 3,
+            "maxlength": 170,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_seo_image",
+            "label": "Social sharing image",
+            "name": "seo_image",
+            "type": "image",
+            "instructions": "Optional. Shown when this page is shared on WhatsApp, LinkedIn, Facebook etc. 1200 × 630 pixels. Leave blank to use the default image from Site Settings → SEO.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "mime_types": "jpg,jpeg,png,webp",
+            "min_width": 600,
+            "min_height": 315
+        },
+        {
+            "key": "field_exf_seo_noindex",
+            "label": "Hide from search engines",
+            "name": "seo_noindex",
+            "type": "true_false",
+            "instructions": "Tick to stop Google listing this page (e.g. thank-you pages). Account, basket and log-in pages are always hidden.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "Hide this page from Google",
+            "default_value": 0,
+            "ui": 1
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "page"
+            }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
+            }
+        ]
+    ],
+    "menu_order": 99,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Title, description and image for Google and social sharing.",
+    "show_in_rest": 0,
+    "modified": 1793464353
+}

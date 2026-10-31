@@ -120,17 +120,4 @@ add_filter(
 	2
 );
 
-// Homepage meta description (skipped when an SEO plugin is handling it).
-add_action(
-	'wp_head',
-	function () {
-		if ( ! is_front_page() || defined( 'WPSEO_VERSION' ) || defined( 'RANK_MATH_VERSION' ) ) {
-			return;
-		}
-		$description = exf_option( 'meta_description' );
-		if ( $description ) {
-			printf( '<meta name="description" content="%s">' . "\n", esc_attr( wp_strip_all_tags( $description ) ) );
-		}
-	},
-	1
-);
+// Page titles, descriptions, sharing tags and structured data: see inc/seo.php.

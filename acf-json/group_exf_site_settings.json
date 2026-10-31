@@ -228,10 +228,10 @@
         },
         {
             "key": "field_exf_opt_meta_description",
-            "label": "Homepage meta description",
+            "label": "Homepage description (fallback)",
             "name": "meta_description",
             "type": "textarea",
-            "instructions": "Ignored if an SEO plugin (Yoast, Rank Math) is active.",
+            "instructions": "Only used if the Home page's own \"Search & social\" description is blank. Ignored if an SEO plugin (Yoast, Rank Math) is active.",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -241,6 +241,164 @@
             },
             "rows": 3,
             "new_lines": ""
+        },
+        {
+            "key": "field_exf_opt_seo_site_name",
+            "label": "Name in search results",
+            "name": "seo_site_name",
+            "type": "text",
+            "instructions": "Added to the end of every page title, e.g. \"Check Your Deal | The Ex Files\". Leave blank to use the Site Title from Settings → General.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "The Ex Files",
+            "maxlength": 40
+        },
+        {
+            "key": "field_exf_opt_seo_default_image",
+            "label": "Default social sharing image",
+            "name": "seo_default_image",
+            "type": "image",
+            "instructions": "Shown when a page is shared on WhatsApp, LinkedIn, Facebook etc. and the page has no image of its own. 1200 × 630 pixels, JPG or PNG, with any text kept away from the edges.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "mime_types": "jpg,jpeg,png,webp",
+            "min_width": 600,
+            "min_height": 315
+        },
+        {
+            "key": "field_exf_opt_seo_business_message",
+            "label": "About the business (for Google)",
+            "name": "",
+            "type": "message",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "These details are added to the site as structured data, which helps Google show the business correctly (name, logo, contact details, social profiles). Only fill in what you're happy to be public.",
+            "new_lines": "wpautop",
+            "esc_html": 0
+        },
+        {
+            "key": "field_exf_opt_seo_business_description",
+            "label": "Business description",
+            "name": "seo_business_description",
+            "type": "textarea",
+            "instructions": "One or two sentences describing the business, e.g. what you do and for whom. Shown to Google, not on the page.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 2,
+            "maxlength": 300,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_opt_seo_phone",
+            "label": "Phone number",
+            "name": "seo_phone",
+            "type": "text",
+            "instructions": "Optional. Leave blank if you don't want a public phone number.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "+44 …"
+        },
+        {
+            "key": "field_exf_opt_seo_area_served",
+            "label": "Area served",
+            "name": "seo_area_served",
+            "type": "text",
+            "instructions": "Where you can advise, e.g. \"England and Wales\".",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "placeholder": "England and Wales"
+        },
+        {
+            "key": "field_exf_opt_seo_address",
+            "label": "Postal address",
+            "name": "seo_address",
+            "type": "textarea",
+            "instructions": "Optional. Only add an address you're happy to show publicly. One line per part of the address; put the postcode on the last line.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "rows": 4,
+            "new_lines": ""
+        },
+        {
+            "key": "field_exf_opt_seo_sra_id",
+            "label": "SRA number",
+            "name": "seo_sra_id",
+            "type": "text",
+            "instructions": "Optional. Your Solicitors Regulation Authority ID, so Google can link the business to the regulator's register.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_opt_seo_founder",
+            "label": "Founder / solicitor name",
+            "name": "seo_founder",
+            "type": "text",
+            "instructions": "The solicitor behind the business, e.g. \"Rachael Amelia Harwin\".",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            }
+        },
+        {
+            "key": "field_exf_opt_seo_google_verification",
+            "label": "Google Search Console verification code",
+            "name": "seo_google_verification",
+            "type": "text",
+            "instructions": "Optional. If Search Console asks you to verify with an \"HTML tag\", paste just the code from content=\"…\" here. Not needed if you verify through your domain's DNS instead.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            }
         }
     ],
     "location": [
@@ -261,5 +419,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1792148657
+    "modified": 1793464353
 }
