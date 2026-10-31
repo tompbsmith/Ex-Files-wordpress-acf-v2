@@ -162,6 +162,7 @@
   }
   .guide h2{max-width:420px;}
   .guide p{margin-top:20px; max-width:420px;}
+  .guide .guide-card p{max-width:none;} /* the card's own text uses the card's width */
   .guide-card{
     background:var(--cream);
     border:1px solid var(--brown-dark);
@@ -546,7 +547,7 @@ summary.link-button::-webkit-details-marker{display:none;}
 .login-form{padding:34px;}
 .login-form .field{margin-bottom:18px;}
 .login-links{margin-top:22px; font-size:15px;}
-.login-links a{text-decoration:underline;}
+.login-links a{text-decoration:underline; display:inline-block;} /* each link stays on one line */
 @media (max-width:900px){
   .portal{grid-template-columns:1fr; gap:26px;}
   .portal-nav{position:static; margin:0 -32px; padding:0 32px; overflow-x:auto;}
@@ -771,6 +772,9 @@ summary.link-button::-webkit-details-marker{display:none;}
   .split{padding:70px 0;}
   .split-grid{grid-template-columns:1fr; gap:36px;}
   .split--image-right .split-image{order:0;}
+  /* Stacked: keep pictures from filling the screen, and lines of text readable. */
+  .split-image img{aspect-ratio:16/10; object-fit:cover;}
+  .split-text{max-width:680px;}
   .testimonial-grid, .service-list-grid, .inquiry-row{grid-template-columns:1fr;}
   .service-list-grid{gap:48px;}
 }
