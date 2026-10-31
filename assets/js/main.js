@@ -80,7 +80,9 @@
         var paused = !btn.classList.contains('is-paused');
         if (paused) { video.pause(); } else { video.play(); }
         btn.classList.toggle('is-paused', paused);
-        if (label) { label.textContent = paused ? (btn.dataset.play || 'Play video') : (btn.dataset.pause || 'Pause video'); }
+        var text = paused ? (btn.dataset.play || 'Play video') : (btn.dataset.pause || 'Pause video');
+        if (label) { label.textContent = text; }
+        btn.title = text;
       });
     }
   });
