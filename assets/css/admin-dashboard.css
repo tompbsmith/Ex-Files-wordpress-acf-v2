@@ -1,0 +1,71 @@
+/* Dashboard home page only (wp-admin/index.php), styled like the website.
+   Loaded only on this screen; the rest of wp-admin stays standard WordPress. */
+body.index-php{
+  --cream:#f1e9de; --cream-dark:#ded4ca; --tan:#b19a7a;
+  --brown-dark:#31190f; --brown-mid:#5b4a34; --brown-btn:#5a4e38; --muted:#655a49;
+  background:var(--cream);
+}
+body.index-php #wpcontent, body.index-php #wpbody, body.index-php #wpbody-content{background:var(--cream);}
+body.index-php #wpbody-content{font-family:'Jost',sans-serif; color:var(--brown-dark);}
+body.index-php #wpbody-content .wrap{max-width:1100px; margin:0 32px 0 12px;}
+
+/* WordPress's "Dashboard" heading becomes a small label; the greeting below is the visual title. */
+body.index-php .wrap > h1{font-family:'Jost',sans-serif; font-size:13px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); padding:0; margin:6px 0 10px;}
+
+/* Welcome header */
+.exf-dash-hero{
+  max-width:1100px; margin:28px 32px 8px 12px; padding:34px 38px;
+  background:var(--brown-dark); color:var(--cream); border-radius:18px;
+  display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:22px 32px;
+  font-family:'Jost',sans-serif;
+}
+.exf-dash-eyebrow{margin:0 0 10px; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#ecdfc4;}
+.exf-dash-title{margin:0; font-family:'Gazpacho','Petrona',serif; font-weight:400; font-size:clamp(30px,3.4vw,44px); line-height:1.08; letter-spacing:-0.01em; color:var(--cream);}
+.exf-dash-sub{margin:10px 0 0; font-size:16px; font-weight:300; color:#e6dccd;}
+.exf-dash-links{display:flex; flex-wrap:wrap; gap:10px;}
+.exf-dash-btn{
+  display:inline-block; padding:10px 18px; border:1px solid rgba(241,233,222,.55); border-radius:999px;
+  color:var(--cream); text-decoration:none; font-family:'Petrona',serif; font-size:16px; line-height:1.2;
+  transition:background .15s ease, color .15s ease;
+}
+.exf-dash-btn:hover, .exf-dash-btn:focus{background:var(--cream); color:var(--brown-dark);}
+.exf-dash-btn:focus-visible{outline:2px solid var(--cream); outline-offset:3px; box-shadow:none;}
+
+/* One full-width card */
+body.index-php #dashboard-widgets .postbox-container{width:100% !important; float:none;}
+body.index-php #dashboard-widgets .postbox-container:not(#postbox-container-1){display:none;}
+body.index-php #dashboard-widgets .empty-container{display:none;}
+body.index-php #exf_dashboard{
+  background:#f8f3ec; border:1px solid rgba(49,25,15,.18); border-radius:18px; box-shadow:0 10px 30px rgba(49,25,15,.06);
+  overflow:hidden; margin-top:6px;
+}
+body.index-php #exf_dashboard .postbox-header{border-bottom:1px solid rgba(49,25,15,.12); padding:6px 14px 6px 30px;}
+body.index-php #exf_dashboard .postbox-header .hndle{font-family:'Gazpacho','Petrona',serif; font-weight:400; font-size:22px; color:var(--brown-dark); padding:14px 0;}
+body.index-php #exf_dashboard .handle-actions{display:none;} /* only one box: no move / collapse */
+body.index-php #exf_dashboard .inside{padding:10px 30px 26px; margin:0; font-size:15px; line-height:1.6; color:var(--brown-dark);}
+body.index-php #exf_dashboard .inside h3{
+  font-family:'Gazpacho','Petrona',serif; font-size:20px; font-weight:400; color:var(--brown-dark);
+  margin:26px 0 8px; padding-top:20px; border-top:1px solid rgba(49,25,15,.1);
+}
+body.index-php #exf_dashboard .inside h3 strong{font-weight:400;}
+body.index-php #exf_dashboard .inside > p:first-child{margin-top:14px;}
+body.index-php #exf_dashboard .inside p, body.index-php #exf_dashboard .inside li{font-size:15px; color:var(--brown-dark);}
+body.index-php #exf_dashboard .inside ul{margin:0; padding:0; list-style:none;}
+body.index-php #exf_dashboard .inside li{padding:7px 0; margin:0; border-bottom:1px dashed rgba(49,25,15,.12);}
+body.index-php #exf_dashboard .inside li:last-child{border-bottom:0;}
+body.index-php #exf_dashboard a{color:var(--brown-mid); text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1px;}
+body.index-php #exf_dashboard a:hover{color:var(--brown-dark);}
+body.index-php #exf_dashboard a:focus{box-shadow:none; outline:2px solid var(--brown-mid); outline-offset:2px; border-radius:2px;}
+body.index-php #exf_dashboard .inside strong[style*="b32d2e"]{color:#a3402c !important;}
+
+/* Screen Options / Help tabs and footer in the site's colours */
+body.index-php #screen-meta-links .show-settings{background:#f8f3ec; border-color:rgba(49,25,15,.18); color:var(--brown-mid);}
+body.index-php #wpfooter{color:var(--muted);}
+body.index-php #wpfooter a{color:var(--brown-mid);}
+
+@media (max-width:782px){
+  .exf-dash-hero{margin:18px 10px 6px; padding:26px 22px; border-radius:14px;}
+  body.index-php #wpbody-content .wrap{margin:0 10px;}
+  body.index-php #exf_dashboard .inside{padding:8px 20px 22px;}
+  body.index-php #exf_dashboard .postbox-header{padding-left:20px;}
+}

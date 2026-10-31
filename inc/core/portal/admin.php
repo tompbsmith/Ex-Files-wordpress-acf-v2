@@ -120,11 +120,52 @@ add_action(
 	999
 );
 remove_action( 'welcome_panel', 'wp_welcome_panel' );
-// One full-width column for The Ex Files box.
+// The dashboard home page is styled like the website (fonts, colours, cards).
+// Only index.php: every other admin screen stays standard WordPress.
 add_action(
-	'admin_head-index.php',
+	'admin_enqueue_scripts',
+	function ( $hook ) {
+		if ( 'index.php' !== $hook ) {
+			return;
+		}
+		wp_enqueue_style( 'exf-fonts', 'https://fonts.googleapis.com/css2?family=Petrona:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap', array(), null );
+		$css = EXF_DIR . '/assets/css/admin-dashboard.css';
+		wp_enqueue_style( 'exf-admin-dashboard', EXF_URI . '/assets/css/admin-dashboard.css', array( 'exf-fonts' ), file_exists( $css ) ? (string) filemtime( $css ) : EXF_VERSION );
+	}
+);
+
+// Welcome header at the top of the dashboard home page.
+add_action(
+	'all_admin_notices',
 	function () {
-		echo '<style>#dashboard-widgets .postbox-container{width:100% !important;float:none}#dashboard-widgets #postbox-container-1{max-width:1100px}#dashboard-widgets .postbox-container:not(#postbox-container-1){display:none}</style>';
+		$screen = get_current_screen();
+		if ( ! $screen || 'dashboard' !== $screen->id || ! exf_user_can_manage() ) {
+			return;
+		}
+		$user  = wp_get_current_user();
+		$hour  = (int) wp_date( 'G' );
+		$greet = $hour < 12 ? __( 'Good morning', 'exfiles' ) : ( $hour < 18 ? __( 'Good afternoon', 'exfiles' ) : __( 'Good evening', 'exfiles' ) );
+		$name  = $user->first_name ? $user->first_name : $user->display_name;
+		$links = array(
+			array( __( 'Ex Files', 'exfiles' ), admin_url( 'edit.php?post_type=ex_file' ) ),
+			array( __( 'Orders', 'exfiles' ), admin_url( 'edit.php?post_type=exf_order' ) ),
+			array( __( 'Questionnaires', 'exfiles' ), admin_url( 'edit.php?post_type=fs_questionnaire' ) ),
+			array( __( 'View website', 'exfiles' ), home_url( '/' ) ),
+		);
+		?>
+		<div class="exf-dash-hero">
+			<div class="exf-dash-hero-text">
+				<p class="exf-dash-eyebrow"><?php echo esc_html( wp_date( 'l j F Y' ) ); ?></p>
+				<p class="exf-dash-title"><?php echo esc_html( $greet . ( $name ? ', ' . $name : '' ) ); ?></p>
+				<p class="exf-dash-sub"><?php esc_html_e( "Here's what needs your attention.", 'exfiles' ); ?></p>
+			</div>
+			<nav class="exf-dash-links" aria-label="<?php esc_attr_e( 'Shortcuts', 'exfiles' ); ?>">
+				<?php foreach ( $links as $l ) : ?>
+					<a class="exf-dash-btn" href="<?php echo esc_url( $l[1] ); ?>"><?php echo esc_html( $l[0] ); ?></a>
+				<?php endforeach; ?>
+			</nav>
+		</div>
+		<?php
 	}
 );
 
