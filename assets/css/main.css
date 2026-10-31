@@ -778,7 +778,8 @@ summary.link-button::-webkit-details-marker{display:none;}
   .split-grid{grid-template-columns:1fr; gap:36px;}
   .split--image-right .split-image{order:0;}
   /* Stacked: keep pictures from filling the screen, and lines of text readable. */
-  .split-image img{aspect-ratio:16/10; object-fit:cover;}
+  /* Stacked images: a taller crop anchored near the top, so faces in portrait photos aren't cut off. */
+  .split-image img{aspect-ratio:4/3; object-fit:cover; object-position:50% 15%;}
   .split-text{max-width:680px;}
   .testimonial-grid, .service-list-grid, .inquiry-row{grid-template-columns:1fr;}
   .service-list-grid{gap:48px;}
@@ -954,3 +955,7 @@ main:focus{outline:none;}
 .hero-pause .ico{display:inline-block; width:10px; height:12px; border-left:3px solid currentColor; border-right:3px solid currentColor;}
 .hero-pause.is-paused .ico{margin-left:3px; width:0; height:0; border-left:10px solid currentColor; border-right:0; border-top:6px solid transparent; border-bottom:6px solid transparent;}
 @media (prefers-reduced-motion: reduce){ .hero-pause{display:none;} }
+
+@media (max-width:600px){
+  .split-image img{aspect-ratio:4/5;}
+}
