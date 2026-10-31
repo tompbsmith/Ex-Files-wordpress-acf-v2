@@ -893,12 +893,19 @@ summary.link-button::-webkit-details-marker{display:none;}
 }
 
 /* ----- Small screens: buttons and long words (visual test, 31 Oct 2026) ----- */
+/* A button straight after a list of services needs a gap (it was touching the card). */
+.portal-list + p{margin-top:18px;}
 /* Long email addresses and the like break rather than widen the page. */
 .portal-main :is(p, li, td, dd, h1, h2, h3), .notice-box p, .guide-card p{overflow-wrap:break-word;}
 @media (max-width:600px){
   .btn{font-size:18px; padding:14px 22px; line-height:1.25;}
+  /* Forms, checkout and My Ex File start closer to the header on phones. */
+  .guide-form-section{padding:36px 0 64px;}
+  /* Cards (free guide, appointments, checkout) were 44px inside, leaving ~240px for text. */
+  .guide-card{padding:28px 22px;}
 }
 @media (max-width:380px){
   .btn{font-size:17px; padding:13px 18px; letter-spacing:.02em;}
+  .guide-card{padding:24px 18px;}
 }
 
